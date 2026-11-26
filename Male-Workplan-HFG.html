@@ -1,0 +1,606 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Editable Workplan Calendar</title><style>
+:root{--bg:#eef2f7;--card:#fff;--ink:#172033;--line:#d8deea;--accent:#2563eb}*{box-sizing:border-box}body{margin:0;font-family:Arial,Calibri,sans-serif;background:var(--bg);color:var(--ink)}header{background:#14213d;color:white;padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}header h1{font-size:1.2rem;margin:0}button,.btn{border:0;background:var(--accent);color:white;border-radius:9px;padding:10px 13px;cursor:pointer;font-weight:650}button.secondary{background:#475569}button.danger{background:#b91c1c}.controls{padding:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}.controls select,.controls input{padding:10px;border:1px solid var(--line);border-radius:9px;background:white}.wrap{padding:0 14px 20px;max-width:1500px;margin:auto}.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;border:0.5px solid #555;background:white}.dow{padding:9px;text-align:center;background:white;font-weight:700;border:1px solid #222;border-radius:0}.day{min-height:145px;background:#fff;border:0.5px solid #555;border-radius:0;padding:5px;position:relative;display:flex;flex-direction:column;gap:5px;overflow:visible}.daynum{font-weight:400;outline:none;}.shift-select{width:auto;max-width:72%;margin:0;padding:3px 5px;border:1px solid #bfdbfe;border-radius:7px;background:#eff6ff;color:#2563eb;font-size:9px;font-weight:700;font-style:italic;text-align:center;line-height:1.2}.dayhead{display:flex;align-items:center;justify-content:flex-start;gap:4px;min-width:0}.dayhead .daynum{flex:0 0 auto}.dayhead .shift-select{flex:0 1 auto;min-width:0}.taskpick{width:100%;font-size:11px;position:relative;z-index:20}.day .taskpick~.taskpick{display:none!important}.day.dropdown-open{z-index:1000}.taskpick.dropdown-open{z-index:1001}.taskpick.dropdown-open .tasklist{z-index:1002}.tasktoggle{width:100%;cursor:pointer;border:1px solid #cbd5e1;padding:8px 10px;background:linear-gradient(135deg,#fff,#f8fafc);color:#334155;font-size:11px;border-radius:10px;text-align:left;font-weight:700;box-shadow:0 1px 3px rgba(15,23,42,.08);transition:all .15s}.tasktoggle:hover{border-color:#60a5fa;background:#eff6ff;box-shadow:0 3px 8px rgba(37,99,235,.12)}.taskpick .tasklist{position:absolute;left:0;top:calc(100% + 6px);z-index:999;background:#fff;border:1px solid #dbe3ef;box-shadow:0 12px 30px rgba(15,23,42,.18);width:min(270px,90vw);max-height:220px;overflow:auto;padding:10px;font-size:11px;border-radius:12px}.taskpick label{display:flex;align-items:flex-start;gap:7px;white-space:normal;padding:7px 6px;border-bottom:1px solid #f1f5f9;line-height:1.35;color:#334155;border-radius:5px}.taskpick label:hover{background:#f8fafc}.taskpick input{margin:2px 0 0;accent-color:#2563eb}.task-capitalization{padding:7px;border:1px solid #dbe3ef;border-radius:8px;background:#f8fafc;color:#334155;font-size:11px}.taskpick .tasklist button{margin-top:6px;width:auto;padding:1px 4px;border-radius:5px;background:#2563eb;font-size:8px;min-height:0;line-height:1.1}.day textarea{width:100%;min-height:95px;height:auto;resize:vertical;border:1px solid transparent;border-radius:0;padding:3px;background:transparent;font:inherit;font-size:.75rem;outline:none;white-space:pre-wrap;overflow-y:hidden;flex:1;line-height:1.12}.day textarea:focus{border-color:#93c5fd;background:#f8fbff}.day.off{background:#fff}.signatures{display:flex;justify-content:space-between;gap:20%;margin-top:12mm;font-size:10pt}.signature{width:40%;text-align:center}.signature .name{min-height:22px;border-bottom:1px solid #222;outline:none}.signature .role{margin-top:4px;outline:none}.signature [contenteditable=true]{outline:none}.day .colorline{height:5px;border-radius:99px}.monthtitle{text-align:center;font-size:1.5rem;font-weight:400;margin:6px 0 12px}.wrap{max-width:none}.daynum{font-size:.9rem;font-weight:400}.day .colorline{display:none!important}.photos{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.photoBox{background:white;border:1px solid var(--line);padding:12px;border-radius:12px;max-width:330px;width:100%}.photoBox img{width:100%;height:190px;object-fit:contain;background:#f1f5f9;border-radius:8px}.photoBox input{width:100%;padding:8px;margin:6px 0;border:1px solid var(--line);border-radius:8px}.photoBox .caption{font-weight:800;padding:8px;text-align:center;border-radius:8px}.photoBox .actions{display:flex;gap:6px}.photoBox .actions button{flex:1}.empty{background:white;padding:16px;border-radius:12px;color:#64748b}@media(max-width:800px){.calendar{grid-template-columns:repeat(7,minmax(110px,1fr));overflow-x:auto}.wrap{overflow-x:auto}.dow{display:block}.day{min-height:130px}}@media(max-width:480px){.calendar{grid-template-columns:repeat(7,minmax(105px,1fr))}.day{min-height:110px}.shift-select{font-size:8px!important;padding:2px 3px!important}.dayhead{gap:2px}}
+/* Mobile/tablet responsive improvements */
+.controls{gap:10px;padding:12px}
+.controls label{display:flex;flex-direction:column;gap:4px;flex:1 1 140px;min-width:120px;font-size:13px}
+.controls select,.controls input{width:100%;min-height:42px;font-size:16px}
+.controls button{min-height:42px}
+@media(max-width:800px){
+ header{padding:12px;align-items:flex-start}header h1{font-size:1.05rem}
+ header>div{display:flex;gap:8px;flex-wrap:wrap}
+ .controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+ .controls label{min-width:0;font-size:12px}
+ .controls button{width:100%;padding:10px 8px}
+ .wrap{padding:0 8px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .monthtitle{font-size:1.15rem}
+ .calendar{grid-template-columns:repeat(7,minmax(125px,1fr));width:max-content;min-width:100%;overflow:visible}
+ .dow{min-width:125px;padding:8px 4px;font-size:12px}
+ .day{min-width:125px;min-height:145px;padding:5px}
+ .day textarea{font-size:12px;min-height:95px}
+ .tasktoggle{min-height:40px;font-size:12px;padding:8px}
+ .taskpick .tasklist{width:min(280px,80vw);max-height:45vh;overflow-y:auto;position:absolute}
+ .taskpick label{font-size:13px;padding:9px 5px}
+ .taskpick input[type=checkbox]{width:18px;height:18px;flex-shrink:0}
+ .task-capitalization{min-height:40px;font-size:13px}
+ .taskpick .tasklist button{min-height:0;font-size:9px;padding:2px 6px;width:auto}
+ .signatures{gap:8%;margin-top:8mm}.signature{width:46%;font-size:9pt}
+}
+@media(max-width:480px){
+ header{flex-direction:column}header>div{width:100%}header>div button{flex:1}
+ .controls{grid-template-columns:1fr 1fr;gap:8px;padding:10px}
+ .controls label{font-size:12px}
+ .calendar{grid-template-columns:repeat(7,minmax(115px,1fr))}
+ .dow,.day{min-width:115px}
+ .taskpick .tasklist{width:min(270px,85vw)}
+ .signatures{font-size:8pt}
+}
+@page{size:A4 landscape;margin:8mm}
+.day textarea.task-note-hidden{display:none!important}
+@media print{.taskpick,.tasktoggle,.tasklist,.task-capitalization{display:none!important}.shift-select{display:block!important;border:0!important;background:transparent!important;color:#2563eb!important;font-style:italic!important;font-size:7pt!important;text-align:center!important;text-align-last:center!important;padding:0!important;margin:0!important;appearance:none!important;-webkit-appearance:none!important;max-width:80%!important}body{background:white;margin:0}header,.controls,#photos,main h2{display:none!important}.wrap{padding:0;margin:0;width:100%;max-width:none;overflow:visible}.monthtitle{font-size:14pt;margin:0 0 4mm;text-align:center}.calendar{grid-template-columns:repeat(7,minmax(0,1fr));gap:0;width:100%;border:0.5px solid black}.dow{padding:4px 2px;border:0.5px solid black;border-radius:0;font-size:9pt}.day{min-height:27mm;height:auto;padding:3px;border:0.5px solid black;border-radius:0;overflow:visible}.day.filler{border:1px solid black!important;background:white!important;min-height:27mm!important;height:auto!important;padding:3px!important;visibility:visible!important}.day.blankday{display:none!important}.daynum{font-size:9pt;font-weight:400}.blankday textarea{min-height:95px}.blankday .daynum{outline:none}.day textarea{min-height:0;height:auto;resize:none;border:0;padding:2px;font-size:var(--task-text-size,12px)!important;overflow:visible;line-height:1.05}.colorline{display:none!important}.calendar>*{break-inside:avoid}.signatures{display:flex!important;margin-top:8mm;font-size:9pt}.signature{width:40%}}
+
+/* Professional minimalist dashboard skin */
+:root{--bg:#f4f6fa;--card:#ffffff;--ink:#182230;--line:#e2e8f0;--accent:#2563eb;--muted:#64748b}
+body{background:linear-gradient(180deg,#f8fafc 0,#f1f5f9 100%);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+header{background:#fff;color:#172033;border-bottom:1px solid #e5eaf1;padding:18px clamp(14px,3vw,30px);box-shadow:0 2px 8px rgba(15,23,42,.03)}
+header h1{font-size:1.15rem;letter-spacing:-.025em;font-weight:750;display:flex;align-items:center;gap:10px}
+header h1:before{content:"";display:inline-block;width:9px;height:26px;border-radius:5px;background:#2563eb}
+header>div{display:flex;gap:8px;flex-wrap:wrap}
+button,.btn{border-radius:10px;padding:10px 15px;box-shadow:none;transition:background .15s ease,border-color .15s ease,transform .15s ease}
+button:hover{transform:translateY(-1px)}button.secondary{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0}button.secondary:hover{background:#e8eef6}button.danger{background:#fff;color:#b91c1c;border:1px solid #fecaca}button.danger:hover{background:#fef2f2}button.print-green{background:#16a34a!important;color:white!important;border:1px solid #15803d!important}button.print-green:hover{background:#15803d!important}button.reset-red{background:#dc2626!important;color:white!important;border:1px solid #b91c1c!important}button.reset-red:hover{background:#b91c1c!important}
+.controls{margin:16px clamp(8px,2vw,22px);padding:16px;background:#fff;border:1px solid #e5eaf1;border-radius:16px;box-shadow:0 5px 18px rgba(15,23,42,.035)}
+.controls label{color:#64748b;font-weight:650;font-size:12px;letter-spacing:.025em}.controls select,.controls input{border:1px solid #dbe3ec;border-radius:10px;color:#172033;background:#fff}.controls select:focus,.controls input:focus{outline:3px solid #dbeafe;border-color:#93c5fd}
+.wrap{padding:0 clamp(8px,2vw,22px) 24px}
+.monthtitle{font-size:1.25rem;color:#64748b;letter-spacing:-.02em;margin:10px 0 16px}.monthtitle strong{color:#172033}
+.calendar{border:1px solid #cbd5e1;background:#fff;border-radius:14px;overflow:visible;box-shadow:0 5px 20px rgba(15,23,42,.045)}
+.dow{background:#f8fafc;color:#475569;font-size:12px;letter-spacing:.035em;text-transform:uppercase;padding:11px 6px;border-color:#e2e8f0;font-weight:750}
+.day{background:#fff;border-color:#e2e8f0;padding:8px;min-height:150px;transition:background .15s ease}.day:focus-within{background:#fcfdff}.daynum{color:#334155;font-weight:700}
+.dayhead{gap:6px}.shift-select{border:0;background:transparent;color:#2563eb;font-size:9px;font-weight:650;max-width:78%;border-radius:6px}.shift-select:hover{background:#eff6ff}
+.day textarea{color:#334155;border-radius:8px;padding:6px;font-size:12px;line-height:1.4}.day textarea:focus{background:#f8fbff}
+.tasktoggle{background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:none;color:#64748b;font-weight:600}.tasktoggle:hover{background:#f8fafc;border-color:#bfdbfe;box-shadow:none}
+.taskpick .tasklist{border:1px solid #dbe3ec;border-radius:12px;box-shadow:0 16px 35px rgba(15,23,42,.14)}
+.task-capitalization{background:#fff;border-color:#e2e8f0}.taskpick .tasklist button{border-radius:5px;padding:1px 4px!important;font-size:8px!important;line-height:1.1!important;min-height:0!important}
+.signatures{color:#334155}
+@media(max-width:800px){header{border-radius:0}.controls{margin:10px;border-radius:13px}.day{padding:6px}.dow{text-transform:none;letter-spacing:0;font-size:11px}}
+@media print{body{background:#fff}header,.controls{box-shadow:none}.calendar{border-radius:0;box-shadow:none}.dow{background:#fff;color:#111;text-transform:none;letter-spacing:0}.day{background:#fff}}
+
+
+/* Print refinement: use the A4 landscape sheet area efficiently and avoid split/extra pages */
+.shift-select{font-weight:400!important}
+@media print{
+  @page{size:A4 landscape;margin:4mm}
+  html,body{width:289mm!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:visible!important}
+  header,.controls,#photos,.taskpick,.tasktoggle,.tasklist,.task-capitalization{display:none!important}
+  .wrap{width:100%!important;height:auto!important;padding:0!important;margin:0!important;max-width:none!important;overflow:visible!important}
+  .monthtitle{font-size:12pt!important;line-height:1.1!important;margin:0 0 2mm!important}
+  .calendar{width:100%!important;height:174mm!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;grid-template-rows:8mm repeat(6,minmax(0,1fr))!important;gap:0!important;border:1px solid #000!important}
+  .dow{font-size:8pt!important;padding:1mm!important;border:1px solid #000!important}
+  .day,.day.filler{min-height:0!important;height:auto!important;max-height:none!important;padding:1.2mm!important;overflow:hidden!important;border:1px solid #000!important}
+  .day textarea{background:transparent!important;border:1px solid #000!important;border-radius:0!important;color:#000!important;box-shadow:none!important;padding:1mm!important;font-size:7pt!important;line-height:1.08!important;min-height:0!important;height:auto!important;overflow:hidden!important}
+  .dayhead{gap:1mm!important}
+  .daynum{font-size:8pt!important}
+  .shift-select{font-size:6.5pt!important;font-weight:400!important;font-style:italic!important;color:#2563eb!important;max-width:75%!important;padding:0!important;border:0!important;background:transparent!important}
+  .signatures{margin-top:3mm!important;font-size:8pt!important;gap:15%!important;break-inside:avoid!important}
+  .signature{width:42%!important}
+  .calendar,.monthtitle{break-inside:avoid!important}
+  body,main,.wrap{break-after:avoid!important}
+}
+
+
+/* Print: task/notes text uses the whole day cell, with no separate textbox outline */
+@media print{
+  .day textarea{border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;padding:0.5mm!important;margin:0!important;width:100%!important;color:#000!important}
+  .day{border:1px solid #000!important}
+}
+
+/* Minimalist, lightweight dashboard skin */
+:root{--bg:#f7f8fa;--card:#fff;--ink:#202938;--line:#e5e7eb;--accent:#2563eb}
+body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f7f8fa;color:#202938}
+header{background:#fff;color:#202938;border-bottom:1px solid #e5e7eb;box-shadow:none;padding:13px clamp(12px,2vw,24px)}
+header h1{font-size:1.05rem;letter-spacing:-.02em;font-weight:650}
+header h1:before{height:20px;width:4px;border-radius:2px}
+button,.btn{border-radius:7px!important;font-weight:600!important;transition:background .12s ease!important;box-shadow:none!important}
+button:hover,.btn:hover{transform:none!important;filter:none!important}
+.wrap{max-width:1500px;margin:12px auto;padding:0 clamp(8px,1.5vw,18px)}
+.monthtitle{background:transparent;border:0;border-radius:0;padding:8px 4px;box-shadow:none;margin:4px 0 8px;font-size:1.3rem}
+.calendar{gap:1px!important;background:#e5e7eb!important;border:1px solid #e5e7eb!important}
+.calendar>*,.day,.daybox,.cell{border-radius:3px!important}
+.calendar .day,.calendar .daybox,.calendar .cell{background:#fff!important;border:0!important;box-shadow:none!important}
+.dow{background:#f9fafb!important;color:#4b5563;border:0!important;padding:7px;font-size:11px}
+.day{padding:5px!important;min-height:130px}
+.tasktoggle{border-radius:6px!important;box-shadow:none!important;background:#fff!important;padding:6px 8px!important}
+input,select,textarea{border:1px solid #e5e7eb!important;border-radius:6px!important;transition:border-color .12s ease!important}
+input:focus,select:focus,textarea:focus{outline:none!important;border-color:#9ca3af!important;box-shadow:none!important}
+.controls{padding:10px 12px;gap:7px}
+@media(max-width:700px){header{padding:12px}.wrap{margin:8px auto}.monthtitle{padding:7px 4px}}
+
+
+/* v36: ensure applied task text wraps and remains visible inside day boxes */
+.day textarea{white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:normal!important;overflow-y:hidden!important;box-sizing:border-box!important;}
+@media print{.day textarea{white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:normal!important;overflow:visible!important;height:auto!important;}}
+</style><style>
+/* Reference-style A4 landscape print layout */
+@media print {
+ @page { size:A4 landscape; margin:0; }
+ html,body { margin:0!important;padding:0!important;width:297mm!important;height:210mm!important;background:#fff!important; }
+ header,.controls,#photos,main h2 {display:none!important;}
+ main.wrap,.wrap {width:297mm!important;max-width:none!important;margin:0!important;padding:0!important;overflow:visible!important;}
+ .monthtitle {margin:9mm 0 5mm!important;font-size:10pt!important;line-height:1.15!important;text-align:center!important;color:#111!important;}
+ .calendar {width:250mm!important;height:155mm!important;margin:0 auto!important;box-sizing:border-box!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;grid-template-rows:7mm repeat(6,minmax(0,1fr))!important;gap:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important;}
+ .dow,.day,.day.filler {min-height:0!important;height:auto!important;padding:1.2mm!important;border:1px solid #000!important;border-radius:0!important;overflow:hidden!important;background:#fff!important;}
+ .dow {font-size:7pt!important;font-weight:400!important;padding:.8mm!important;}
+ .daynum {font-size:7pt!important;font-weight:400!important;}
+ .shift-select {display:block!important;border:0!important;background:transparent!important;color:#2563eb!important;font-style:italic!important;font-size:5.5pt!important;text-align:center!important;padding:0!important;margin:0!important;appearance:none!important;-webkit-appearance:none!important;max-width:80%!important;}
+ .taskpick,.tasktoggle,.tasklist,.task-capitalization,.colorline {display:none!important;}
+ .day textarea {min-height:0!important;height:auto!important;resize:none!important;border:0!important;padding:.5mm!important;font-size:5.6pt!important;line-height:1.08!important;overflow:hidden!important;background:transparent!important;}
+ .signatures {width:250mm!important;margin:3mm auto 0!important;display:flex!important;justify-content:space-between!important;gap:0!important;font-size:8pt!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+ .signature {width:42%!important;text-align:center!important;}
+ .signature .name {min-height:6mm!important;} .signature .role {margin-top:1mm!important;}
+ .monthtitle,.calendar,.signatures {break-inside:avoid!important;page-break-inside:avoid!important;}
+}
+</style>
+<style>/* v42: Dashboard textarea scrollbar only */
+.day textarea:not(.task-note-hidden){height:95px!important;min-height:95px!important;max-height:95px!important;resize:vertical!important;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin;}
+@media print{.day textarea{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;resize:none!important}}
+</style>
+
+<style id="print-hide-textarea-resize-grip-v43">
+@media print {
+  .day textarea { resize:none!important; -webkit-appearance:none!important; appearance:none!important; }
+}
+</style>
+
+
+<style>.header-slogan{font-size:.82em;font-weight:500;color:#64748b;margin-left:4px}@media(max-width:480px){.header-slogan{display:block;margin:4px 0 0}}</style>
+</head><body><header><h1>Editable Workplan Task / Schedule <span class="header-slogan">— For Male Staff of HFG</span></h1><div><button onclick="window.print()">Save PDF</button> <button class="print-green" onclick="window.print()">Print PDF</button> <button class="reset-red" onclick="clearMonth()">Reset</button></div></header><div class="controls"><label>Buwan <select id="month" onchange="render()"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></label><label>Year <select id="year" onchange="render()"><option value="2020">2020</option><option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option><option value="2032">2032</option><option value="2033">2033</option><option value="2034">2034</option><option value="2035">2035</option><option value="2036">2036</option><option value="2037">2037</option><option value="2038">2038</option><option value="2039">2039</option><option value="2040">2040</option></select></label><label>Day 1 starts <select id="startDay" onchange="render()"><option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option></select></label><label>Text align <select id="textAlign" onchange="applyAlign()"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label></div><main class="wrap"><div class="monthtitle" id="title"></div><div class="calendar" id="calendar"></div></main><script>
+const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];let colors=['#2563eb','#059669','#d97706','#9333ea','#dc2626','#0891b2'];
+const taskOptions=['OFF','Roving and monitoring the assigned area','Inspecting facilities','Inspecting facilities in the assigned area','Minor electrical repairs','Grass-cutting and cleaning of the assigned area','Minor repair of water faucets','Watering plants','Watering vegetables','Cleaning the front and backyard surroundings','Cleaning gutters','Tree Branch Trimming','Water Pipe Repair','Roof Repair','Canal Repair','Canal Cleaning','Vegetable & Ornamental Planting','Public CR Cleaning','Soil Cultivation','Weed Removal','Garden Maintenance','Pathway Clearing','Facility Repair','Drainage Maintenance','Debris Disposal','Garbage Bin Repair','Waste Segregation & Disposal','Garbage Area Cleaning','CCTV Maintenance','CCTV Monitoring','Computer Maintenance','Computer Repair','Printer Maintenance','Printer Repair','IT & Network Support','Technical Support','Cleaning Around the Area'];function autoGrow(ta){ta.style.height="auto";ta.style.height=Math.max(ta.scrollHeight,30)+"px";fitText(ta);}function fitText(ta){let cell=ta.closest(".day");if(!cell)return;let size=parseFloat(ta.dataset.baseSize||12);ta.style.fontSize=size+"px";ta.style.height="auto";ta.style.overflowY="hidden";ta.style.overflowX="hidden";ta.style.whiteSpace="pre-wrap";ta.style.wordBreak="normal";ta.style.overflowWrap="anywhere";let head=cell.querySelector(".dayhead");let available=Math.max(25,cell.clientHeight-(head?head.offsetHeight:22)-10);while(size>5&&ta.scrollHeight>available){size-=0.5;ta.style.fontSize=size+"px";ta.style.height="auto";}ta.style.height=Math.max(ta.scrollHeight,20)+"px";ta.style.overflow="visible";}function key(){return 'workplan-'+document.getElementById('year').value+'-'+document.getElementById('month').value}function render(){let m=+document.getElementById('month').value,y=+document.getElementById('year').value,offset=+document.getElementById('startDay').value;document.getElementById('title').innerHTML='WORKPLAN for the Month of <strong>'+monthNames[m].toUpperCase()+'</strong> '+y;let cal=document.getElementById('calendar');cal.innerHTML='';['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].forEach(d=>{let el=document.createElement('div');el.className='dow';el.textContent=d;cal.append(el)});let saved=JSON.parse(localStorage.getItem(key())||'{}');for(let i=0;i<offset;i++){let filler=document.createElement('div');filler.className='day filler';filler.style.visibility='visible';filler.style.border='1px solid #222';filler.style.minHeight='145px';filler.style.padding='5px';filler.style.overflow='hidden';cal.append(filler)}for(let day=1;day<=31;day++){let cell=document.createElement('div');cell.className='day';cell.dataset.day=day;let n=document.createElement('div');n.className='daynum';n.contentEditable='true';n.textContent=saved[day]?.number??day;n.oninput=()=>{let val=n.textContent.trim();saveLocal();if(val==='1'){let currentOffset=+document.getElementById('startDay').value;let position=(currentOffset+(day-1))%7;document.getElementById('startDay').value=String(position);let old=JSON.parse(localStorage.getItem(key())||'{}');old[day]={...(old[day]||{}),number:'1'};for(let d=1;d<=31;d++){if(old[d])old[d].number=String(d);}localStorage.setItem(key(),JSON.stringify(old));render();}};let headrow=document.createElement('div');headrow.className='dayhead';headrow.append(n);let bar=document.createElement('div');bar.className='colorline';bar.style.background=saved[day]?.color||colors[(day-1)%colors.length];cell.append(bar);let shift=document.createElement('select');shift.className='shift-select';shift.innerHTML='<option value="">SELECT SHIFT…</option><option value="MORNING SHIFT (7AM-4PM)">MORNING SHIFT (7AM-4PM)</option><option value="SWING SHIFT (3PM-12MN)">SWING SHIFT (3PM-12MN)</option><option value="STRAIGHT-DUTY (7AM-12MN)">STRAIGHT-DUTY (7AM-12MN)</option>';shift.value=saved[day]?.shift||'';shift.onchange=()=>{let val=shift.value;for(let targetDay=day;targetDay<=31;targetDay+=7){let targetCell=document.querySelector('.day[data-day="'+targetDay+'"]');let targetShift=targetCell?.querySelector('.shift-select');if(targetShift)targetShift.value=val;}saveLocal();};headrow.append(shift);cell.append(headrow);let pick=document.createElement('div');pick.className='taskpick';let summary=document.createElement('button');summary.type='button';summary.className='tasktoggle';summary.textContent='Choose task ▼';pick.append(summary);let list=document.createElement('div');list.className='tasklist';list.style.display='none';pick.append(list);summary.onclick=()=>{document.querySelectorAll('.taskpick.dropdown-open').forEach(p=>{p.classList.remove('dropdown-open');p.closest('.day')?.classList.remove('dropdown-open');let other=p.querySelector('.tasklist');if(other)other.style.display='none'});if(list.style.display==='none'){list.style.display='block';pick.classList.add('dropdown-open');cell.classList.add('dropdown-open')}else{list.style.display='none';pick.classList.remove('dropdown-open');cell.classList.remove('dropdown-open')}};taskOptions.forEach(task=>{let lab=document.createElement('label');let cb=document.createElement('input');cb.type='checkbox';cb.value=task;cb.checked=!!(saved[day]?.selectedTasks||[]).includes(task);lab.append(cb,document.createTextNode(' '+task));list.append(lab);});let cap=document.createElement('select');cap.className='task-capitalization';cap.style.width='100%';cap.style.margin='4px 0';cap.innerHTML='<option value="title">Auto Capitalize</option><option value="upper">UPPERCASE</option>';cap.value="upper";let caprow=document.createElement('div');caprow.style.cssText='display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:4px';caprow.append(cap);list.append(caprow);let apply=document.createElement('button');apply.type='button';apply.textContent='Apply';apply.onclick=()=>{let raw=[...list.querySelectorAll('input:checked')].map(c=>c.value);let selected=raw.map(t=>cap.value==='upper'?t.toUpperCase():cap.value==='lower'?t.toLowerCase():cap.value==='original'?t:t.replace(/\b\w/g,ch=>ch.toUpperCase()));let data=JSON.parse(localStorage.getItem(key())||'{}');data[day]={...(data[day]||{}),selectedTasks:raw};localStorage.setItem(key(),JSON.stringify(data));if(selected.length){ta.classList.remove('task-note-hidden');let bundle=selected.map(t=>t==='OFF'?'OFF':'- '+t).join('\n');for(let targetDay=day;targetDay<=31;targetDay+=7){let targetCell=document.querySelector('.day[data-day="'+targetDay+'"]');let target=targetCell?.querySelector('textarea');if(target){let existing=target.value.trim().toUpperCase();let isDayOff=existing==='OFF'||existing.split(/\n/).some(line=>line.trim()==='OFF')||(targetCell.dataset.day && (JSON.parse(localStorage.getItem(key())||'{}')[targetDay]?.text||'').trim().toUpperCase()==='OFF');if(targetDay!==day && isDayOff)continue;target.classList.remove('task-note-hidden');target.value=bundle;target.style.color=selected.includes('OFF')?'red':'';target.style.textAlign=selected.includes('OFF')?'center':'left';autoGrow(target);fitText(target);let targetPick=targetCell.querySelector('.tasktoggle');if(targetPick)targetPick.textContent='Choose task ('+raw.length+' selected) ▼ ▼';let targetData=JSON.parse(localStorage.getItem(key())||'{}');targetData[targetDay]={...(targetData[targetDay]||{}),text:bundle,selectedTasks:raw};localStorage.setItem(key(),JSON.stringify(targetData));}}}if(!selected.length&&!ta.value.trim())ta.classList.add('task-note-hidden');summary.textContent=selected.length?'Choose task ('+selected.length+' selected)':'Choose task ▼';list.style.display='none';saveLocal();};caprow.append(apply);pick.append(caprow);cell.append(pick);let ta=document.createElement('textarea');ta.placeholder='Shift / task / notes…';ta.value=saved[day]?.text||'';if(!ta.value.trim())ta.classList.add('task-note-hidden');ta.style.color=ta.value==='OFF'?'red':'';if(ta.value==='OFF')ta.style.textAlign='center';ta.oninput=()=>{ta.classList.remove('task-note-hidden');autoGrow(ta);fitText(ta);saveLocal()};autoGrow(ta);fitText(ta);cell.querySelectorAll(".taskpick").forEach((extra,i)=>{if(i>0)extra.remove();});cell.append(ta);cal.append(cell)}let sig=document.getElementById('signatures');if(!sig){sig=document.createElement('div');sig.id='signatures';sig.className='signatures';cal.parentNode.appendChild(sig)}sig.innerHTML='<div class=\'signature\'><div contenteditable=true oninput=\'saveSignatures()\'>Prepared by:</div><div class=\'name\' contenteditable=true oninput=\'saveSignatures()\'></div><div class=\'role\' contenteditable=true oninput=\'saveSignatures()\'>ADA VI</div></div><div class=\'signature\'><div contenteditable=true oninput=\'saveSignatures()\'>Noted by:</div><div class=\'name\' contenteditable=true oninput=\'saveSignatures()\'></div><div class=\'role\' contenteditable=true oninput=\'saveSignatures()\'>Center Head</div></div>';let savedSig=JSON.parse(localStorage.getItem('workplan-signatures')||'[[\"Prepared by:\",\"CHRISTOPHER C. ESTACIO\",\"ADA VI\"],[\"Noted by:\",\"DIVINA P. SILOS\",\"Center Head\"]]');if(Array.isArray(savedSig[0])){sig.querySelectorAll('.signature').forEach((f,i)=>f.querySelectorAll('[contenteditable]').forEach((el,j)=>el.textContent=(savedSig[i]?.[j]||((i===1&&j===1)?'DIVINA P. SILOS':el.textContent))))}else{sig.querySelectorAll('.name')[0].textContent=savedSig[0]||'CHRISTOPHER C. ESTACIO';sig.querySelectorAll('.name')[1].textContent=savedSig[1]||'DIVINA P. SILOS';} }
+function saveSignatures(){let sig=document.querySelectorAll('#signatures .signature');localStorage.setItem('workplan-signatures',JSON.stringify(Array.from(sig,s=>Array.from(s.children,c=>c.textContent))))}function saveLocal(){let saved={};document.querySelectorAll('.day').forEach(c=>{let ta=c.querySelector('textarea');if(c.dataset.day){saved[c.dataset.day]={number:c.querySelector('.daynum').textContent,text:ta.value,color:c.querySelector('.colorline').style.background,selectedTasks:Array.from(c.querySelectorAll('.tasklist input:checked'),x=>x.value),shift:c.querySelector('.shift-select')?.value||''}}else if(c.dataset.blank!==undefined){saved['blank_'+c.dataset.blank]={number:c.querySelector('.daynum').textContent,text:ta.value,color:c.querySelector('.colorline').style.background}}});localStorage.setItem(key(),JSON.stringify(saved));}function clearMonth(){if(confirm('Clear all schedule text for this month?')){localStorage.removeItem(key());render()}}
+function applyAlign(){let a=document.getElementById('textAlign').value;document.documentElement.style.setProperty('--workplan-align',a);document.querySelectorAll('.day textarea').forEach(t=>t.style.textAlign=a);localStorage.setItem('workplan-text-align',a)}function applySize(){document.querySelectorAll('.day textarea').forEach(t=>fitText(t));}
+// Start fresh on every opening: clear previously saved monthly edits and signatures.
+for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.startsWith('workplan-'))localStorage.removeItem(k);}
+localStorage.removeItem('workplan-signatures');
+render(); // initialize the calendar immediately after reset
+let savedAlign=localStorage.getItem('workplan-text-align')||'left';document.getElementById('textAlign').value=savedAlign;document.documentElement.style.setProperty('--workplan-align',savedAlign);applyAlign();
+applySize();
+
+</script>
+<style>
+/* Final print layout: fit Workplan and footer on one A4 landscape sheet */
+@media print {
+  @page { size: A4 landscape; margin: 5mm; }
+  html, body { margin:0!important; padding:0!important; width:auto!important; height:auto!important; min-height:0!important; background:#fff!important; }
+  header, .controls, #photos, main h2 { display:none!important; }
+  main.wrap, .wrap { width:100%!important; max-width:none!important; margin:0!important; padding:0!important; overflow:visible!important; }
+  .monthtitle { width:100%!important; margin:2mm auto 3mm!important; font-size:10pt!important; line-height:1.15!important; text-align:center!important; color:#111!important; }
+  .calendar { width:100%!important; height:150mm!important; margin:0 auto!important; box-sizing:border-box!important; grid-template-columns:repeat(7,minmax(0,1fr))!important; grid-template-rows:7mm repeat(6,minmax(0,1fr))!important; gap:0!important; border:0!important; border-radius:0!important; box-shadow:none!important; overflow:hidden!important; }
+  .dow,.day,.day.filler { box-sizing:border-box!important; min-height:0!important; height:auto!important; max-height:none!important; padding:1mm!important; overflow:hidden!important; border:1px solid #000!important; border-radius:0!important; }
+  .dow { font-size:7.5pt!important; padding:1mm!important; background:#fff!important; color:#111!important; }
+  .daynum { font-size:7.5pt!important; line-height:1!important; font-weight:400!important; }
+  .shift-select { display:block!important; border:0!important; background:transparent!important; color:#2563eb!important; font-style:italic!important; font-size:5.8pt!important; line-height:1!important; text-align:center!important; text-align-last:center!important; padding:0!important; margin:0!important; appearance:none!important; -webkit-appearance:none!important; }
+  .day textarea { width:100%!important; box-sizing:border-box!important; min-height:0!important; height:auto!important; padding:0!important; margin:0!important; resize:none!important; line-height:1.04!important; overflow:hidden!important; border:0!important; }
+  .taskpick,.tasktoggle,.tasklist,.task-capitalization,.colorline { display:none!important; }
+  .signatures { width:100%!important; margin:3mm auto 0!important; display:flex!important; justify-content:space-between!important; gap:0!important; font-size:8pt!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+  .signature { width:44%!important; text-align:center!important; }
+  .signature .name { min-height:6mm!important; }
+  .signature .role { margin-top:1mm!important; }
+  .monthtitle,.calendar,.signatures { break-inside:avoid!important; page-break-inside:avoid!important; }
+}
+</style>
+
+<style>
+/* Preserve the user's selected task text size in print; responsive cells and wrapping */
+@media print {
+  .day textarea { font-size: inherit; }
+  .day { min-width:0!important; }
+  .day textarea { max-width:100%!important; box-sizing:border-box!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; }
+  .calendar { width:100%!important; max-width:100%!important; }
+}
+@media screen and (max-width:800px) {
+  .calendar { grid-template-columns:repeat(7,minmax(0,1fr)); }
+  .day textarea { max-width:100%; box-sizing:border-box; overflow-wrap:anywhere; }
+}
+</style>
+<style>
+/* Final reference-matched print style: centered thin grid, one A4 landscape page */
+@media print {
+ @page { size: A4 landscape; margin: 5mm; }
+ html,body { margin:0!important; padding:0!important; width:auto!important; height:auto!important; background:#fff!important; }
+ header,.controls,#photos,main h2,.taskpick,.tasktoggle,.tasklist,.task-capitalization,.colorline { display:none!important; }
+ main.wrap,.wrap { width:100%!important; max-width:none!important; margin:0!important; padding:0!important; overflow:visible!important; }
+ .monthtitle { width:100%!important; text-align:center!important; margin:1mm auto 3mm!important; font-size:10pt!important; line-height:1.1!important; color:#111!important; }
+ .calendar { width:82%!important; max-width:82%!important; height:132mm!important; margin:0 auto!important; box-sizing:border-box!important; display:grid!important; grid-template-columns:repeat(7,minmax(0,1fr))!important; grid-template-rows:6mm repeat(6,minmax(0,1fr))!important; gap:0!important; border:0!important; border-radius:0!important; box-shadow:none!important; overflow:hidden!important; }
+ .dow,.day,.day.filler { min-width:0!important; min-height:0!important; height:auto!important; max-height:none!important; box-sizing:border-box!important; padding:1mm!important; border:0.5px solid #555!important; border-radius:0!important; overflow:hidden!important; }
+ .dow { font-size:8pt!important; font-weight:500!important; text-align:center!important; background:#fff!important; color:#111!important; }
+ .day { display:flex!important; flex-direction:column!important; gap:.5mm!important; }
+ .daynum { font-size:8pt!important; line-height:1!important; font-weight:400!important; }
+ .dayhead { gap:1mm!important; min-width:0!important; }
+ .shift-select { display:block!important; border:0!important; background:transparent!important; color:#2563eb!important; font-style:italic!important; font-size:7pt!important; line-height:1!important; text-align:center!important; text-align-last:center!important; padding:0!important; margin:0!important; max-width:100%!important; appearance:none!important; -webkit-appearance:none!important; }
+ .day textarea { width:100%!important; max-width:100%!important; box-sizing:border-box!important; min-height:0!important; height:auto!important; padding:0!important; margin:0!important; resize:none!important; border:0!important; font-size:inherit!important; line-height:1.08!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; overflow:hidden!important; }
+ .day textarea.task-note-hidden { display:none!important; }
+ .signatures { width:82%!important; margin:3mm auto 0!important; display:flex!important; justify-content:space-between!important; gap:0!important; font-size:8pt!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+ .signature { width:44%!important; text-align:center!important; }
+ .signature .name { min-height:6mm!important; }
+ .signature .role { margin-top:1mm!important; }
+ .monthtitle,.calendar,.signatures { break-inside:avoid!important; page-break-inside:avoid!important; }
+}
+@media screen and (max-width:800px){ .calendar{margin-inline:auto} }
+</style>
+
+<style id="print-safe-margin-final">
+@media print {
+  @page { size: A4 landscape; margin: 7mm; }
+  html, body { margin:0!important; padding:0!important; width:auto!important; height:auto!important; background:#fff!important; }
+  header, .controls, #photos { display:none!important; }
+  main.wrap { width:100%!important; max-width:none!important; margin:0!important; padding:0!important; overflow:visible!important; }
+  .monthtitle { margin:0 0 12mm!important; text-align:center!important; }
+  .calendar { width:92%!important; max-width:92%!important; height:145mm!important; margin:0 auto!important; box-sizing:border-box!important; grid-template-columns:repeat(7,minmax(0,1fr))!important; grid-template-rows:7mm repeat(6,minmax(0,1fr))!important; gap:0!important; border:0!important; overflow:hidden!important; box-shadow:none!important; border-radius:0!important; }
+  .dow,.day,.day.filler { min-width:0!important; min-height:0!important; height:auto!important; overflow:hidden!important; border:0.45pt solid #777!important; padding:1.5mm!important; box-sizing:border-box!important; }
+  .day textarea { font-size:inherit!important; min-height:0!important; height:auto!important; padding:0!important; overflow:hidden!important; line-height:1.1!important; resize:none!important; }
+  .signatures { margin:7mm auto 0!important; width:100%!important; display:flex!important; justify-content:space-between!important; gap:0!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+  .signature { width:42%!important; }
+  .monthtitle,.calendar,.signatures { break-inside:avoid!important; page-break-inside:avoid!important; }
+}
+</style>
+
+<style id="footer-underline-aligned-v24">
+@media print {
+  .signatures { display:flex!important; flex-direction:row!important; justify-content:space-between!important; align-items:flex-start!important; width:92%!important; margin:4mm auto 0!important; gap:12%!important; }
+  .signature { width:44%!important; text-align:center!important; }
+  .signature .name { display:block!important; min-height:5mm!important; border-bottom:0.6pt solid #222!important; padding-bottom:1mm!important; margin:2mm auto 1mm!important; width:85%!important; font-weight:700!important; }
+  .signature .role { margin-top:1mm!important; text-align:center!important; }
+}
+</style>
+
+
+<style id="shift-fit-and-print-empty-hide-v27">
+/* Keep shift text from clipping in calendar headers, including lowercase labels */
+.dayhead { min-width:0!important; width:100%!important; gap:2px!important; }
+.dayhead .daynum { flex:0 0 auto!important; }
+.dayhead .shift-select { flex:1 1 auto!important; width:0!important; min-width:0!important; max-width:100%!important; box-sizing:border-box!important; font-size:clamp(6px, .65vw, 9px)!important; font-weight:400!important; font-style:italic!important; padding:1px 0!important; text-align:center!important; text-align-last:center!important; white-space:normal!important; overflow:visible!important; }
+@media print {
+  .dayhead .shift-select { flex:1 1 auto!important; width:0!important; min-width:0!important; max-width:100%!important; font-size:5.5pt!important; line-height:1.05!important; white-space:normal!important; overflow:visible!important; }
+  .day textarea:placeholder-shown { display:none!important; }
+  .dayhead .shift-select:has(option:checked[value=""]) { display:none!important; }
+}
+</style>
+
+
+<style id="restore-print-calendar-boxes">
+@media print {
+ .calendar { border:1px solid #222!important; }
+ .calendar .dow, .calendar .day, .calendar .day.filler { border:1px solid #222!important; }
+ .calendar .day textarea { border:0!important; }
+}
+</style>
+
+
+<style id="off-print-red-center">
+@media print { .day textarea.off-print-highlight { color:#ff0000!important; text-align:center!important; font-weight:700!important; } }
+</style>
+<script>
+(function(){
+ function markOff(){document.querySelectorAll('.day textarea').forEach(function(ta){ta.classList.toggle('off-print-highlight',ta.value.trim().toUpperCase()==='OFF');});}
+ window.addEventListener('beforeprint',markOff);
+ window.addEventListener('afterprint',function(){document.querySelectorAll('.day textarea').forEach(function(ta){ta.classList.remove('off-print-highlight');});});
+})();
+</script>
+
+<style id="print-expand-text-hide-slider-v32">
+@media print {
+  /* Remove in-box scroll/resize controls from the printed day cells */
+  .day textarea { resize:none!important; overflow:visible!important; scrollbar-width:none!important; height:auto!important; min-height:0!important; max-height:none!important; }
+  .day textarea::-webkit-scrollbar { display:none!important; width:0!important; height:0!important; }
+  /* Let task text occupy the available box width and wrap naturally */
+  .day { overflow:visible!important; }
+  .day textarea { display:block!important; width:100%!important; box-sizing:border-box!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:break-word!important; }
+}
+</style>
+
+
+<style id="task-limit-toast-style">
+#taskLimitToast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 13px;border-radius:8px;font-size:13px;z-index:99999;opacity:0;pointer-events:none;transition:opacity .18s;box-shadow:0 3px 12px rgba(0,0,0,.18)}#taskLimitToast.show{opacity:1}
+</style>
+<div id="taskLimitToast" role="status" aria-live="polite">Maximum of 7 tasks only.</div>
+<script id="maximum-eight-task-selection">
+(function(){
+  var toast=document.getElementById('taskLimitToast'), timer;
+  function notify(){if(!toast)return;toast.textContent='Maximum of 7 tasks only.';toast.classList.add('show');clearTimeout(timer);timer=setTimeout(function(){toast.classList.remove('show');},1800);}
+  document.addEventListener('change',function(e){
+    var cb=e.target;if(!cb.matches('.tasklist input[type="checkbox"]')||!cb.checked)return;
+    var list=cb.closest('.tasklist');if(!list)return;
+    if(list.querySelectorAll('input[type="checkbox"]:checked').length>7){cb.checked=false;notify();}
+  });
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest('.tasklist button');if(!btn||btn.textContent.trim()!=='Apply')return;
+    var list=btn.closest('.tasklist');if(list&&list.querySelectorAll('input[type="checkbox"]:checked').length>7){notify();e.preventDefault();e.stopPropagation();}
+  },true);
+})();
+</script>
+
+
+<script id="auto-shrink-only-long-words-print-v1">
+(function(){
+ function shrinkLongWords(){
+  document.querySelectorAll('.day textarea').forEach(function(ta){
+   if(!ta.value || ta.classList.contains('task-note-hidden')) return;
+   var cs=getComputedStyle(ta), base=parseFloat(cs.fontSize)||7, min=4.5;
+   var width=Math.max(20,ta.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0));
+   var canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+   var family=cs.fontFamily, weight=cs.fontWeight, style=cs.fontStyle;
+   var words=ta.value.split(/\s+/).filter(Boolean);
+   var longest=words.reduce(function(a,w){return w.length>a.length?w:a;},'');
+   function measure(size){ctx.font=style+' '+weight+' '+size+'px '+family;return ctx.measureText(longest).width;}
+   var size=base; while(size>min && measure(size)>width) size-=0.25;
+   ta.style.setProperty('--longword-fit-size',size+'px');
+  });
+ }
+ window.addEventListener('beforeprint',shrinkLongWords);
+ setTimeout(shrinkLongWords,200);
+})();
+</script>
+<style id="print-long-word-only-adjust-v1">
+@media print{.day textarea{font-size:var(--longword-fit-size, var(--task-text-size,7px))!important;}}
+</style>
+
+<script id="print-auto-fit-dense-text-v1">
+(function(){\n function fitPrintText(){\n  document.querySelectorAll('.day:not(.filler) textarea').forEach(function(ta){\n   if(!ta.value || !ta.value.trim()) return;\n   var cell=ta.closest('.day'); if(!cell) return;\n   var head=cell.querySelector('.dayhead');\n   var cs=getComputedStyle(cell), pad=(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0);\n   var available=Math.max(16,cell.clientHeight-pad-(head?head.offsetHeight:0)-2);\n   var base=parseFloat(document.getElementById('textSize')?.value)||parseFloat(getComputedStyle(ta).fontSize)||12;\n   ta.style.height='auto'; ta.style.maxHeight='none'; ta.style.overflow='hidden';\n   ta.style.fontSize=base+'px'; ta.style.lineHeight='1.12';\n   var size=base;\n   while(size>4 && ta.scrollHeight>available){size-=0.25;ta.style.fontSize=size+'px';}\n   ta.style.height=Math.min(available,ta.scrollHeight)+'px';\n  });\n }\n window.addEventListener('beforeprint',fitPrintText);\n window.addEventListener('afterprint',function(){document.querySelectorAll('.day textarea').forEach(function(t){t.style.removeProperty('font-size');t.style.removeProperty('height');t.style.removeProperty('max-height');t.style.removeProperty('overflow');t.style.removeProperty('line-height');});});\n})();
+</script>
+
+
+<style id="final-print-fit-v22">
+@media print {
+ .dayhead .shift-select {font-size:4.6pt!important;line-height:1!important;font-weight:400!important;max-width:68%!important;white-space:normal!important;overflow-wrap:anywhere!important;}
+ .day textarea {font-size:var(--print-fit-font, 6pt)!important;line-height:1.08!important;box-sizing:border-box!important;overflow:hidden!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:break-word!important;padding:.35mm!important;margin:0!important;}
+}
+</style>
+<script id="final-print-dynamic-fit-v22">
+(function(){
+ function fitForPrint(){
+  document.querySelectorAll('.day:not(.filler) textarea').forEach(function(ta){
+   if(!ta.value||!ta.value.trim()){ta.style.removeProperty('--print-fit-font');return;}
+   var cell=ta.closest('.day'); if(!cell)return;
+   var head=cell.querySelector('.dayhead');
+   var cellStyle=getComputedStyle(cell);
+   var innerH=cell.clientHeight-(parseFloat(cellStyle.paddingTop)||0)-(parseFloat(cellStyle.paddingBottom)||0);
+   var headH=head?head.getBoundingClientRect().height:0;
+   var taStyle=getComputedStyle(ta);
+   var pad=(parseFloat(taStyle.paddingTop)||0)+(parseFloat(taStyle.paddingBottom)||0);
+   var available=Math.max(12,innerH-headH-pad-1);
+   var base=Math.max(4,parseFloat(document.getElementById('textSize')?.value)||parseFloat(taStyle.fontSize)||8);
+   ta.style.height='auto';ta.style.maxHeight='none';ta.style.overflow='hidden';ta.style.lineHeight='1.08';
+   var size=base; ta.style.setProperty('--print-fit-font',size+'px');
+   while(size>4 && ta.scrollHeight>available){size-=.25;ta.style.setProperty('--print-fit-font',size+'px');ta.style.height='auto';}
+   ta.style.height=Math.min(available,ta.scrollHeight)+'px';
+  });
+ }
+ window.addEventListener('beforeprint',fitForPrint);
+ window.addEventListener('afterprint',function(){document.querySelectorAll('.day textarea').forEach(function(t){t.style.removeProperty('--print-fit-font');t.style.removeProperty('height');t.style.removeProperty('max-height');t.style.removeProperty('overflow');t.style.removeProperty('line-height');});});
+})();
+</script>
+
+
+<style id="print-fixed-shift-slot-task-position-v1">
+@media print {
+ /* Keep a fixed header slot so task text starts at the same position whether Shift is filled or blank */
+ .dayhead { height:4mm!important; min-height:4mm!important; max-height:4mm!important; box-sizing:border-box!important; margin-bottom:0.3mm!important; overflow:visible!important; }
+ .shift-select { display:block!important; }
+ .day textarea { margin-top:0!important; }
+}
+</style>
+
+</body>
+<style id="final-print-task-text-9px">
+@media print { .day textarea { font-size:9px!important; line-height:1.08!important; } }
+</style>
+</html><style>
+/* Responsive calendar cells: desktop keeps 7 columns; small screens scroll without crushing boxes */
+.calendar{width:100%;max-width:100%;}
+.day,.dow{min-width:0;box-sizing:border-box;}
+.day textarea{width:100%;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;}
+@media screen and (max-width:800px){
+ main.wrap{overflow-x:auto;padding-inline:8px;}
+ .calendar{grid-template-columns:repeat(7,minmax(118px,1fr));width:max-content;min-width:826px;}
+ .day{min-height:125px;padding:4px;gap:4px;overflow:visible;}
+ .day textarea{font-size:clamp(10px,1.8vw,12px);}
+ .dayhead{flex-wrap:wrap;}
+ .shift-select{max-width:100%;}
+}
+@media screen and (max-width:480px){
+ .calendar{grid-template-columns:repeat(7,minmax(112px,1fr));min-width:784px;}
+ .day{min-height:115px;padding:3px;}
+ .dow{padding:6px 2px;font-size:10px;}
+ .daynum{font-size:12px;}
+}
+</style>
+
+<style id="print-margin-no-line-final">
+@media print {
+  @page { size: A4 landscape; margin: 7mm; }
+  .calendar { border: 0 !important; margin-left:auto!important; margin-right:auto!important; width:100%!important; max-width:100%!important; }
+  .dow,.day,.day.filler { border:0.45pt solid #777!important; }
+}
+</style>
+
+<style id="print-a4-center-spacing-v9">
+@media print {
+ @page { size: A4 landscape; margin: 10mm; }
+ main.wrap { display:flex!important; flex-direction:column!important; align-items:center!important; width:100%!important; }
+ .monthtitle { width:100%!important; text-align:center!important; margin:0 0 12mm!important; }
+ .calendar { width:92%!important; max-width:92%!important; height:140mm!important; margin:0 auto!important; }
+ .signatures { width:92%!important; margin:7mm auto 0!important; }
+}
+</style>
+<style id="print-clean-footer-v10">
+@media print {
+  /* Hide browser-added URL/date/title footer elements: they are controlled in print dialog */
+  body:after { content:none!important; }
+  /* Prevent any page metadata/footer labels from being generated by the document */
+  .print-footer,.print-url,.print-date,.print-title { display:none!important; }
+}
+</style>
+<style id="print-square-boxes-v11">
+@media print {
+ @page { size: A4 landscape; margin: 8mm; }
+ .calendar { width:100%!important; max-width:100%!important; height:auto!important; margin:0 auto!important; display:grid!important; grid-template-columns:repeat(7,minmax(0,1fr))!important; grid-template-rows:7mm repeat(6,25mm)!important; }
+ .dow,.day,.day.filler { min-width:0!important; height:25mm!important; min-height:25mm!important; max-height:25mm!important; box-sizing:border-box!important; overflow:hidden!important; }
+ .dow { height:7mm!important; min-height:7mm!important; max-height:7mm!important; }
+ .day { padding:1mm!important; }
+ .day textarea { font-size:inherit!important; line-height:inherit!important; }
+ .monthtitle,.calendar,.signatures { break-inside:avoid!important; page-break-inside:avoid!important; }
+}
+</style>
+
+<style id="print-one-a4-page-v14">
+@media print {
+ @page { size: A4 landscape; margin: 6mm; }
+ html,body { margin:0!important; padding:0!important; height:auto!important; }
+ main.wrap { width:100%!important; max-width:100%!important; padding:0!important; margin:0!important; }
+ .monthtitle { margin:0 0 4mm!important; padding:0!important; }
+ .calendar { width:100%!important; max-width:100%!important; height:auto!important; grid-template-columns:repeat(7,minmax(0,1fr))!important; grid-template-rows:7mm repeat(6,25mm)!important; }
+ .dow,.day,.day.filler { height:25mm!important; min-height:25mm!important; max-height:25mm!important; padding:1mm!important; }
+ .dow { height:7mm!important; min-height:7mm!important; max-height:7mm!important; }
+ .signatures { width:100%!important; margin:4mm auto 0!important; }
+ .monthtitle,.calendar,.signatures { break-inside:avoid!important; page-break-inside:avoid!important; }
+}
+</style>
+
+<style id="print-minimal-dashboard-v15">
+@media print {
+ /* Minimalist print look: remove UI chrome and heavy styling, keep content */
+ button, input[type=button], input[type=submit], select, .controls, .toolbar, .actions, .no-print { display:none!important; }
+ body { background:#fff!important; color:#222!important; font-family:inherit!important; }
+ .monthtitle { font-weight:500!important; color:#222!important; text-align:center!important; }
+ .calendar { box-shadow:none!important; background:#fff!important; border:0!important; }
+ .dow { background:#fff!important; color:#333!important; font-weight:500!important; border-color:#aaa!important; }
+ .day,.day.filler { background:#fff!important; box-shadow:none!important; border-color:#bbb!important; border-radius:0!important; }
+ .dayhead { background:transparent!important; border:0!important; box-shadow:none!important; }
+ .daynum { font-weight:500!important; color:#333!important; }
+ .day textarea { color:#222!important; background:transparent!important; border:0!important; box-shadow:none!important; font-family:inherit!important; font-size:inherit!important; }
+ .signatures { border:0!important; box-shadow:none!important; background:transparent!important; }
+}
+</style>
+
+<style id="print-dashboard-font-match">
+@media print {
+  body, .calendar, .day, .dow, .day textarea, .daynum, .shift-select { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important; }
+  .day textarea { font-size:var(--task-text-size, 12px) !important; line-height:1.4 !important; font-weight:400 !important; }
+  .daynum { font-size:12px !important; font-weight:700 !important; }
+  .shift-select { font-size:9px !important; font-weight:650 !important; }
+}
+</style>
+<style id="print-selected-task-visibility-v17">
+@media print {
+  /* Show the complete task text stored in each day's text area */
+  .day textarea.task-note-hidden { display:block!important; }
+  .day textarea { display:block!important; visibility:visible!important; width:100%!important; max-width:100%!important; height:auto!important; min-height:0!important; flex:1 1 auto!important; white-space:pre-wrap!important; overflow:visible!important; overflow-wrap:anywhere!important; word-break:break-word!important; text-overflow:clip!important; }
+  .day { overflow:visible!important; }
+}
+</style>
+
+<style id="task-display-print-fix-v19">
+:root{--task-text-size:12px}
+.day textarea{font-size:var(--task-text-size,12px)!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:break-word!important;}
+.day textarea.task-note-hidden{display:none!important;visibility:hidden!important;}
+@media print{
+ .day textarea.task-note-hidden{display:none!important;visibility:hidden!important;}
+ .day textarea{font-size:var(--task-text-size,12px)!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:break-word!important;}
+ .day{overflow:visible!important;}
+}
+</style>
+
+<style id="hide-empty-task-notes-v20">
+.day textarea.task-note-hidden{display:none!important;visibility:hidden!important;}
+@media print{.day textarea.task-note-hidden{display:none!important;visibility:hidden!important;}}
+</style>
+
+<style id="auto-fit-up-to-eight-tasks-v21">
+.day textarea{box-sizing:border-box!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:break-word!important;overflow:hidden!important;}
+@media print{.day textarea{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:break-word!important;font-size:var(--auto-fit-task-font,7px)!important;line-height:1.15!important;}}
+</style>
+<script>
+(function(){function fitAll(){document.querySelectorAll(".day textarea").forEach(function(ta){if(!ta.value.trim())return;var cell=ta.closest(".day"),head=cell&&cell.querySelector(".dayhead");if(!cell)return;var avail=Math.max(20,cell.clientHeight-(head?head.offsetHeight:20)-8),size=parseFloat(document.getElementById("textSize")?.value||12);ta.style.height="auto";ta.style.fontSize=size+"px";while(size>6&&ta.scrollHeight>avail){size-=0.5;ta.style.fontSize=size+"px";ta.style.height="auto";}ta.style.height=Math.min(avail,ta.scrollHeight)+"px";ta.style.setProperty("--auto-fit-task-font",size+"px");});}window.addEventListener("resize",fitAll);setTimeout(fitAll,150);})();
+
+// Automatically close Choose Task dropdowns when clicking anywhere outside them
+document.addEventListener('click',function(event){
+  if(event.target.closest('.taskpick')) return;
+  document.querySelectorAll('.taskpick.dropdown-open').forEach(function(p){
+    p.classList.remove('dropdown-open');
+    p.closest('.day')?.classList.remove('dropdown-open');
+    var list=p.querySelector('.tasklist'); if(list) list.style.display='none';
+  });
+});
+</script>
+
+<style id="print-shift-not-bold">@media print { .shift-select { font-weight: 400 !important; } }</style>
+
+<style>
+/* Compact minimalist footer */
+.signatures{display:flex;justify-content:space-between;gap:0;margin-top:8mm;font-size:9pt!important}
+.signature{width:44%;text-align:left!important;font-size:9pt!important}
+.signature .name{font-weight:700;min-height:0!important;border-bottom:0!important;margin-top:3mm}
+.signature .role{font-weight:400;margin-top:1mm!important}
+@media print{.signatures{width:100%!important;margin:3mm auto 0!important;display:flex!important;justify-content:space-between!important;gap:0!important;font-size:8pt!important}.signature{width:44%!important;text-align:left!important;font-size:8pt!important}.signature .name{font-weight:700!important;min-height:0!important;border:0!important;margin-top:2mm!important}.signature .role{font-weight:400!important;margin-top:0!important}}
+</style>
+
+<style id="footer-exact-reference-v25">
+@media print {
+  .signatures { display:flex!important; flex-direction:row!important; justify-content:space-between!important; align-items:flex-start!important; width:100%!important; margin:4mm auto 0!important; gap:0!important; }
+  .signature { width:44%!important; text-align:center!important; font-size:9pt!important; }
+  .signature .label { text-align:center!important; font-weight:400!important; }
+  .signature .name { display:inline-block!important; width:max-content!important; min-height:0!important; border-bottom:0!important; text-decoration:underline!important; text-decoration-thickness:1px!important; text-underline-offset:2px!important; font-weight:700!important; margin:6mm auto 1mm!important; padding-bottom:0!important; }
+  .signature .role { text-align:center!important; font-weight:400!important; margin:0!important; }
+}
+</style>
+
+<style id="print-top-spacing-tight-v33">
+@media print {
+ .day { padding-top:0.4mm!important; }
+ .dayhead { margin-top:0!important; padding-top:0!important; margin-bottom:0.3mm!important; }
+ .day textarea { margin-top:0!important; padding-top:0!important; line-height:1.08!important; }
+}
+</style>
+
+<style id="print-clean-organized-v1">
+@media print {
+ @page { size:A4 landscape; margin:5mm; }
+ .calendar { width:100%!important; max-width:100%!important; margin:0 auto!important; box-sizing:border-box!important; }
+ .day, .day.filler { box-sizing:border-box!important; padding:1.3mm!important; overflow:hidden!important; }
+ .dayhead { display:flex!important; align-items:flex-start!important; justify-content:space-between!important; gap:1mm!important; margin:0 0 1mm!important; padding:0!important; }
+ .daynum { margin:0!important; padding:0!important; line-height:1.1!important; }
+ .shift-select { margin:0!important; padding:0!important; line-height:1.1!important; max-width:72%!important; }
+ .day textarea { display:block!important; box-sizing:border-box!important; width:100%!important; max-width:100%!important; margin:0!important; padding:0.6mm!important; border:0!important; background:transparent!important; box-shadow:none!important; border-radius:0!important; text-align:left!important; text-indent:0!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:normal!important; text-overflow:clip!important; overflow:visible!important; height:auto!important; min-height:0!important; max-height:none!important; line-height:1.16!important; }
+ .day textarea.task-note-hidden { display:none!important; }
+ .signatures { margin-top:3mm!important; }
+}
+</style>
+
+<style id="print-shift-centered-task-top-tight-v1">
+@media print {
+ .dayhead { position:relative!important; display:flex!important; align-items:center!important; justify-content:center!important; }
+ .shift-select { text-align:center!important; margin-left:auto!important; margin-right:auto!important; max-width:100%!important; width:auto!important; }
+ .daynum { position:absolute!important; left:0!important; top:0!important; }
+ .day textarea { padding-top:0!important; margin-top:0!important; }
+}
+</style>
+<script id="print-responsive-task-density-v1">
+(function(){
+ function fitForPrint(){document.querySelectorAll('.day textarea').forEach(function(ta){if(!ta.value||!ta.value.trim()||ta.classList.contains('task-note-hidden'))return;var lines=ta.value.split('\n').reduce(function(n,line){return n+Math.max(1,Math.ceil(line.length/30));},0);var size=9; if(lines>=5)size=8.2;if(lines>=7)size=7.6;if(lines>=9)size=7;if(lines>=11)size=6.5;ta.style.setProperty('--auto-fit-task-font',size+'px');ta.style.fontSize=size+'px';ta.style.lineHeight='1.08';});}
+ window.addEventListener('beforeprint',fitForPrint);
+})();
+</script>
+
+<style id="print-tight-task-number-margin">@media print { .day textarea { margin-top:-0.7mm!important; padding-top:0!important; } .dayhead { margin-bottom:0!important; } }</style>
+
+<script id="print-remove-nn-v1">
+(function(){
+ var originals=[];
+ function clean(){ originals=[]; document.querySelectorAll('.day textarea').forEach(function(ta){ originals.push([ta,ta.value]); ta.value=ta.value.replace(/\\n\\n/g,' ').replace(/\n\n+/g,'\n').replace(/\n\n/g,'\n'); }); }
+ function restore(){ originals.forEach(function(item){item[0].value=item[1];}); originals=[]; }
+ window.addEventListener('beforeprint',clean); window.addEventListener('afterprint',restore);
+})();
+</script>
+
+<style id="print-alignment-sync">@media print { .day textarea { text-align:var(--workplan-align,left)!important; } }</style>
+
+<style id="print-thin-box-lines">@media print { .day,.day.filler,.dow { border-width:0.35px!important; border-color:#999!important; } }</style>
