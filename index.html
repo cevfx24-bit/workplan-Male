@@ -610,15 +610,15 @@ button.secondary:hover{
   resize:vertical;
   border:1px solid transparent;
   border-radius:7px;
-  padding:6px 7px;
+  padding:6px 7px 6px 14px;
   background:transparent;
   font:inherit;
   font-size:11.5px;
   line-height:1.35;
   color:var(--ink);
   outline:none;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
+  white-space:pre-line;
+  overflow-wrap:break-word;
   word-break:normal;
   overflow-y:auto;
   overflow-x:hidden;
@@ -942,8 +942,8 @@ button.secondary:hover{
   flex:1 1 auto;
   min-height:0;
   width:100%;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
+  white-space:pre-line;
+  overflow-wrap:break-word;
   word-break:normal;
   line-height:1.14;
   color:#111;
@@ -1899,7 +1899,7 @@ function render(){
       const currentAlign = document.getElementById('textAlign').value || 'left';
 
       if(selected.length){
-        const bundle = selected.map(t => '- ' + t).join('\n');
+        const bundle = selected.map(t => '-' + t).join('\n');
         for(let targetDay = day; targetDay <= daysInMonth; targetDay += 7){
           const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
           const target = targetCell?.querySelector('textarea');
@@ -1917,7 +1917,7 @@ function render(){
             target.value = bundle;
             target.style.color = '';
             target.style.fontWeight = '';
-            target.style.textAlign = 'left';
+            target.style.textAlign = currentAlign;
 
             const targetToggle = targetCell.querySelector('.tasktoggle');
             if(targetToggle) targetToggle.textContent = 'Choose task ('+raw.length+' selected) ▼';
@@ -1992,7 +1992,7 @@ function render(){
   syncTextAlignTap(savedAlign);
   document.documentElement.style.setProperty('--workplan-align', savedAlign);
   document.querySelectorAll('.day textarea').forEach(t => {
-    if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = 'left';
+    if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = savedAlign;
   });
 
   updateDashboardStats();
@@ -2134,8 +2134,8 @@ function buildSheetMarkup(){
       else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(12.6, fontPx + 0.8);
     }
 
-    const effectiveAlign = isOff ? 'center' : 'left';
-    const justifyContent = isOff ? 'center' : 'flex-start';
+    const effectiveAlign = isOff ? 'center' : align;
+    const justifyContent = isOff ? 'center' : (align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'));
     const alignItems = 'center';
     const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.14' : '1.2');
 
@@ -2148,7 +2148,7 @@ function buildSheetMarkup(){
         '<span class="pv-num">'+safeNum+'</span>' +
         (safeShift ? '<span class="pv-shift">'+safeShift+'</span>' : '') +
       '</div>' +
-      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+'">'+safeBody+'</div>' : '') +
+      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '7px' : '0'))+'">'+safeBody+'</div>' : '') +
     '</div>';
   });
 
@@ -2306,27 +2306,59 @@ window.addEventListener('scroll', function(){
   });
 }, true);
 
-// 7-task maximum limit enforcement
+// 7-task maximum limit enforcement (notification appears right above the last clicked checkbox)
 (function(){
-  const timers = new WeakMap();
-  function notifyInDropdown(list){
-    if(!list) return;
-    const notice = list.querySelector('.dropdown-limit-notice');
-    if(!notice) return;
-    notice.classList.add('show');
-    if(timers.has(notice)) clearTimeout(timers.get(notice));
-    const t = setTimeout(() => notice.classList.remove('show'), 1800);
-    timers.set(notice, t);
+  let activeTip = null;
+  let hideTimer = null;
+
+  function removeTip(){
+    if(hideTimer){
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+    if(activeTip && activeTip.parentNode){
+      activeTip.parentNode.removeChild(activeTip);
+    }
+    activeTip = null;
   }
+
+  function showAboveCheckbox(cb){
+    removeTip();
+    const row = cb.closest('label') || cb;
+    const tip = document.createElement('div');
+    tip.className = 'task-click-limit-tip';
+    tip.textContent = 'Maximum of 7 tasks only.';
+    tip.style.cssText = 'position:fixed;z-index:100000;background:#dc2626;color:#ffffff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;box-shadow:0 6px 16px rgba(15,23,42,0.25);pointer-events:none;white-space:nowrap;transform:translate(-50%,-100%);';
+    document.body.appendChild(tip);
+
+    const rect = row.getBoundingClientRect();
+    let left = rect.left + Math.min(rect.width * 0.5, 70);
+    const tipW = tip.offsetWidth || 135;
+    left = Math.max(8 + tipW / 2, Math.min(window.innerWidth - 8 - tipW / 2, left));
+    let top = rect.top - 6;
+    if(top < 28){
+      top = rect.bottom + 6;
+      tip.style.transform = 'translate(-50%,0)';
+    }
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+    activeTip = tip;
+
+    hideTimer = setTimeout(removeTip, 1800);
+  }
+
   document.addEventListener('change', function(e){
     const cb = e.target;
     if(!cb.matches('.tasklist input[type="checkbox"]') || !cb.checked) return;
     const list = cb.closest('.tasklist');
     if(list && list.querySelectorAll('input[type="checkbox"]:checked').length > 7){
       cb.checked = false;
-      notifyInDropdown(list);
+      showAboveCheckbox(cb);
     }
   });
+
+  document.addEventListener('scroll', removeTip, true);
+  window.addEventListener('resize', removeTip);
 })();
 
 // Keep print wrapper synced even if Ctrl+P / browser print is triggered directly
