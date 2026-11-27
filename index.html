@@ -2116,6 +2116,7 @@ function clearMonth(){
   };
 }
 
+
 function syncTextAlignTap(val){
   document.querySelectorAll('#textAlignTap button').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.align === val);
@@ -2256,16 +2257,21 @@ function fitPreviewSheetTextSizes(root){
     const padTop = parseFloat(cellStyles.paddingTop) || 0;
     const padBot = parseFloat(cellStyles.paddingBottom) || 0;
     const headH = head ? head.getBoundingClientRect().height : 0;
-    const availableH = Math.max(14, cell.clientHeight - padTop - padBot - headH - 2);
-    const availableW = Math.max(24, body.clientWidth || (cell.clientWidth - 6));
+    const availableH = Math.max(12, cell.clientHeight - padTop - padBot - headH - 3);
+    const availableW = Math.max(20, (body.clientWidth || (cell.clientWidth - 6)) - 2);
 
     let currentPx = parseFloat(body.style.fontSize) || 11.2;
-    const minPx = body.classList.contains('is-off') ? 9.0 : 5.0;
+    const minPx = body.classList.contains('is-off') ? 9.0 : 4.5;
 
     body.style.fontSize = currentPx + 'px';
     let guard = 0;
-    while(guard < 80 && currentPx > minPx && (inner.scrollHeight > availableH || body.scrollHeight > availableH || inner.scrollWidth > availableW || body.scrollWidth > availableW)){
-      currentPx = Math.max(minPx, +(currentPx - 0.25).toFixed(2));
+    while(guard < 140 && currentPx > minPx){
+      const rect = inner.getBoundingClientRect();
+      const bodyRect = body.getBoundingClientRect();
+      const tooTall = inner.scrollHeight > availableH || body.scrollHeight > availableH || rect.height > availableH || bodyRect.height > availableH;
+      const tooWide = inner.scrollWidth > availableW || body.scrollWidth > availableW || rect.width > availableW;
+      if(!tooTall && !tooWide) break;
+      currentPx = Math.max(minPx, +(currentPx - 0.2).toFixed(2));
       body.style.fontSize = currentPx + 'px';
       guard++;
     }
