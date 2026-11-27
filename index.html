@@ -1299,6 +1299,19 @@ button.secondary:hover{
   min-height:26px;
   padding:0;
 }
+@media(min-width:801px){
+  .header-top-row{
+    align-items:center;
+  }
+  .header-right-stack{
+    flex-direction:row-reverse;
+    align-items:center;
+    gap:10px;
+  }
+  .header-right-stack .word-align-group{
+    height:34px;
+  }
+}
 @media(max-width:800px){
   .header-right-stack{
     width:100%;
@@ -2202,9 +2215,9 @@ function buildSheetMarkup(){
       const activeRows = Math.max(1, activeRowCount);
       const taskCount = rawText.split('\n').filter(l => l.trim()).length;
       if(taskCount <= 7 && activeRows <= 5){
-        fontPx = Math.max(fontPx, lineCount <= 10 ? 11.0 : 9.8);
+        fontPx = Math.max(fontPx, lineCount <= 10 ? 10.8 : 9.6);
       } else if(taskCount <= 7){
-        fontPx = Math.max(fontPx, 9.6);
+        fontPx = Math.max(fontPx, 9.2);
       }
     }
 
@@ -2245,6 +2258,7 @@ function buildSheetMarkup(){
 let currentPreviewZoom = 'fit';
 let currentPreviewViewport = 'desktop';
 
+
 function fitPreviewSheetTextSizes(root){
   if(!root) return;
   const bodies = root.querySelectorAll('.pv-body');
@@ -2261,17 +2275,16 @@ function fitPreviewSheetTextSizes(root){
     const availableW = Math.max(20, (body.clientWidth || (cell.clientWidth - 6)) - 2);
 
     let currentPx = parseFloat(body.style.fontSize) || 11.2;
-    const minPx = body.classList.contains('is-off') ? 9.0 : 4.5;
+    const minPx = body.classList.contains('is-off') ? 9.0 : 6.2;
 
     body.style.fontSize = currentPx + 'px';
     let guard = 0;
-    while(guard < 140 && currentPx > minPx){
+    while(guard < 120 && currentPx > minPx){
       const rect = inner.getBoundingClientRect();
-      const bodyRect = body.getBoundingClientRect();
-      const tooTall = inner.scrollHeight > availableH || body.scrollHeight > availableH || rect.height > availableH || bodyRect.height > availableH;
-      const tooWide = inner.scrollWidth > availableW || body.scrollWidth > availableW || rect.width > availableW;
+      const tooTall = inner.scrollHeight > availableH || rect.height > availableH;
+      const tooWide = inner.scrollWidth > availableW || rect.width > availableW;
       if(!tooTall && !tooWide) break;
-      currentPx = Math.max(minPx, +(currentPx - 0.2).toFixed(2));
+      currentPx = Math.max(minPx, +(currentPx - 0.15).toFixed(2));
       body.style.fontSize = currentPx + 'px';
       guard++;
     }
@@ -2403,7 +2416,7 @@ window.addEventListener('scroll', function(e){
   });
 }, true);
 
-// 7-task maximum limit enforcement (notification appears right above the last clicked checkbox)
+// 8-task maximum limit enforcement (notification appears right above the last clicked checkbox)
 (function(){
   let activeTip = null;
   let hideTimer = null;
