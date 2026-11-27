@@ -82,11 +82,66 @@ header h1{
   font-weight:500;
   color:var(--muted);
 }
+.header-top-row{
+  width:100%;
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+}
 .header-actions{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
   align-items:center;
+}
+.header-bottom-align{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-top:9px;
+  border-top:1px solid #e2e8f0;
+}
+.header-align-meta{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.header-align-label{
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:#475569;
+  white-space:nowrap;
+}
+.header-align-hint{
+  font-size:11px;
+  color:#64748b;
+  font-weight:500;
+}
+.header-align-tap{
+  width:min(360px,100%);
+  height:34px;
+  background:#f1f5f9;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  padding:3px;
+  box-shadow:inset 0 1px 2px rgba(15,23,42,0.06);
+}
+@media(min-width:801px){
+  header{
+    padding:12px clamp(18px,3vw,32px) 10px;
+    gap:8px;
+  }
+  .header-bottom-align{
+    justify-content:flex-end;
+    gap:14px;
+    padding-top:8px;
+  }
 }
 
 /* Vibrant Dashboard Buttons */
@@ -194,14 +249,22 @@ button.secondary:hover{
 .controls select,.controls input{
   width:100%;
   height:38px;
-  padding:0 10px;
-  border:1px solid var(--line-strong);
-  border-radius:var(--radius-sm);
-  background:var(--bg);
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface);
   color:var(--ink);
-  font-size:13.5px;
+  font-size:13px;
   font-weight:500;
-  transition:border-color .15s,background .15s,box-shadow .15s;
+  letter-spacing:-0.01em;
+  box-shadow:0 1px 2px rgba(15,23,42,0.03);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;
+}
+#textAlign{
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+  border-color:#cbd5e1;
+  font-weight:600;
+  color:var(--ink);
 }
 .controls select:hover,.controls input:hover{
   border-color:#94a3b8;
@@ -343,35 +406,104 @@ button.secondary:hover{
   background:var(--accent-soft);
   color:var(--accent);
 }
-.shift-select{
+.shift-pick{
   flex:1 1 auto;
   width:0;
   min-width:0;
   max-width:100%;
+  position:relative;
+  z-index:25;
+}
+.shift-pick.dropdown-open{z-index:1003}
+.shift-toggle{
+  width:100%;
+  min-width:0;
+  max-width:100%;
   margin:0;
-  padding:3px 4px;
-  border:1px solid transparent;
-  border-radius:6px;
-  background:transparent;
+  padding:3px 8px;
+  border:1px solid #bfdbfe;
+  border-radius:999px;
+  background:#eff6ff;
   color:var(--accent);
-  font-size:clamp(7.5px,0.66vw,9.5px);
+  font-size:clamp(6.8px,0.58vw,8.2px);
   font-weight:600;
   font-style:italic;
   text-align:center;
-  text-align-last:center;
   line-height:1.15;
   cursor:pointer;
-  transition:all .12s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  box-shadow:0 1px 2px rgba(37,99,235,0.08);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:all .14s ease;
 }
-.shift-select:hover,.shift-select:focus{
-  background:var(--accent-soft);
-  border-color:#dbeafe;
+.shift-toggle:hover,.shift-toggle:focus{
+  background:#dbeafe;
+  border-color:#93c5fd;
   outline:none;
+  transform:none;
 }
-.shift-select.is-dayoff{
+.shift-toggle.is-dayoff{
   color:var(--danger);
   font-weight:700;
   background:var(--danger-soft);
+  border-color:#fecaca;
+}
+.shift-menu{
+  position:fixed;
+  z-index:99999;
+  background:var(--surface);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow-lg);
+  border-radius:9px;
+  padding:4px;
+  min-width:148px;
+  max-width:calc(100vw - 16px);
+  display:none;
+  flex-direction:column;
+  gap:2px;
+  pointer-events:auto;
+}
+.shift-pick.dropdown-open .shift-menu{
+  display:flex;
+}
+.shift-menu-item{
+  width:100%;
+  padding:6px 9px;
+  border:none;
+  border-radius:6px;
+  background:transparent;
+  color:var(--ink);
+  font-size:9.5px;
+  font-weight:600;
+  font-style:normal;
+  text-align:left;
+  justify-content:flex-start;
+  white-space:nowrap;
+  line-height:1.2;
+  box-shadow:none;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.shift-menu-item:hover{
+  background:var(--accent-soft);
+  color:var(--accent);
+  transform:none;
+}
+.shift-menu-item.active{
+  background:var(--accent);
+  color:#ffffff;
+}
+.shift-menu-item.is-dayoff-opt{
+  color:var(--danger);
+}
+.shift-menu-item.is-dayoff-opt.active{
+  background:var(--danger);
+  color:#ffffff;
 }
 
 .taskpick{
@@ -503,7 +635,7 @@ button.secondary:hover{
 /* Minimalist Signatory Cards */
 .signatures{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:16px;
   margin-top:18px;
   font-size:9.5pt;
@@ -542,22 +674,39 @@ button.secondary:hover{
 
 #taskLimitToast{
   position:fixed;
-  bottom:22px;
-  left:50%;
-  transform:translateX(-50%);
-  background:var(--ink);
-  color:#fff;
-  padding:9px 16px;
-  border-radius:999px;
+  top:20px;
+  right:20px;
+  transform:translateY(-8px) scale(0.98);
+  background:rgba(15,23,42,0.92);
+  backdrop-filter:blur(12px);
+  color:#f8fafc;
+  border:1px solid rgba(255,255,255,0.12);
+  padding:10px 16px;
+  border-radius:12px;
   font-size:12.5px;
-  font-weight:600;
+  font-weight:500;
+  letter-spacing:-0.01em;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
   z-index:99999;
   opacity:0;
   pointer-events:none;
-  transition:opacity .18s;
-  box-shadow:var(--shadow-lg);
+  transition:opacity .2s ease,transform .2s ease;
+  box-shadow:0 12px 28px rgba(15,23,42,0.22);
 }
-#taskLimitToast.show{opacity:1}
+#taskLimitToast::before{
+  content:"";
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:#38bdf8;
+  flex-shrink:0;
+}
+#taskLimitToast.show{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
 
 /* Responsive A4 Landscape Preview Modal (Phone & Desktop) */
 .preview-overlay{
@@ -832,7 +981,7 @@ button.secondary:hover{
   header h1{font-size:0.96rem}
   .wrap{padding:14px 12px 24px}
   .controls{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px}
-  .stats-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .stats-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
   .stat-item:nth-child(3){border-left:0;padding-left:2px}
   .sheet-card{padding:12px;border-radius:12px}
   .calendar-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
@@ -852,7 +1001,7 @@ button.secondary:hover{
 }
 @media(max-width:480px){
   header{flex-direction:column;align-items:stretch;gap:10px}
-  .header-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .header-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
   .header-actions button{width:100%;padding:8px 10px;font-size:12.5px}
   .controls{grid-template-columns:1fr 1fr}
   .controls label:last-child{grid-column:1 / -1}
@@ -931,31 +1080,276 @@ button.secondary:hover{
     margin: 3.2mm auto 0.5mm !important;
   }
 }
+
+.dashboard-bar{
+  position:static;
+  top:auto;
+  z-index:auto;
+  background:transparent;
+  backdrop-filter:none;
+  padding:0;
+  border-radius:0;
+}
+.controls{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.header-bottom-align{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:4px;
+  padding-top:8px;
+  margin-top:2px;
+  border-top:1px solid #e2e8f0;
+}
+.header-align-box{
+  width:min(360px,100%);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.header-align-label{
+  font-size:10.5px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:#475569;
+  line-height:1.1;
+  padding-left:2px;
+}
+.text-align-tap{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:3px;
+  padding:3px;
+  height:36px;
+  width:100%;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  background:linear-gradient(180deg,#f1f5f9 0%,#e2e8f0 100%);
+  box-shadow:inset 0 1px 2px rgba(15,23,42,0.06),0 1px 3px rgba(15,23,42,0.04);
+}
+.text-align-tap button{
+  height:100%;
+  min-height:0;
+  padding:0 10px;
+  border:1px solid transparent;
+  border-radius:7px;
+  background:transparent;
+  color:var(--ink-secondary);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  box-shadow:none;
+  transform:none;
+  transition:all .16s ease;
+}
+.text-align-tap button:hover{
+  background:rgba(255,255,255,0.7);
+  color:var(--ink);
+  transform:none;
+}
+.text-align-tap button.active{
+  background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);
+  border-color:#1d4ed8;
+  color:#ffffff;
+  font-weight:700;
+  box-shadow:0 2px 5px rgba(37,99,235,0.26);
+}
+@media(max-width:800px){
+  .header-bottom-align{
+    align-items:stretch;
+    padding-top:7px;
+  }
+  .header-align-box{
+    width:100%;
+  }
+  .controls{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:480px){
+  .header-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+  }
+  .controls{
+    grid-template-columns:1fr 1fr;
+  }
+  .controls label:last-child{
+    grid-column:auto;
+  }
+}
+
+.header-right-tools{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.word-align-group{
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  padding:3px;
+  height:36px;
+  background:#f1f5f9;
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+  box-shadow:inset 0 1px 1px rgba(15,23,42,0.04);
+}
+.word-align-group button{
+  width:32px;
+  height:28px;
+  min-width:32px;
+  min-height:28px;
+  padding:0;
+  border:1px solid transparent;
+  border-radius:6px;
+  background:transparent;
+  color:#334155;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:none;
+  transform:none;
+  transition:all .14s ease;
+}
+.word-align-group button:hover{
+  background:#e2e8f0;
+  color:#0f172a;
+  transform:none;
+}
+.word-align-group button.active{
+  background:#dbeafe;
+  border-color:#93c5fd;
+  color:#1d4ed8;
+  box-shadow:0 1px 2px rgba(37,99,235,0.14);
+}
+@media(max-width:800px){
+  .header-right-tools{
+    width:100%;
+    justify-content:space-between;
+  }
+}
+@media(max-width:480px){
+  .header-right-tools{
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+  }
+  .word-align-group{
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    height:36px;
+  }
+  .word-align-group button{
+    width:100%;
+  }
+}
+
+.header-top-row{
+  align-items:flex-start;
+}
+.header-right-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+}
+.header-right-stack .word-align-group{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  padding:3px;
+  height:34px;
+  background:#f1f5f9;
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+  box-shadow:inset 0 1px 1px rgba(15,23,42,0.04);
+}
+.header-right-stack .word-align-group button{
+  width:34px;
+  height:26px;
+  min-width:34px;
+  min-height:26px;
+  padding:0;
+}
+@media(max-width:800px){
+  .header-right-stack{
+    width:100%;
+    align-items:stretch;
+    gap:7px;
+  }
+  .header-right-stack .header-actions{
+    width:100%;
+    justify-content:space-between;
+  }
+  .header-right-stack .word-align-group{
+    align-self:flex-end;
+  }
+}
+@media(max-width:480px){
+  .header-right-stack .header-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+  }
+  .header-right-stack .word-align-group{
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    height:36px;
+  }
+  .header-right-stack .word-align-group button{
+    width:100%;
+    height:28px;
+  }
+}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand-block">
-    <div class="brand-icon" aria-hidden="true">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+  <div class="header-top-row">
+    <div class="brand-block">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <div class="brand-text">
+        <h1>Workplan Schedule Task Maker</h1>
+        <span class="header-slogan">Male Staff of HFG • Monthly Duty &amp; Task Planner</span>
+      </div>
     </div>
-    <div class="brand-text">
-      <h1>Workplan Schedule</h1>
-      <span class="header-slogan">Male Staff of HFG • Monthly Duty &amp; Task Planner</span>
+    <div class="header-right-stack">
+      <div class="header-actions">
+        <button class="btn-preview" onclick="openA4Preview()">Preview</button>
+        <button class="btn-save" onclick="triggerExactPrint()">Save PDF</button>
+        <button class="btn-print" onclick="triggerExactPrint()">Print PDF</button>
+        <button class="btn-reset" onclick="clearMonth()">Reset</button>
+      </div>
+      <div class="word-align-group" role="group" aria-label="Text alignment" id="textAlignTap">
+        <input type="hidden" id="textAlign" value="left">
+        <button type="button" data-align="left" class="active" onclick="setTextAlignTap('left')" title="Align Left (Ctrl+L)" aria-label="Align Left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="10" x2="15" y2="10"></line><line x1="3" y1="14" x2="19" y2="14"></line><line x1="3" y1="18" x2="13" y2="18"></line></svg>
+        </button>
+        <button type="button" data-align="center" onclick="setTextAlignTap('center')" title="Align Center (Ctrl+E)" aria-label="Align Center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="6" y1="10" x2="18" y2="10"></line><line x1="4" y1="14" x2="20" y2="14"></line><line x1="7" y1="18" x2="17" y2="18"></line></svg>
+        </button>
+        <button type="button" data-align="right" onclick="setTextAlignTap('right')" title="Align Right (Ctrl+R)" aria-label="Align Right">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="9" y1="10" x2="21" y2="10"></line><line x1="5" y1="14" x2="21" y2="14"></line><line x1="11" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
     </div>
-  </div>
-  <div class="header-actions">
-    <button class="btn-preview" onclick="openA4Preview()">Preview</button>
-    <button class="btn-save" onclick="triggerExactPrint()">Save PDF</button>
-    <button class="btn-print" onclick="triggerExactPrint()">Print PDF</button>
-    <button class="btn-reset" onclick="clearMonth()">Reset</button>
   </div>
 </header>
 
 <main class="wrap">
   <div class="dashboard-bar">
     <div class="controls">
-      <label>Buwan
+      <label>Month
         <select id="month" onchange="render()">
           <option value="0">January</option>
           <option value="1">February</option>
@@ -994,13 +1388,6 @@ button.secondary:hover{
           <option value="2038">2038</option>
           <option value="2039">2039</option>
           <option value="2040">2040</option>
-        </select>
-      </label>
-      <label>Text align
-        <select id="textAlign" onchange="applyAlign()">
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
         </select>
       </label>
     </div>
@@ -1160,6 +1547,20 @@ function updateDashboardStats(){
   if(elOpen) elOpen.textContent = open;
 }
 
+function setShiftUI(cell, val){
+  if(!cell) return;
+  const hidden = cell.querySelector('.shift-select');
+  const toggle = cell.querySelector('.shift-toggle');
+  if(hidden) hidden.value = val;
+  if(toggle){
+    toggle.textContent = (val || 'SHIFT') + ' ▾';
+    toggle.classList.toggle('is-dayoff', val.toUpperCase() === 'DAYOFF');
+  }
+  cell.querySelectorAll('.shift-menu-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.val === val);
+  });
+}
+
 function applyDayoffAppearance(shiftEl, taEl){
   const isDayoff = (shiftEl.value || '').toUpperCase() === 'DAYOFF';
   shiftEl.classList.toggle('is-dayoff', isDayoff);
@@ -1220,12 +1621,83 @@ function render(){
     headrow.className = 'dayhead';
     headrow.append(n);
 
-    const shift = document.createElement('select');
+    const shiftWrap = document.createElement('div');
+    shiftWrap.className = 'shift-pick';
+
+    const shift = document.createElement('input');
+    shift.type = 'hidden';
     shift.className = 'shift-select';
-    shift.innerHTML = '<option value="">SELECT SHIFT…</option><option value="DAYOFF">DAYOFF</option><option value="MORNING SHIFT (7AM-4PM)">MORNING SHIFT (7AM-4PM)</option><option value="SWING SHIFT (3PM-12MN)">SWING SHIFT (3PM-12MN)</option><option value="STRAIGHT-DUTY (7AM-12MN)">STRAIGHT-DUTY (7AM-12MN)</option>';
     const rawSavedShift = saved[day]?.shift || '';
     shift.value = rawSavedShift.toUpperCase() === 'DAYOFF' ? 'DAYOFF' : rawSavedShift;
-    shift.classList.toggle('is-dayoff', shift.value === 'DAYOFF');
+
+    const shiftToggle = document.createElement('button');
+    shiftToggle.type = 'button';
+    shiftToggle.className = 'shift-toggle';
+    shiftToggle.textContent = (shift.value || 'SHIFT') + ' ▾';
+    shiftToggle.classList.toggle('is-dayoff', shift.value === 'DAYOFF');
+
+    const shiftMenu = document.createElement('div');
+    shiftMenu.className = 'shift-menu';
+
+    const shiftChoices = [
+      {val: '', label: 'NONE'},
+      {val: 'DAYOFF', label: 'DAYOFF'},
+      {val: 'MORNING SHIFT (7AM-4PM)', label: 'MORNING SHIFT (7AM-4PM)'},
+      {val: 'SWING SHIFT (3PM-12MN)', label: 'SWING SHIFT (3PM-12MN)'},
+      {val: 'STRAIGHT-DUTY (7AM-12MN)', label: 'STRAIGHT-DUTY (7AM-12MN)'}
+    ];
+
+    shiftChoices.forEach(ch => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'shift-menu-item' + (ch.val === 'DAYOFF' ? ' is-dayoff-opt' : '') + (shift.value === ch.val ? ' active' : '');
+      item.dataset.val = ch.val;
+      item.textContent = ch.label;
+      item.onclick = (e) => {
+        e.stopPropagation();
+        shift.value = ch.val;
+        shiftWrap.classList.remove('dropdown-open');
+        cell.classList.remove('dropdown-open');
+        if(typeof shift.onchange === 'function') shift.onchange();
+      };
+      shiftMenu.append(item);
+    });
+
+    shiftToggle.onclick = (e) => {
+      e.stopPropagation();
+      const willOpen = !shiftWrap.classList.contains('dropdown-open');
+      document.querySelectorAll('.taskpick.dropdown-open, .shift-pick.dropdown-open').forEach(p => {
+        p.classList.remove('dropdown-open');
+        p.closest('.day')?.classList.remove('dropdown-open');
+        const tl = p.querySelector('.tasklist');
+        if(tl) tl.style.display = 'none';
+      });
+      if(willOpen){
+        shiftWrap.classList.add('dropdown-open');
+        cell.classList.add('dropdown-open');
+        const rect = shiftToggle.getBoundingClientRect();
+        shiftMenu.style.top = (rect.bottom + 4) + 'px';
+        shiftMenu.style.left = '8px';
+        shiftMenu.style.right = 'auto';
+        requestAnimationFrame(() => {
+          const menuW = shiftMenu.offsetWidth || 175;
+          const menuH = shiftMenu.offsetHeight || 150;
+          let leftPos = rect.left;
+          if(leftPos + menuW > window.innerWidth - 8){
+            leftPos = window.innerWidth - menuW - 8;
+          }
+          if(leftPos < 8) leftPos = 8;
+          let topPos = rect.bottom + 4;
+          if(topPos + menuH > window.innerHeight - 8){
+            topPos = Math.max(8, rect.top - menuH - 4);
+          }
+          shiftMenu.style.left = leftPos + 'px';
+          shiftMenu.style.top = topPos + 'px';
+        });
+      }
+    };
+
+    shiftWrap.append(shift, shiftToggle, shiftMenu);
 
     const pick = document.createElement('div');
     pick.className = 'taskpick';
@@ -1244,7 +1716,7 @@ function render(){
 
     summary.onclick = () => {
       const isHidden = list.style.display === 'none';
-      document.querySelectorAll('.taskpick.dropdown-open').forEach(p => {
+      document.querySelectorAll('.taskpick.dropdown-open, .shift-pick.dropdown-open').forEach(p => {
         p.classList.remove('dropdown-open');
         p.closest('.day')?.classList.remove('dropdown-open');
         const other = p.querySelector('.tasklist');
@@ -1295,7 +1767,7 @@ function render(){
         const targetShift = targetCell?.querySelector('.shift-select');
         const targetTa = targetCell?.querySelector('textarea');
         if(targetShift && targetTa){
-          targetShift.value = val;
+          setShiftUI(targetCell, val);
           applyDayoffAppearance(targetShift, targetTa);
           if(val === 'DAYOFF'){
             targetCell.querySelectorAll('.tasklist input[type="checkbox"]').forEach(b => b.checked = false);
@@ -1313,7 +1785,7 @@ function render(){
     apply.textContent = 'Apply';
     apply.onclick = () => {
       const raw = [...list.querySelectorAll('input:checked')].map(c => c.value);
-      const selected = raw.map(t => cap.value === 'upper' ? t.toUpperCase() : t.replace(/\b\w/g, ch => ch.toUpperCase()));
+      const selected = raw.map(t => cap.value === 'upper' ? t.toUpperCase() : t.replace(/ \w/g, ch => ch.toUpperCase()));
       const currentAlign = document.getElementById('textAlign').value || 'left';
 
       if(selected.length){
@@ -1324,15 +1796,11 @@ function render(){
           const targetShiftVal = (targetCell?.querySelector('.shift-select')?.value || '').toUpperCase();
           if(target){
             const existing = target.value.trim().toUpperCase();
-            const isDayOff = targetShiftVal === 'DAYOFF' || existing === 'OFF' || existing.split(/\n/).some(line => line.trim() === 'OFF');
+            const isDayOff = targetShiftVal === 'DAYOFF' || existing === 'OFF' || existing.split(/\r?\n/).some(line => line.trim() === 'OFF');
             if(targetDay !== day && isDayOff) continue;
 
             if(targetDay === day && targetShiftVal === 'DAYOFF'){
-              const sh = targetCell.querySelector('.shift-select');
-              if(sh){
-                sh.value = '';
-                sh.classList.remove('is-dayoff');
-              }
+              setShiftUI(targetCell, '');
             }
 
             target.classList.remove('task-note-hidden');
@@ -1376,7 +1844,7 @@ function render(){
       saveLocal();
     };
 
-    headrow.append(shift);
+    headrow.append(shiftWrap);
     cell.append(headrow, pick, ta);
     cal.append(cell);
   }
@@ -1411,6 +1879,7 @@ function render(){
 
   const savedAlign = localStorage.getItem('workplan-text-align') || 'left';
   document.getElementById('textAlign').value = savedAlign;
+  syncTextAlignTap(savedAlign);
   document.documentElement.style.setProperty('--workplan-align', savedAlign);
   document.querySelectorAll('.day textarea').forEach(t => {
     if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = savedAlign;
@@ -1444,6 +1913,19 @@ function clearMonth(){
     localStorage.removeItem(key());
     render();
   }
+}
+
+function syncTextAlignTap(val){
+  document.querySelectorAll('#textAlignTap button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.align === val);
+  });
+}
+
+function setTextAlignTap(val){
+  const hidden = document.getElementById('textAlign');
+  if(hidden) hidden.value = val;
+  syncTextAlignTap(val);
+  applyAlign();
 }
 
 function applyAlign(){
@@ -1509,9 +1991,6 @@ function buildSheetMarkup(){
       else if(totalChars <= 90 && lineCount <= 3) fontPx = Math.min(9.4, fontPx + 0.6);
     }
 
-    const effectiveAlign = 'center';
-    const justifyContent = 'center';
-    const alignItems = 'center';
     const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.14' : '1.2');
 
     const safeNum = num.replace(/</g,'&lt;');
@@ -1629,14 +2108,28 @@ document.addEventListener('keydown', e => {
 
 // Close task dropdowns when clicking outside
 document.addEventListener('click', function(event){
-  if(event.target.closest('.taskpick')) return;
-  document.querySelectorAll('.taskpick.dropdown-open').forEach(function(p){
+  if(!event.target.closest('.taskpick')){
+    document.querySelectorAll('.taskpick.dropdown-open').forEach(function(p){
+      p.classList.remove('dropdown-open');
+      p.closest('.day')?.classList.remove('dropdown-open');
+      const list = p.querySelector('.tasklist');
+      if(list) list.style.display = 'none';
+    });
+  }
+  if(!event.target.closest('.shift-pick')){
+    document.querySelectorAll('.shift-pick.dropdown-open').forEach(function(p){
+      p.classList.remove('dropdown-open');
+      p.closest('.day')?.classList.remove('dropdown-open');
+    });
+  }
+});
+
+window.addEventListener('scroll', function(){
+  document.querySelectorAll('.shift-pick.dropdown-open').forEach(function(p){
     p.classList.remove('dropdown-open');
     p.closest('.day')?.classList.remove('dropdown-open');
-    const list = p.querySelector('.tasklist');
-    if(list) list.style.display = 'none';
   });
-});
+}, true);
 
 // 7-task maximum limit enforcement
 (function(){
