@@ -707,6 +707,21 @@ button.secondary:hover{
   opacity:1;
   transform:translateY(0) scale(1);
 }
+.dropdown-limit-notice{
+  display:none;
+  margin:4px 0 2px;
+  padding:6px 8px;
+  border-radius:6px;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  color:#dc2626;
+  font-size:11px;
+  font-weight:600;
+  line-height:1.25;
+}
+.dropdown-limit-notice.show{
+  display:block;
+}
 
 /* Responsive A4 Landscape Preview Modal (Phone & Desktop) */
 .preview-overlay{
@@ -929,7 +944,7 @@ button.secondary:hover{
   width:100%;
   white-space:pre-wrap;
   overflow-wrap:anywhere;
-  word-break:break-word;
+  word-break:normal;
   line-height:1.14;
   color:#111;
   overflow:hidden;
@@ -1834,6 +1849,11 @@ function render(){
     cap.innerHTML = '<option value="title">Auto Capitalize</option><option value="upper">UPPERCASE</option>';
     cap.value = 'upper';
 
+    const limitNotice = document.createElement('div');
+    limitNotice.className = 'dropdown-limit-notice';
+    limitNotice.textContent = 'Maximum of 7 tasks only.';
+    list.append(limitNotice);
+
     const caprow = document.createElement('div');
     caprow.className = 'task-cap-row';
     caprow.append(cap);
@@ -1897,7 +1917,7 @@ function render(){
             target.value = bundle;
             target.style.color = '';
             target.style.fontWeight = '';
-            target.style.textAlign = currentAlign;
+            target.style.textAlign = 'left';
 
             const targetToggle = targetCell.querySelector('.tasktoggle');
             if(targetToggle) targetToggle.textContent = 'Choose task ('+raw.length+' selected) ▼';
@@ -1972,7 +1992,7 @@ function render(){
   syncTextAlignTap(savedAlign);
   document.documentElement.style.setProperty('--workplan-align', savedAlign);
   document.querySelectorAll('.day textarea').forEach(t => {
-    if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = savedAlign;
+    if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = 'left';
   });
 
   updateDashboardStats();
@@ -2114,8 +2134,8 @@ function buildSheetMarkup(){
       else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(12.6, fontPx + 0.8);
     }
 
-    const effectiveAlign = isOff ? 'center' : align;
-    const justifyContent = isOff ? 'center' : (align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'));
+    const effectiveAlign = isOff ? 'center' : 'left';
+    const justifyContent = isOff ? 'center' : 'flex-start';
     const alignItems = 'center';
     const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.14' : '1.2');
 
@@ -2288,14 +2308,15 @@ window.addEventListener('scroll', function(){
 
 // 7-task maximum limit enforcement
 (function(){
-  const toast = document.getElementById('taskLimitToast');
-  let timer;
-  function notify(){
-    if(!toast) return;
-    toast.textContent = 'Maximum of 7 tasks only.';
-    toast.classList.add('show');
-    clearTimeout(timer);
-    timer = setTimeout(() => toast.classList.remove('show'), 1800);
+  const timers = new WeakMap();
+  function notifyInDropdown(list){
+    if(!list) return;
+    const notice = list.querySelector('.dropdown-limit-notice');
+    if(!notice) return;
+    notice.classList.add('show');
+    if(timers.has(notice)) clearTimeout(timers.get(notice));
+    const t = setTimeout(() => notice.classList.remove('show'), 1800);
+    timers.set(notice, t);
   }
   document.addEventListener('change', function(e){
     const cb = e.target;
@@ -2303,7 +2324,7 @@ window.addEventListener('scroll', function(){
     const list = cb.closest('.tasklist');
     if(list && list.querySelectorAll('input[type="checkbox"]:checked').length > 7){
       cb.checked = false;
-      notify();
+      notifyInDropdown(list);
     }
   });
 })();
