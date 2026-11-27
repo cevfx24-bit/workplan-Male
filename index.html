@@ -933,9 +933,9 @@ button.secondary:hover{
   color:#111;
   overflow:hidden;
   display:flex;
-  align-items:flex-start;
-  justify-content:flex-start;
-  text-align:left;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
 }
 .a4-sheet .pv-body.is-off{
   color:#ff0000;
@@ -2113,7 +2113,7 @@ function buildSheetMarkup(){
 
     const effectiveAlign = isOff ? 'center' : align;
     const justifyContent = isOff ? 'center' : (align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'));
-    const alignItems = isOff ? 'center' : 'flex-start';
+    const alignItems = 'center';
     const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.14' : '1.2');
 
     const safeNum = num.replace(/</g,'&lt;');
