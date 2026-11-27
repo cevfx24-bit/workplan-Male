@@ -473,17 +473,16 @@ button.secondary:hover{
 .day textarea{
   width:100%;
   max-width:100%;
-  height:90px;
-  min-height:90px;
-  max-height:90px;
+  min-height:84px;
+  max-height:160px;
   resize:vertical;
   border:1px solid transparent;
   border-radius:7px;
-  padding:5px 6px;
+  padding:6px 7px;
   background:transparent;
   font:inherit;
   font-size:11.5px;
-  line-height:1.3;
+  line-height:1.35;
   color:var(--ink);
   outline:none;
   white-space:pre-wrap;
@@ -781,13 +780,13 @@ button.secondary:hover{
   white-space:pre-wrap;
   overflow-wrap:anywhere;
   word-break:break-word;
-  line-height:1.05;
+  line-height:1.12;
   color:#111;
   overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
-  text-align:center;
+  text-align:center !important;
 }
 .a4-sheet .pv-body.is-off{
   color:#ff0000;
@@ -1125,13 +1124,13 @@ function getDaysInMonth(y, m){
 }
 
 function computeTaskFontPx(text){
-  if(!text || !text.trim()) return 7.8;
-  const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 28)), 0);
-  if(lines >= 12) return 5.4;
-  if(lines >= 10) return 5.8;
-  if(lines >= 8) return 6.4;
-  if(lines >= 6) return 7.0;
-  return 7.6;
+  if(!text || !text.trim()) return 8.6;
+  const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 26)), 0);
+  if(lines >= 14) return 6.6;
+  if(lines >= 11) return 7.1;
+  if(lines >= 8) return 7.6;
+  if(lines >= 5) return 8.2;
+  return 8.8;
 }
 
 function updateDashboardStats(){
@@ -1502,7 +1501,18 @@ function buildSheetMarkup(){
     let rawText = (ta && !ta.classList.contains('task-note-hidden')) ? ta.value.replace(/\n\n+/g, '\n').trim() : '';
     if(isDayoffShift && !rawText) rawText = 'OFF';
     const isOff = isDayoffShift || rawText.toUpperCase() === 'OFF';
-    const fontPx = computeTaskFontPx(rawText);
+    const totalChars = rawText.length;
+    const lineCount = rawText ? rawText.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 26)), 0) : 0;
+    let fontPx = computeTaskFontPx(rawText);
+    if(!isOff && rawText){
+      if(totalChars > 340 || lineCount > 14) fontPx = Math.max(6.5, fontPx - 0.5);
+      else if(totalChars <= 90 && lineCount <= 3) fontPx = Math.min(9.4, fontPx + 0.6);
+    }
+
+    const effectiveAlign = 'center';
+    const justifyContent = 'center';
+    const alignItems = 'center';
+    const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.14' : '1.2');
 
     const safeNum = num.replace(/</g,'&lt;');
     const safeShift = shiftVal.replace(/</g,'&lt;');
@@ -1513,7 +1523,7 @@ function buildSheetMarkup(){
         '<span class="pv-num">'+safeNum+'</span>' +
         (safeShift ? '<span class="pv-shift">'+safeShift+'</span>' : '') +
       '</div>' +
-      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;text-align:'+(isOff?'center':align)+'">'+safeBody+'</div>' : '') +
+      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:center;justify-content:center;align-items:center">'+safeBody+'</div>' : '') +
     '</div>';
   });
 
