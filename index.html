@@ -1567,7 +1567,7 @@ button.secondary:hover{
   </div>
 </div>
 
-<div id="taskLimitToast" role="status" aria-live="polite">Maximum of 8 tasks only.</div>
+<div id="taskLimitToast" role="status" aria-live="polite">Maximum of 7 tasks only.</div>
 
 <script>
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1912,7 +1912,7 @@ function render(){
 
     const limitNotice = document.createElement('div');
     limitNotice.className = 'dropdown-limit-notice';
-    limitNotice.textContent = 'Maximum of 8 tasks only.';
+    limitNotice.textContent = 'Maximum of 7 tasks only.';
     list.append(limitNotice);
 
     const caprow = document.createElement('div');
@@ -2394,7 +2394,7 @@ window.addEventListener('scroll', function(e){
   });
 }, true);
 
-// 8-task maximum limit enforcement (notification appears right above the last clicked checkbox)
+// 7-task maximum limit enforcement (notification appears right above the last clicked checkbox)
 (function(){
   let activeTip = null;
   let hideTimer = null;
@@ -2415,7 +2415,7 @@ window.addEventListener('scroll', function(e){
     const row = cb.closest('label') || cb;
     const tip = document.createElement('div');
     tip.className = 'task-click-limit-tip';
-    tip.textContent = 'Maximum of 8 tasks only.';
+    tip.textContent = 'Maximum of 7 tasks only.';
     tip.style.cssText = 'position:fixed;z-index:100000;background:#dc2626;color:#ffffff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;box-shadow:0 6px 16px rgba(15,23,42,0.25);pointer-events:none;white-space:nowrap;transform:translate(-50%,-100%);';
     document.body.appendChild(tip);
 
@@ -2439,7 +2439,7 @@ window.addEventListener('scroll', function(e){
     const cb = e.target;
     if(!cb.matches('.tasklist input[type="checkbox"]:not(.include-below-cb)') || !cb.checked) return;
     const list = cb.closest('.tasklist');
-    if(list && list.querySelectorAll('input[type="checkbox"]:not(.include-below-cb):checked').length > 8){
+    if(list && list.querySelectorAll('input[type="checkbox"]:not(.include-below-cb):checked').length > 7){
       cb.checked = false;
       showAboveCheckbox(cb);
     }
