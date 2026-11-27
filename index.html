@@ -1100,6 +1100,7 @@ button.secondary:hover{
   }
 }
 
+
 .dashboard-bar{
   position:static;
   top:auto;
@@ -1202,6 +1203,7 @@ button.secondary:hover{
   }
 }
 
+
 .header-right-tools{
   display:flex;
   align-items:center;
@@ -1270,6 +1272,7 @@ button.secondary:hover{
   }
 }
 
+
 .header-top-row{
   align-items:flex-start;
 }
@@ -1328,6 +1331,7 @@ button.secondary:hover{
     height:28px;
   }
 }
+
 
 #resetConfirmOverlay{
   position:fixed;
@@ -1402,6 +1406,7 @@ button.secondary:hover{
   background:#b91c1c;
   transform:none;
 }
+
 </style>
 </head>
 <body>
@@ -1483,6 +1488,7 @@ button.secondary:hover{
           <option value="2040">2040</option>
         </select>
       </label>
+
     </div>
 
     <div class="stats-strip" aria-label="Monthly Schedule Summary">
@@ -1548,6 +1554,7 @@ button.secondary:hover{
   </div>
 </div>
 
+
 <div id="resetConfirmOverlay" role="dialog" aria-modal="true" aria-labelledby="resetConfirmTitle">
   <div class="reset-confirm-card">
     <h2 class="reset-confirm-title" id="resetConfirmTitle">Reset schedule?</h2>
@@ -1559,7 +1566,7 @@ button.secondary:hover{
   </div>
 </div>
 
-<div id="taskLimitToast" role="status" aria-live="polite">Maximum of 7 tasks only.</div>
+<div id="taskLimitToast" role="status" aria-live="polite">Maximum of 8 tasks only.</div>
 
 <script>
 const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1744,6 +1751,36 @@ function render(){
     const shiftMenu = document.createElement('div');
     shiftMenu.className = 'shift-menu';
 
+    const hasShiftBoxBelow = (day + 7) <= daysInMonth;
+    let shiftIncludeBelowCb = null;
+    if(hasShiftBoxBelow){
+      const shiftBelowBar = document.createElement('label');
+      shiftBelowBar.className = 'shift-include-below-bar';
+      shiftBelowBar.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 7px;margin-bottom:3px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:10px;font-weight:600;color:#1d4ed8;cursor:pointer;white-space:nowrap;';
+      shiftBelowBar.onclick = (e) => e.stopPropagation();
+
+      shiftIncludeBelowCb = document.createElement('input');
+      shiftIncludeBelowCb.type = 'checkbox';
+      shiftIncludeBelowCb.className = 'shift-include-below-cb';
+      shiftIncludeBelowCb.style.cssText = 'margin:0;accent-color:var(--accent);cursor:pointer;';
+      if(typeof saved[day]?.shiftIncludeBelow === 'boolean'){
+        shiftIncludeBelowCb.checked = saved[day].shiftIncludeBelow;
+      } else {
+        shiftIncludeBelowCb.checked = (day <= 7);
+      }
+      shiftIncludeBelowCb.onchange = (e) => {
+        e.stopPropagation();
+        saveLocal();
+      };
+
+      const shiftBelowTxt = document.createElement('span');
+      shiftBelowTxt.textContent = (day <= 7)
+        ? 'Auto-include boxes below (column)'
+        : 'Include succeeding boxes below';
+      shiftBelowBar.append(shiftIncludeBelowCb, shiftBelowTxt);
+      shiftMenu.append(shiftBelowBar);
+    }
+
     const shiftChoices = [
       {val: '', label: 'NONE'},
       {val: 'DAYOFF', label: 'DAYOFF'},
@@ -1819,6 +1856,29 @@ function render(){
     list.style.display = 'none';
     pick.append(list);
 
+    const hasBoxBelow = (day + 7) <= daysInMonth;
+    let includeBelowCb = null;
+    if(hasBoxBelow){
+      const belowBar = document.createElement('label');
+      belowBar.className = 'include-below-bar';
+      belowBar.style.cssText = 'display:flex;align-items:center;gap:7px;padding:6px 7px;margin-bottom:4px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:600;color:#1d4ed8;position:sticky;top:-8px;z-index:5;';
+      includeBelowCb = document.createElement('input');
+      includeBelowCb.type = 'checkbox';
+      includeBelowCb.className = 'include-below-cb';
+      if(typeof saved[day]?.includeBelow === 'boolean'){
+        includeBelowCb.checked = saved[day].includeBelow;
+      } else {
+        includeBelowCb.checked = (day <= 7);
+      }
+      includeBelowCb.onchange = () => saveLocal();
+      const belowTxt = document.createElement('span');
+      belowTxt.textContent = (day <= 7)
+        ? 'Auto-include boxes below (column)'
+        : 'Include succeeding boxes below';
+      belowBar.append(includeBelowCb, belowTxt);
+      list.append(belowBar);
+    }
+
     summary.onclick = () => {
       const isHidden = list.style.display === 'none';
       document.querySelectorAll('.taskpick.dropdown-open, .shift-pick.dropdown-open').forEach(p => {
@@ -1851,7 +1911,7 @@ function render(){
 
     const limitNotice = document.createElement('div');
     limitNotice.className = 'dropdown-limit-notice';
-    limitNotice.textContent = 'Maximum of 7 tasks only.';
+    limitNotice.textContent = 'Maximum of 8 tasks only.';
     list.append(limitNotice);
 
     const caprow = document.createElement('div');
@@ -1872,7 +1932,9 @@ function render(){
 
     shift.onchange = () => {
       const val = shift.value;
-      for(let targetDay = day; targetDay <= daysInMonth; targetDay += 7){
+      const fillColumn = hasShiftBoxBelow && shiftIncludeBelowCb ? shiftIncludeBelowCb.checked : false;
+      const step = fillColumn ? 7 : (daysInMonth + 1);
+      for(let targetDay = day; targetDay <= daysInMonth; targetDay += step){
         const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
         const targetShift = targetCell?.querySelector('.shift-select');
         const targetTa = targetCell?.querySelector('textarea');
@@ -1880,7 +1942,7 @@ function render(){
           setShiftUI(targetCell, val);
           applyDayoffAppearance(targetShift, targetTa);
           if(val === 'DAYOFF'){
-            targetCell.querySelectorAll('.tasklist input[type="checkbox"]').forEach(b => b.checked = false);
+            targetCell.querySelectorAll('.tasklist input[type="checkbox"]:not(.include-below-cb)').forEach(b => b.checked = false);
             const tgl = targetCell.querySelector('.tasktoggle');
             if(tgl) tgl.textContent = 'Choose task ▼';
           }
@@ -1894,13 +1956,15 @@ function render(){
     apply.className = 'apply-btn';
     apply.textContent = 'Apply';
     apply.onclick = () => {
-      const raw = [...list.querySelectorAll('input:checked')].map(c => c.value);
-      const selected = raw.map(t => cap.value === 'upper' ? t.toUpperCase() : t.replace(/ \w/g, ch => ch.toUpperCase()));
+      const raw = [...list.querySelectorAll('input[type="checkbox"]:not(.include-below-cb):checked')].map(c => c.value);
+      const selected = raw.map(t => cap.value === 'upper' ? t.toUpperCase() : t.replace(/\b\w/g, ch => ch.toUpperCase()));
       const currentAlign = document.getElementById('textAlign').value || 'left';
 
       if(selected.length){
         const bundle = selected.map(t => '-' + t).join('\n');
-        for(let targetDay = day; targetDay <= daysInMonth; targetDay += 7){
+        const applyBelow = hasBoxBelow && includeBelowCb ? includeBelowCb.checked : false;
+        const step = applyBelow ? 7 : (daysInMonth + 1);
+        for(let targetDay = day; targetDay <= daysInMonth; targetDay += step){
           const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
           const target = targetCell?.querySelector('textarea');
           const targetShiftVal = (targetCell?.querySelector('.shift-select')?.value || '').toUpperCase();
@@ -1922,7 +1986,7 @@ function render(){
             const targetToggle = targetCell.querySelector('.tasktoggle');
             if(targetToggle) targetToggle.textContent = 'Choose task ('+raw.length+' selected) ▼';
 
-            targetCell.querySelectorAll('.tasklist input[type="checkbox"]').forEach(box => {
+            targetCell.querySelectorAll('.tasklist input[type="checkbox"]:not(.include-below-cb)').forEach(box => {
               box.checked = raw.includes(box.value);
             });
           }
@@ -2007,11 +2071,15 @@ function saveLocal(){
   const saved = {};
   document.querySelectorAll('.day[data-day]').forEach(c => {
     const ta = c.querySelector('textarea');
+    const belowBox = c.querySelector('.include-below-cb');
+    const shiftBelowBox = c.querySelector('.shift-include-below-cb');
     saved[c.dataset.day] = {
       number: c.querySelector('.daynum').textContent,
       text: ta.value,
-      selectedTasks: Array.from(c.querySelectorAll('.tasklist input:checked'), x => x.value),
-      shift: c.querySelector('.shift-select')?.value || ''
+      selectedTasks: Array.from(c.querySelectorAll('.tasklist input[type="checkbox"]:not(.include-below-cb):checked'), x => x.value),
+      shift: c.querySelector('.shift-select')?.value || '',
+      includeBelow: belowBox ? belowBox.checked : undefined,
+      shiftIncludeBelow: shiftBelowBox ? shiftBelowBox.checked : undefined
     };
   });
   localStorage.setItem(key(), JSON.stringify(saved));
@@ -2052,6 +2120,7 @@ function clearMonth(){
     showResetToast('Month schedule reset.');
   };
 }
+
 
 function syncTextAlignTap(val){
   document.querySelectorAll('#textAlignTap button').forEach(btn => {
@@ -2170,6 +2239,7 @@ function buildSheetMarkup(){
 /* Responsive A4 Landscape Print Preview Logic (Phone & Desktop) */
 let currentPreviewZoom = 'fit';
 let currentPreviewViewport = 'desktop';
+
 
 function fitPreviewSheetTextSizes(root){
   if(!root) return;
@@ -2299,14 +2369,31 @@ document.addEventListener('click', function(event){
   }
 });
 
-window.addEventListener('scroll', function(){
+window.addEventListener('scroll', function(e){
+  if(e.target && e.target.closest && e.target.closest('.shift-menu')) return;
   document.querySelectorAll('.shift-pick.dropdown-open').forEach(function(p){
-    p.classList.remove('dropdown-open');
-    p.closest('.day')?.classList.remove('dropdown-open');
+    const toggle = p.querySelector('.shift-toggle');
+    const menu = p.querySelector('.shift-menu');
+    if(!toggle || !menu) return;
+    const rect = toggle.getBoundingClientRect();
+    if(rect.bottom < 0 || rect.top > window.innerHeight){
+      p.classList.remove('dropdown-open');
+      p.closest('.day')?.classList.remove('dropdown-open');
+      return;
+    }
+    const menuW = menu.offsetWidth || 175;
+    const menuH = menu.offsetHeight || 150;
+    let leftPos = Math.max(8, Math.min(window.innerWidth - menuW - 8, rect.left));
+    let topPos = rect.bottom + 4;
+    if(topPos + menuH > window.innerHeight - 8){
+      topPos = Math.max(8, rect.top - menuH - 4);
+    }
+    menu.style.left = leftPos + 'px';
+    menu.style.top = topPos + 'px';
   });
 }, true);
 
-// 7-task maximum limit enforcement (notification appears right above the last clicked checkbox)
+// 8-task maximum limit enforcement (notification appears right above the last clicked checkbox)
 (function(){
   let activeTip = null;
   let hideTimer = null;
@@ -2327,7 +2414,7 @@ window.addEventListener('scroll', function(){
     const row = cb.closest('label') || cb;
     const tip = document.createElement('div');
     tip.className = 'task-click-limit-tip';
-    tip.textContent = 'Maximum of 7 tasks only.';
+    tip.textContent = 'Maximum of 8 tasks only.';
     tip.style.cssText = 'position:fixed;z-index:100000;background:#dc2626;color:#ffffff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;box-shadow:0 6px 16px rgba(15,23,42,0.25);pointer-events:none;white-space:nowrap;transform:translate(-50%,-100%);';
     document.body.appendChild(tip);
 
@@ -2349,9 +2436,9 @@ window.addEventListener('scroll', function(){
 
   document.addEventListener('change', function(e){
     const cb = e.target;
-    if(!cb.matches('.tasklist input[type="checkbox"]') || !cb.checked) return;
+    if(!cb.matches('.tasklist input[type="checkbox"]:not(.include-below-cb)') || !cb.checked) return;
     const list = cb.closest('.tasklist');
-    if(list && list.querySelectorAll('input[type="checkbox"]:checked').length > 7){
+    if(list && list.querySelectorAll('input[type="checkbox"]:not(.include-below-cb):checked').length > 8){
       cb.checked = false;
       showAboveCheckbox(cb);
     }
