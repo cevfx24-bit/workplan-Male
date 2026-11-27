@@ -981,8 +981,11 @@ button.secondary:hover{
   header h1{font-size:0.96rem}
   .wrap{padding:14px 12px 24px}
   .controls{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px}
-  .stats-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-  .stat-item:nth-child(3){border-left:0;padding-left:2px}
+  .stats-strip{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:10px 8px;overflow-x:auto}
+  .stat-item{padding:2px 6px;min-width:0}
+  .stat-item:nth-child(3){border-left:1px solid var(--line);padding-left:6px}
+  .stat-label{font-size:9.5px;letter-spacing:0.01em}
+  .stat-value{font-size:1rem}
   .sheet-card{padding:12px;border-radius:12px}
   .calendar-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
   .calendar{grid-template-columns:repeat(7,minmax(126px,1fr));width:max-content;min-width:100%}
