@@ -933,9 +933,9 @@ button.secondary:hover{
   color:#111;
   overflow:hidden;
   display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center !important;
+  align-items:flex-start;
+  justify-content:flex-start;
+  text-align:left;
 }
 .a4-sheet .pv-body.is-off{
   color:#ff0000;
@@ -2051,6 +2051,10 @@ function applyAlign(){
     if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = a;
   });
   localStorage.setItem('workplan-text-align', a);
+  if(document.getElementById('a4PreviewModal')?.classList.contains('open')){
+    buildA4PreviewSheet();
+    updatePreviewScale();
+  }
 }
 
 /* Shared Sheet Builder: Identical layout for Preview AND Letter/A4 Printout */
@@ -2107,6 +2111,9 @@ function buildSheetMarkup(){
       else if(totalChars <= 90 && lineCount <= 3) fontPx = Math.min(9.4, fontPx + 0.6);
     }
 
+    const effectiveAlign = isOff ? 'center' : align;
+    const justifyContent = isOff ? 'center' : (align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'));
+    const alignItems = isOff ? 'center' : 'flex-start';
     const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.14' : '1.2');
 
     const safeNum = num.replace(/</g,'&lt;');
@@ -2118,7 +2125,7 @@ function buildSheetMarkup(){
         '<span class="pv-num">'+safeNum+'</span>' +
         (safeShift ? '<span class="pv-shift">'+safeShift+'</span>' : '') +
       '</div>' +
-      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:center;justify-content:center;align-items:center">'+safeBody+'</div>' : '') +
+      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+'">'+safeBody+'</div>' : '') +
     '</div>';
   });
 
