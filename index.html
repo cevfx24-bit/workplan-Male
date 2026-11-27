@@ -1,4 +1,3 @@
-I-click ang Copy sa code block sa ibaba at i-paste nang buo sa index.html ng GitHub repository mo:
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Editable Workplan Calendar</title><style>
 :root{
   --bg:#f8fafc;
@@ -694,7 +693,7 @@ button.secondary:hover{
   height:210mm;
   background:#ffffff;
   color:#111111;
-  padding:6mm;
+  padding:4.5mm 5.5mm;
   box-shadow:0 24px 60px rgba(0,0,0,0.5);
   display:flex;
   flex-direction:column;
@@ -704,20 +703,23 @@ button.secondary:hover{
 }
 .a4-sheet .pv-title{
   text-align:center;
-  font-size:10.5pt;
+  font-size:10pt;
   line-height:1.15;
-  margin:0 0 3mm;
+  margin:0 0 2.2mm;
   color:#111;
+  flex:0 0 auto;
 }
 .a4-sheet .pv-title strong{font-weight:700}
 .a4-sheet .pv-grid{
   width:100%;
   flex:1 1 auto;
+  min-height:0;
   display:grid;
   grid-template-columns:repeat(7,minmax(0,1fr));
-  grid-template-rows:7mm repeat(6,minmax(0,1fr));
+  grid-template-rows:6.2mm repeat(6,minmax(0,1fr));
   border-top:0.5px solid #444;
   border-left:0.5px solid #444;
+  overflow:hidden;
 }
 .a4-sheet .pv-dow,
 .a4-sheet .pv-cell{
@@ -737,9 +739,10 @@ button.secondary:hover{
   background:#fff;
 }
 .a4-sheet .pv-cell{
-  padding:1.1mm 1.3mm;
+  padding:0.8mm 1.1mm;
   display:flex;
   flex-direction:column;
+  min-height:0;
 }
 .a4-sheet .pv-cell.pv-empty-row-cell{
   display:none;
@@ -749,19 +752,20 @@ button.secondary:hover{
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:3.6mm;
-  margin-bottom:0.4mm;
+  min-height:3.2mm;
+  margin-bottom:0.2mm;
+  flex:0 0 auto;
 }
 .a4-sheet .pv-num{
   position:absolute;
   left:0;
   top:0;
-  font-size:7.5pt;
+  font-size:7.2pt;
   line-height:1;
   color:#111;
 }
 .a4-sheet .pv-shift{
-  font-size:5.4pt;
+  font-size:5.2pt;
   line-height:1.05;
   font-style:italic;
   color:#2563eb;
@@ -772,11 +776,12 @@ button.secondary:hover{
   text-overflow:ellipsis;
 }
 .a4-sheet .pv-body{
-  flex:1;
+  flex:1 1 auto;
+  min-height:0;
   white-space:pre-wrap;
   overflow-wrap:anywhere;
   word-break:break-word;
-  line-height:1.08;
+  line-height:1.05;
   color:#111;
   overflow:hidden;
   display:flex;
@@ -794,22 +799,29 @@ button.secondary:hover{
 }
 .a4-sheet .pv-sigs{
   width:100%;
-  margin-top:3.5mm;
+  flex:0 0 auto;
+  margin-top:2.2mm;
+  padding-bottom:0.6mm;
   display:flex;
   justify-content:space-between;
-  font-size:8.5pt;
+  align-items:flex-end;
+  font-size:8.2pt;
+  line-height:1.15;
   color:#111;
+  page-break-inside:avoid;
+  break-inside:avoid;
 }
 .a4-sheet .pv-sig{
-  width:44%;
+  width:46%;
   text-align:center;
 }
 .a4-sheet .pv-sig-name{
-  display:inline-block;
+  display:block;
   font-weight:700;
   text-decoration:underline;
   text-underline-offset:2px;
-  margin:5mm auto 1mm;
+  margin:3.5mm auto 0.6mm;
+  white-space:nowrap;
 }
 
 @media(max-width:1024px){
@@ -898,20 +910,26 @@ button.secondary:hover{
     break-inside: avoid !important;
   }
   .print-sheet-wrapper .pv-title{
-    margin: 0 0 2mm !important;
-    font-size: 10pt !important;
+    margin: 0 0 1.8mm !important;
+    font-size: 9.8pt !important;
     line-height: 1.15 !important;
+    flex: 0 0 auto !important;
   }
   .print-sheet-wrapper .pv-grid{
     flex: 1 1 auto !important;
     min-height: 0 !important;
+    overflow: hidden !important;
   }
   .print-sheet-wrapper .pv-sigs{
-    margin-top: 2.5mm !important;
-    font-size: 8.2pt !important;
+    flex: 0 0 auto !important;
+    margin-top: 2mm !important;
+    padding-bottom: 0.5mm !important;
+    font-size: 8pt !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
   .print-sheet-wrapper .pv-sig-name{
-    margin: 4mm auto 1mm !important;
+    margin: 3.2mm auto 0.5mm !important;
   }
 }
 </style>
@@ -1107,13 +1125,13 @@ function getDaysInMonth(y, m){
 }
 
 function computeTaskFontPx(text){
-  if(!text || !text.trim()) return 8.2;
+  if(!text || !text.trim()) return 7.8;
   const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 28)), 0);
-  if(lines >= 12) return 5.8;
-  if(lines >= 10) return 6.2;
-  if(lines >= 8) return 6.8;
-  if(lines >= 6) return 7.4;
-  return 8.0;
+  if(lines >= 12) return 5.4;
+  if(lines >= 10) return 5.8;
+  if(lines >= 8) return 6.4;
+  if(lines >= 6) return 7.0;
+  return 7.6;
 }
 
 function updateDashboardStats(){
@@ -1664,4 +1682,3 @@ window.addEventListener('afterprint', function(){
 </script>
 </body>
 </html>
-
