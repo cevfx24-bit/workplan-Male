@@ -926,10 +926,11 @@ button.secondary:hover{
 .a4-sheet .pv-body{
   flex:1 1 auto;
   min-height:0;
+  width:100%;
   white-space:pre-wrap;
   overflow-wrap:anywhere;
   word-break:break-word;
-  line-height:1.12;
+  line-height:1.14;
   color:#111;
   overflow:hidden;
   display:flex;
@@ -1599,13 +1600,14 @@ function getDaysInMonth(y, m){
 }
 
 function computeTaskFontPx(text){
-  if(!text || !text.trim()) return 8.6;
-  const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 26)), 0);
-  if(lines >= 14) return 6.6;
-  if(lines >= 11) return 7.1;
-  if(lines >= 8) return 7.6;
-  if(lines >= 5) return 8.2;
-  return 8.8;
+  if(!text || !text.trim()) return 11.2;
+  const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 24)), 0);
+  if(lines >= 14) return 8.2;
+  if(lines >= 11) return 8.9;
+  if(lines >= 8) return 9.6;
+  if(lines >= 5) return 10.5;
+  if(lines >= 3) return 11.2;
+  return 12.0;
 }
 
 function updateDashboardStats(){
@@ -2104,11 +2106,12 @@ function buildSheetMarkup(){
     if(isDayoffShift && !rawText) rawText = 'OFF';
     const isOff = isDayoffShift || rawText.toUpperCase() === 'OFF';
     const totalChars = rawText.length;
-    const lineCount = rawText ? rawText.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 26)), 0) : 0;
+    const lineCount = rawText ? rawText.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 24)), 0) : 0;
     let fontPx = computeTaskFontPx(rawText);
     if(!isOff && rawText){
-      if(totalChars > 340 || lineCount > 14) fontPx = Math.max(6.5, fontPx - 0.5);
-      else if(totalChars <= 90 && lineCount <= 3) fontPx = Math.min(9.4, fontPx + 0.6);
+      if(totalChars > 380 || lineCount > 15) fontPx = Math.max(7.6, fontPx - 0.6);
+      else if(totalChars > 260 || lineCount > 11) fontPx = Math.max(8.2, fontPx - 0.4);
+      else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(12.6, fontPx + 0.8);
     }
 
     const effectiveAlign = isOff ? 'center' : align;
@@ -2148,9 +2151,37 @@ function buildSheetMarkup(){
 let currentPreviewZoom = 'fit';
 let currentPreviewViewport = 'desktop';
 
+function fitPreviewSheetTextSizes(root){
+  if(!root) return;
+  const bodies = root.querySelectorAll('.pv-body');
+  bodies.forEach(body => {
+    const cell = body.closest('.pv-cell');
+    if(!cell || cell.classList.contains('pv-empty-row-cell')) return;
+    const head = cell.querySelector('.pv-head');
+    const cellStyles = getComputedStyle(cell);
+    const padTop = parseFloat(cellStyles.paddingTop) || 0;
+    const padBot = parseFloat(cellStyles.paddingBottom) || 0;
+    const headH = head ? head.getBoundingClientRect().height : 0;
+    const availableH = Math.max(14, cell.clientHeight - padTop - padBot - headH - 2);
+    const availableW = Math.max(24, body.clientWidth || (cell.clientWidth - 6));
+
+    let currentPx = parseFloat(body.style.fontSize) || 11.2;
+    const minPx = body.classList.contains('is-off') ? 9.5 : 7.4;
+
+    body.style.fontSize = currentPx + 'px';
+    let guard = 0;
+    while(guard < 40 && currentPx > minPx && (body.scrollHeight > availableH + 0.5 || body.scrollWidth > availableW + 0.5)){
+      currentPx = Math.max(minPx, +(currentPx - 0.35).toFixed(2));
+      body.style.fontSize = currentPx + 'px';
+      guard++;
+    }
+  });
+}
+
 function buildA4PreviewSheet(){
   const mount = document.getElementById('a4SheetMount');
   mount.innerHTML = buildSheetMarkup();
+  fitPreviewSheetTextSizes(mount);
 }
 
 function updatePreviewScale(){
@@ -2216,6 +2247,7 @@ function closeA4Preview(){
 function triggerExactPrint(){
   const wrapper = document.getElementById('printSheetWrapper');
   wrapper.innerHTML = '<div class="a4-sheet">' + buildSheetMarkup() + '</div>';
+  fitPreviewSheetTextSizes(wrapper);
   window.print();
 }
 
@@ -2281,6 +2313,7 @@ window.addEventListener('beforeprint', function(){
   const wrapper = document.getElementById('printSheetWrapper');
   if(wrapper && !wrapper.innerHTML.trim()){
     wrapper.innerHTML = '<div class="a4-sheet">' + buildSheetMarkup() + '</div>';
+    fitPreviewSheetTextSizes(wrapper);
   }
 });
 window.addEventListener('afterprint', function(){
