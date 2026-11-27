@@ -1,3 +1,4 @@
+I-click ang Copy sa code block sa ibaba at i-paste nang buo sa index.html ng GitHub repository mo:
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Editable Workplan Calendar</title><style>
 :root{
   --bg:#f8fafc;
@@ -1107,8 +1108,7 @@ function getDaysInMonth(y, m){
 
 function computeTaskFontPx(text){
   if(!text || !text.trim()) return 8.2;
-  const lines = text.split('
-').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 28)), 0);
+  const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 28)), 0);
   if(lines >= 12) return 5.8;
   if(lines >= 10) return 6.2;
   if(lines >= 8) return 6.8;
@@ -1296,20 +1296,18 @@ function render(){
     apply.textContent = 'Apply';
     apply.onclick = () => {
       const raw = [...list.querySelectorAll('input:checked')].map(c => c.value);
-      const selected = raw.map(t => cap.value === 'upper' ? t.toUpperCase() : t.replace(/ \w/g, ch => ch.toUpperCase()));
+      const selected = raw.map(t => cap.value === 'upper' ? t.toUpperCase() : t.replace(/\b\w/g, ch => ch.toUpperCase()));
       const currentAlign = document.getElementById('textAlign').value || 'left';
 
       if(selected.length){
-        const bundle = selected.map(t => '- ' + t).join('
-');
+        const bundle = selected.map(t => '- ' + t).join('\n');
         for(let targetDay = day; targetDay <= daysInMonth; targetDay += 7){
           const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
           const target = targetCell?.querySelector('textarea');
           const targetShiftVal = (targetCell?.querySelector('.shift-select')?.value || '').toUpperCase();
           if(target){
             const existing = target.value.trim().toUpperCase();
-            const isDayOff = targetShiftVal === 'DAYOFF' || existing === 'OFF' || existing.split(/
-/).some(line => line.trim() === 'OFF');
+            const isDayOff = targetShiftVal === 'DAYOFF' || existing === 'OFF' || existing.split(/\n/).some(line => line.trim() === 'OFF');
             if(targetDay !== day && isDayOff) continue;
 
             if(targetDay === day && targetShiftVal === 'DAYOFF'){
@@ -1483,10 +1481,7 @@ function buildSheetMarkup(){
     const isDayoffShift = rawShiftVal.toUpperCase() === 'DAYOFF';
     const shiftVal = isDayoffShift ? '' : rawShiftVal;
     const ta = cell.querySelector('textarea');
-    let rawText = (ta && !ta.classList.contains('task-note-hidden')) ? ta.value.replace(/
-
-+/g, '
-').trim() : '';
+    let rawText = (ta && !ta.classList.contains('task-note-hidden')) ? ta.value.replace(/\n\n+/g, '\n').trim() : '';
     if(isDayoffShift && !rawText) rawText = 'OFF';
     const isOff = isDayoffShift || rawText.toUpperCase() === 'OFF';
     const fontPx = computeTaskFontPx(rawText);
@@ -1669,3 +1664,4 @@ window.addEventListener('afterprint', function(){
 </script>
 </body>
 </html>
+
