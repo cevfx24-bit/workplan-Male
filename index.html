@@ -942,10 +942,11 @@ button.secondary:hover{
 .a4-sheet .pv-body{
   flex:1 1 auto;
   min-height:0;
+  max-height:100%;
   width:100%;
   white-space:pre-line;
-  overflow-wrap:break-word;
-  word-break:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
   line-height:1.14;
   color:#111;
   overflow:hidden;
@@ -1101,7 +1102,6 @@ button.secondary:hover{
   }
 }
 
-
 .dashboard-bar{
   position:static;
   top:auto;
@@ -1204,7 +1204,6 @@ button.secondary:hover{
   }
 }
 
-
 .header-right-tools{
   display:flex;
   align-items:center;
@@ -1273,7 +1272,6 @@ button.secondary:hover{
   }
 }
 
-
 .header-top-row{
   align-items:flex-start;
 }
@@ -1332,7 +1330,6 @@ button.secondary:hover{
     height:28px;
   }
 }
-
 
 #resetConfirmOverlay{
   position:fixed;
@@ -1407,7 +1404,6 @@ button.secondary:hover{
   background:#b91c1c;
   transform:none;
 }
-
 </style>
 </head>
 <body>
@@ -1489,7 +1485,6 @@ button.secondary:hover{
           <option value="2040">2040</option>
         </select>
       </label>
-
     </div>
 
     <div class="stats-strip" aria-label="Monthly Schedule Summary">
@@ -1554,7 +1549,6 @@ button.secondary:hover{
     </div>
   </div>
 </div>
-
 
 <div id="resetConfirmOverlay" role="dialog" aria-modal="true" aria-labelledby="resetConfirmTitle">
   <div class="reset-confirm-card">
@@ -2122,7 +2116,6 @@ function clearMonth(){
   };
 }
 
-
 function syncTextAlignTap(val){
   document.querySelectorAll('#textAlignTap button').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.align === val);
@@ -2204,10 +2197,20 @@ function buildSheetMarkup(){
       else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(12.6, fontPx + 0.8);
     }
 
+    if(!isOff && rawText){
+      const activeRows = Math.max(1, activeRowCount);
+      const taskCount = rawText.split('\n').filter(l => l.trim()).length;
+      if(taskCount <= 7 && activeRows <= 5){
+        fontPx = Math.max(fontPx, lineCount <= 10 ? 11.0 : 9.8);
+      } else if(taskCount <= 7){
+        fontPx = Math.max(fontPx, 9.6);
+      }
+    }
+
     const effectiveAlign = isOff ? 'center' : align;
     const justifyContent = isOff ? 'center' : (align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'));
     const alignItems = 'center';
-    const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.14' : '1.2');
+    const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.12' : '1.18');
 
     const safeNum = num.replace(/</g,'&lt;');
     const safeShift = shiftVal.replace(/</g,'&lt;');
@@ -2218,7 +2221,7 @@ function buildSheetMarkup(){
         '<span class="pv-num">'+safeNum+'</span>' +
         (safeShift ? '<span class="pv-shift">'+safeShift+'</span>' : '') +
       '</div>' +
-      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '7px' : '0'))+'">'+safeBody+'</div>' : '') +
+      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '6px' : '0'))+';padding-right:'+(isOff ? '0' : (effectiveAlign === 'right' ? '6px' : '0'))+';"><div class="pv-body-inner" style="width:100%;max-height:100%;text-align:'+effectiveAlign+';">'+safeBody+'</div></div>' : '') +
     '</div>';
   });
 
@@ -2241,13 +2244,13 @@ function buildSheetMarkup(){
 let currentPreviewZoom = 'fit';
 let currentPreviewViewport = 'desktop';
 
-
 function fitPreviewSheetTextSizes(root){
   if(!root) return;
   const bodies = root.querySelectorAll('.pv-body');
   bodies.forEach(body => {
     const cell = body.closest('.pv-cell');
     if(!cell || cell.classList.contains('pv-empty-row-cell')) return;
+    const inner = body.querySelector('.pv-body-inner') || body;
     const head = cell.querySelector('.pv-head');
     const cellStyles = getComputedStyle(cell);
     const padTop = parseFloat(cellStyles.paddingTop) || 0;
@@ -2257,12 +2260,12 @@ function fitPreviewSheetTextSizes(root){
     const availableW = Math.max(24, body.clientWidth || (cell.clientWidth - 6));
 
     let currentPx = parseFloat(body.style.fontSize) || 11.2;
-    const minPx = body.classList.contains('is-off') ? 9.5 : 7.4;
+    const minPx = body.classList.contains('is-off') ? 9.0 : 5.0;
 
     body.style.fontSize = currentPx + 'px';
     let guard = 0;
-    while(guard < 40 && currentPx > minPx && (body.scrollHeight > availableH + 0.5 || body.scrollWidth > availableW + 0.5)){
-      currentPx = Math.max(minPx, +(currentPx - 0.35).toFixed(2));
+    while(guard < 80 && currentPx > minPx && (inner.scrollHeight > availableH || body.scrollHeight > availableH || inner.scrollWidth > availableW || body.scrollWidth > availableW)){
+      currentPx = Math.max(minPx, +(currentPx - 0.25).toFixed(2));
       body.style.fontSize = currentPx + 'px';
       guard++;
     }
