@@ -1723,8 +1723,8 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   max-height:100%;
   width:100%;
   white-space:pre-line;
-  overflow-wrap:anywhere;
-  word-break:break-word;
+  overflow-wrap:break-word;
+  word-break:normal;
   line-height:1.14;
   color:#111;
   overflow:hidden;
@@ -1734,6 +1734,9 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   text-align:center;
 }
 .a4-sheet .pv-body-inner{
+  max-width:100%;
+  overflow-wrap:break-word;
+  word-break:normal;
   overflow:hidden;
 }
 .a4-sheet .pv-body.is-off{
@@ -3789,7 +3792,7 @@ function buildSheetMarkup(titleId = 'title', calId = 'calendar', sigId = 'signat
         '<span class="pv-num">'+safeNum+'</span>' +
         (safeShift ? '<span class="pv-shift">'+safeShift+'</span>' : '') +
       '</div>' +
-      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '5px' : '0'))+';padding-right:'+(isOff ? '0' : (effectiveAlign === 'right' ? '5px' : '0'))+';"><div class="pv-body-inner" style="width:100%;text-align:'+effectiveAlign+';">'+safeBody+'</div></div>' : '') +
+      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '5px' : '0'))+';padding-right:'+(isOff ? '0' : (effectiveAlign === 'right' ? '5px' : '0'))+';"><div class="pv-body-inner" style="width:100%;max-width:100%;text-align:'+effectiveAlign+';">'+safeBody+'</div></div>' : '') +
     '</div>';
   });
 
@@ -3834,6 +3837,12 @@ function collectSheetStyleCSS(){
       }
     } catch {}
   }
+  css += `
+    *, *::before, *::after { box-sizing: border-box !important; }
+    .a4-sheet .pv-cell { overflow: hidden !important; max-width: 100% !important; }
+    .a4-sheet .pv-body { overflow: hidden !important; max-width: 100% !important; overflow-wrap: break-word !important; word-break: normal !important; }
+    .a4-sheet .pv-body-inner { overflow: hidden !important; max-width: 100% !important; overflow-wrap: break-word !important; word-break: normal !important; }
+  `;
   return css;
 }
 
@@ -3848,11 +3857,13 @@ function rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH){
     clone.style.boxShadow = 'none';
     clone.style.width = '297mm';
     clone.style.height = '210mm';
+    clone.style.boxSizing = 'border-box';
+    clone.style.overflow = 'hidden';
 
     const xhtml =
       `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${renderH}" viewBox="0 0 ${renderW} ${renderH}">` +
       `<foreignObject x="0" y="0" width="297mm" height="210mm" transform="scale(${(renderW / 1122.5197).toFixed(6)})">` +
-      `<div xmlns="http://www.w3.org/1999/xhtml" style="width:297mm;height:210mm;background:#ffffff;">` +
+      `<div xmlns="http://www.w3.org/1999/xhtml" style="width:297mm;height:210mm;background:#ffffff;overflow:hidden;box-sizing:border-box;">` +
       `<style>${styleCSS}</style>` +
       clone.outerHTML +
       `</div></foreignObject></svg>`;
@@ -4241,9 +4252,11 @@ function fitPreviewSheetTextSizes(root){
     const cellStyles = getComputedStyle(cell);
     const padTop = parseFloat(cellStyles.paddingTop) || 0;
     const padBot = parseFloat(cellStyles.paddingBottom) || 0;
+    const padLeft = parseFloat(cellStyles.paddingLeft) || 0;
+    const padRight = parseFloat(cellStyles.paddingRight) || 0;
     const headH = head ? head.getBoundingClientRect().height : 0;
     const availableH = Math.max(10, cell.clientHeight - padTop - padBot - headH - 2);
-    const availableW = Math.max(18, (body.clientWidth || (cell.clientWidth - 4)) - 2);
+    const availableW = Math.max(18, cell.clientWidth - padLeft - padRight - 2);
 
     let currentPx = parseFloat(body.style.fontSize) || 10.5;
     const minPx = body.classList.contains('is-off') ? 8.5 : 4.6;
