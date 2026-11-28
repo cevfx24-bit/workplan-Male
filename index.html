@@ -98,6 +98,302 @@ body.theme-dark{
   background:radial-gradient(circle at 50% -10%,#111c33 0%,#070b14 52%);
 }
 
+/* Modern Floating Side Tag + Workplan Page Selector Popover */
+.new-cal-left-tag{
+  position:fixed;
+  left:0;
+  top:52%;
+  transform:translateY(-50%);
+  z-index:190;
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  width:auto;
+  height:auto;
+  min-width:30px;
+  min-height:108px;
+  padding:10px 5px;
+  border-radius:0 14px 14px 0;
+  border:1px solid rgba(59,130,246,0.36);
+  border-left:0;
+  background:linear-gradient(180deg,var(--surface-elevated) 0%,var(--accent-soft) 100%);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  color:var(--ink);
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  box-shadow:4px 8px 22px rgba(15,23,42,0.16),inset 0 1px 0 rgba(255,255,255,0.45);
+  gap:5px;
+}
+body.theme-dark .new-cal-left-tag{
+  background:linear-gradient(180deg,rgba(21,30,48,0.95) 0%,rgba(37,99,235,0.22) 100%);
+  border-color:rgba(96,165,250,0.35);
+  box-shadow:4px 10px 24px rgba(2,6,23,0.6),inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.new-cal-left-tag:hover{
+  background:linear-gradient(180deg,#3b82f6 0%,#4f46e5 100%);
+  border-color:rgba(147,197,253,0.6);
+  color:#ffffff;
+  transform:translateY(-50%) translateX(2px);
+  box-shadow:6px 10px 26px rgba(37,99,235,0.38),inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.new-cal-left-tag.is-active{
+  background:linear-gradient(180deg,#2563eb 0%,#4f46e5 100%);
+  border-color:rgba(147,197,253,0.65);
+  color:#ffffff;
+  box-shadow:5px 8px 24px rgba(79,70,229,0.35),inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.new-cal-left-tag svg{
+  width:12px;
+  height:12px;
+}
+
+.new-cal-popover{
+  position:fixed;
+  left:36px;
+  top:52%;
+  transform:translateY(-50%);
+  z-index:220;
+  width:274px;
+  max-width:calc(100vw - 48px);
+  background:var(--surface-elevated);
+  border:1px solid var(--line-strong);
+  border-radius:16px;
+  box-shadow:var(--shadow-lg);
+  padding:15px;
+  display:none;
+  flex-direction:column;
+  gap:12px;
+}
+.new-cal-popover.open{
+  display:flex;
+}
+.new-cal-pop-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.new-cal-pop-title{
+  font-size:13px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-0.01em;
+}
+.new-cal-pop-sub{
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.35;
+  margin-top:2px;
+}
+.page-count-pills{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+.page-count-pill{
+  height:32px;
+  padding:0 6px;
+  border-radius:9px;
+  background:var(--surface-subtle);
+  border:1px solid var(--line-strong);
+  color:var(--ink-secondary);
+  font-size:11.5px;
+  font-weight:650;
+  box-shadow:none;
+}
+.page-count-pill:hover{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:none;
+  box-shadow:none;
+}
+.page-count-pill.active{
+  background:linear-gradient(135deg,#2563eb 0%,#4f46e5 100%);
+  border-color:transparent;
+  color:#ffffff;
+}
+.custom-pages-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 10px;
+  border-radius:10px;
+  background:var(--surface-subtle);
+  border:1px solid var(--line);
+}
+.custom-pages-label{
+  font-size:11px;
+  font-weight:650;
+  color:var(--ink-secondary);
+}
+.stepper-box{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.stepper-btn{
+  width:26px;
+  height:26px;
+  min-width:26px;
+  padding:0;
+  border-radius:7px;
+  background:var(--surface-elevated);
+  border:1px solid var(--line-strong);
+  color:var(--ink);
+  font-size:13px;
+  font-weight:700;
+  box-shadow:none;
+}
+.stepper-btn:hover{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:none;
+  box-shadow:none;
+}
+.stepper-val{
+  min-width:22px;
+  text-align:center;
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.btn-create-cal-modern{
+  width:100%;
+  height:38px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#2563eb 0%,#4f46e5 100%);
+  border:1px solid rgba(99,102,241,0.55);
+  color:#ffffff;
+  font-size:12.5px;
+  font-weight:700;
+  box-shadow:0 8px 18px rgba(37,99,235,0.28),inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.btn-create-cal-modern:hover{
+  background:linear-gradient(135deg,#1d4ed8 0%,#4338ca 100%);
+  box-shadow:0 10px 22px rgba(37,99,235,0.38),inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* Styled Workplan Month Separator */
+.extra-cal-section{
+  margin-top:28px;
+  padding-top:6px;
+}
+.cal-month-separator{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:14px;
+  padding:10px 14px;
+  background:linear-gradient(90deg,var(--accent-soft) 0%,var(--surface) 65%,var(--surface-subtle) 100%);
+  border:1px solid var(--line-strong);
+  border-left:4px solid var(--accent);
+  border-radius:12px;
+  box-shadow:var(--shadow-xs);
+}
+.cal-sep-left{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.cal-sep-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:3px 9px;
+  border-radius:999px;
+  background:var(--accent);
+  color:#ffffff;
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.cal-sep-month-label{
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-0.01em;
+}
+.cal-sep-month-pill{
+  display:inline-flex;
+  align-items:center;
+  padding:3px 10px;
+  border-radius:8px;
+  background:var(--surface-elevated);
+  border:1px solid var(--line-strong);
+  color:var(--accent);
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:0.02em;
+}
+.extra-cal-banner-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.btn-modern-soft{
+  height:30px;
+  padding:0 11px;
+  font-size:11px;
+  font-weight:650;
+  border-radius:8px;
+  background:var(--surface-elevated);
+  border:1px solid var(--line-strong);
+  color:var(--ink-secondary);
+  box-shadow:var(--shadow-xs);
+}
+.btn-modern-soft:hover{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:none;
+  box-shadow:none;
+}
+.btn-mini-danger{
+  height:30px;
+  padding:0 11px;
+  font-size:11px;
+  font-weight:650;
+  border-radius:8px;
+  background:var(--danger-soft);
+  border:1px solid rgba(239,68,68,0.35);
+  color:var(--danger);
+  box-shadow:none;
+}
+.btn-mini-danger:hover{
+  background:var(--danger);
+  color:#ffffff;
+  transform:none;
+  box-shadow:none;
+}
+.btn-close-pop{
+  width:26px;
+  height:26px;
+  min-width:26px;
+  padding:0;
+  border-radius:7px;
+  background:var(--surface-subtle);
+  border:1px solid var(--line-strong);
+  color:var(--ink-secondary);
+  font-size:11px;
+  box-shadow:none;
+}
+.btn-close-pop:hover{
+  background:var(--danger-soft);
+  border-color:rgba(239,68,68,0.35);
+  color:var(--danger);
+  transform:none;
+  box-shadow:none;
+}
+
 /* Modern Glassmorphic Sticky Top Bar */
 header{
   position:sticky;
@@ -169,7 +465,7 @@ header h1{
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  gap:10px;
+  gap:8px;
   flex-wrap:nowrap;
 }
 .header-actions{
@@ -281,7 +577,7 @@ button.secondary:hover{
 .word-align-group{
   display:inline-flex;
   align-items:center;
-  gap:3px;
+  gap:2px;
   padding:3px;
   height:38px;
   background:var(--hdr-tool-bg);
@@ -291,9 +587,9 @@ button.secondary:hover{
   flex-shrink:0;
 }
 .word-align-group button{
-  width:34px;
+  width:32px;
   height:30px;
-  min-width:34px;
+  min-width:32px;
   min-height:30px;
   padding:0;
   border:1px solid transparent;
@@ -324,7 +620,34 @@ button.secondary:hover{
 .wrap{
   max-width:1480px;
   margin:0 auto;
-  padding:20px clamp(14px,3vw,32px) 40px;
+  padding:20px clamp(14px,3vw,32px) 24px 40px;
+}
+
+/* Bottom-Right Developer Footer */
+.app-footer{
+  max-width:1480px;
+  margin:0 auto;
+  padding:8px clamp(14px,3vw,32px) 24px 40px;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+}
+.dev-credit-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  color:var(--muted);
+  font-size:11.5px;
+  font-weight:500;
+  box-shadow:var(--shadow-xs);
+}
+.dev-credit-badge strong{
+  color:var(--ink);
+  font-weight:700;
 }
 
 /* Top Toolbar + Live Summary Strip */
@@ -566,7 +889,7 @@ button.secondary:hover{
   border:1px solid var(--line-strong);
   box-shadow:var(--shadow-lg);
   border-radius:10px;
-  padding:4px;
+  padding:0 4px 4px;
   min-width:148px;
   max-width:calc(100vw - 16px);
   max-height:calc(100vh - 120px);
@@ -578,6 +901,29 @@ button.secondary:hover{
 }
 .shift-pick.dropdown-open .shift-menu{
   display:flex;
+}
+.shift-sticky-header{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:var(--surface-elevated);
+  padding:4px 0 4px;
+  margin-bottom:2px;
+  border-bottom:1px solid var(--line);
+}
+.shift-include-below-bar{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 7px;
+  background:var(--accent-soft);
+  border:1px solid rgba(59,130,246,0.35);
+  border-radius:6px;
+  font-size:10px;
+  font-weight:600;
+  color:var(--accent);
+  cursor:pointer;
+  white-space:nowrap;
 }
 .shift-menu-item{
   width:100%;
@@ -670,18 +1016,45 @@ button.secondary:hover{
   left:auto;
   right:0;
 }
-.task-top-bar{
+/* Sticky Header Group for Task Dropdown (Case/Clear/Apply + Include Succeeding Boxes Below) */
+.task-sticky-header{
   position:sticky;
   top:0;
-  z-index:12;
+  z-index:15;
   background:var(--surface-elevated);
+  margin:0 -8px 6px;
+  padding:7px 8px 6px;
+  border-bottom:1px solid var(--line);
+  box-shadow:0 4px 10px rgba(15,23,42,0.08);
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.task-top-bar{
   display:flex;
   align-items:center;
   gap:5px;
-  margin:0 -8px 6px;
-  padding:7px 8px;
-  border-bottom:1px solid var(--line);
-  box-shadow:0 3px 8px rgba(15,23,42,0.06);
+}
+.taskpick label.include-below-bar{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:6px 8px;
+  margin:0;
+  background:var(--accent-soft);
+  border:1px solid rgba(59,130,246,0.38);
+  border-radius:7px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--accent);
+  line-height:1.25;
+  cursor:pointer;
+}
+.taskpick label.include-below-bar:hover{
+  background:rgba(59,130,246,0.2);
+}
+.taskpick label.include-below-bar input[type="checkbox"]{
+  margin:0;
 }
 .taskpick .tasklist button.case-toggle-btn{
   flex:1 1 auto;
@@ -951,7 +1324,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 /* Minimalist Signatory Cards */
 .signatures{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:16px;
   margin-top:18px;
   font-size:9.5pt;
@@ -1119,8 +1492,10 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   -webkit-overflow-scrolling:touch;
   padding:18px;
   display:flex;
-  align-items:flex-start;
+  flex-direction:column;
+  align-items:center;
   justify-content:flex-start;
+  gap:20px;
 }
 .preview-stage.is-phone-sim{
   justify-content:center;
@@ -1129,8 +1504,10 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 .preview-device-frame{
   margin:auto;
   display:flex;
-  align-items:flex-start;
-  justify-content:center;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:20px;
   transition:all .2s ease;
 }
 .preview-device-frame.phone-mode{
@@ -1416,7 +1793,17 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     padding-top:max(10px,env(safe-area-inset-top));
   }
   header h1{font-size:0.98rem}
-  .wrap{padding:14px 12px 24px}
+  .wrap{padding:14px 12px 20px 32px}
+  .app-footer{padding:6px 12px 20px 32px}
+  .new-cal-left-tag{
+    min-width:25px;
+    min-height:92px;
+    padding:7px 4px;
+    font-size:9.5px;
+  }
+  .new-cal-popover{
+    left:30px;
+  }
   .controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}
   .stats-strip{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:10px 8px;overflow-x:auto}
   .stat-item{padding:2px 6px;min-width:0}
@@ -1459,13 +1846,16 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     white-space:normal;
   }
   .header-toolbar{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
+    display:flex;
+    flex-direction:column;
     gap:7px;
     align-items:stretch;
   }
   .header-actions{
-    display:contents;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:7px;
+    align-items:stretch;
   }
   .header-actions button{
     width:100%;
@@ -1479,7 +1869,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     width:14px;
     height:14px;
   }
-  .word-align-group{
+  .header-actions .word-align-group{
     width:100%;
     height:40px;
     display:grid;
@@ -1488,7 +1878,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     gap:2px;
     border-radius:10px;
   }
-  .word-align-group button{
+  .header-actions .word-align-group button{
     width:100%;
     height:32px;
     min-width:0;
@@ -1522,9 +1912,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    height: 100% !important;
     background: #ffffff !important;
-    overflow: hidden !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -1533,22 +1921,27 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   }
   .print-sheet-wrapper{
     display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
-    height: 100% !important;
     align-items: center !important;
-    justify-content: center !important;
-    overflow: hidden !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    justify-content: flex-start !important;
+  }
+  .print-page-break{
+    break-before: page;
+    page-break-before: always;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .print-sheet-wrapper .a4-sheet{
     position: relative !important;
     top: auto !important;
     left: auto !important;
     width: 100% !important;
-    height: 100% !important;
+    height: 196mm !important;
     max-width: 100% !important;
-    max-height: 100% !important;
+    max-height: 196mm !important;
     padding: 2mm 3mm !important;
     box-shadow: none !important;
     transform: none !important;
@@ -1585,6 +1978,41 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 </style>
 </head>
 <body>
+<button type="button" class="new-cal-left-tag" id="newCalendarLeftTag" onclick="toggleNewCalPopover(event)" title="Choose number of workplan pages & add workplan" aria-expanded="false">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+  <span id="newCalendarLeftTagLabel">New Workplan</span>
+</button>
+
+<div class="new-cal-popover" id="newCalPopover" role="dialog" aria-label="Multi-Workplan Page Options" onclick="event.stopPropagation()">
+  <div class="new-cal-pop-header">
+    <div>
+      <div class="new-cal-pop-title">Workplan Pages Setup</div>
+      <div class="new-cal-pop-sub">Select how many workplan months to generate.</div>
+    </div>
+    <button type="button" class="btn-close-pop" onclick="closeNewCalPopover()" aria-label="Close popup">✕</button>
+  </div>
+
+  <div class="page-count-pills" id="pageCountPills">
+    <button type="button" class="page-count-pill" data-pages="1" onclick="selectPageCount(1)">1 Page</button>
+    <button type="button" class="page-count-pill" data-pages="2" onclick="selectPageCount(2)">2 Pages</button>
+    <button type="button" class="page-count-pill" data-pages="3" onclick="selectPageCount(3)">3 Pages</button>
+  </div>
+
+  <div class="custom-pages-row">
+    <span class="custom-pages-label">Total Pages (1–6)</span>
+    <div class="stepper-box">
+      <button type="button" class="stepper-btn" onclick="stepPageCount(-1)" aria-label="Decrease pages">−</button>
+      <span class="stepper-val" id="selectedPageCountVal">2</span>
+      <button type="button" class="stepper-btn" onclick="stepPageCount(1)" aria-label="Increase pages">+</button>
+    </div>
+  </div>
+
+  <button type="button" class="btn-create-cal-modern" onclick="applySelectedCalendarPages()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+    <span id="createCalBtnLabel">Create 2 Workplans</span>
+  </button>
+</div>
+
 <header>
   <div class="header-top-row">
     <div class="brand-block">
@@ -1603,6 +2031,19 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
           <svg id="themeToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           <span id="themeToggleLabel">Dark</span>
         </button>
+
+        <div class="word-align-group" role="group" aria-label="Text alignment" id="textAlignTap">
+          <input type="hidden" id="textAlign" value="left">
+          <button type="button" data-align="left" class="active" onclick="setTextAlignTap('left')" title="Align Left (Ctrl+L)" aria-label="Align Left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="10" x2="15" y2="10"></line><line x1="3" y1="14" x2="19" y2="14"></line><line x1="3" y1="18" x2="13" y2="18"></line></svg>
+          </button>
+          <button type="button" data-align="center" onclick="setTextAlignTap('center')" title="Align Center (Ctrl+E)" aria-label="Align Center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="6" y1="10" x2="18" y2="10"></line><line x1="4" y1="14" x2="20" y2="14"></line><line x1="7" y1="18" x2="17" y2="18"></line></svg>
+          </button>
+          <button type="button" data-align="right" onclick="setTextAlignTap('right')" title="Align Right (Ctrl+R)" aria-label="Align Right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="9" y1="10" x2="21" y2="10"></line><line x1="5" y1="14" x2="21" y2="14"></line><line x1="11" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+        </div>
 
         <button type="button" class="btn-preview" onclick="openA4Preview()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -1624,24 +2065,11 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
           <span>Reset</span>
         </button>
       </div>
-
-      <div class="word-align-group" role="group" aria-label="Text alignment" id="textAlignTap">
-        <input type="hidden" id="textAlign" value="left">
-        <button type="button" data-align="left" class="active" onclick="setTextAlignTap('left')" title="Align Left (Ctrl+L)" aria-label="Align Left">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="10" x2="15" y2="10"></line><line x1="3" y1="14" x2="19" y2="14"></line><line x1="3" y1="18" x2="13" y2="18"></line></svg>
-        </button>
-        <button type="button" data-align="center" onclick="setTextAlignTap('center')" title="Align Center (Ctrl+E)" aria-label="Align Center">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="6" y1="10" x2="18" y2="10"></line><line x1="4" y1="14" x2="20" y2="14"></line><line x1="7" y1="18" x2="17" y2="18"></line></svg>
-        </button>
-        <button type="button" data-align="right" onclick="setTextAlignTap('right')" title="Align Right (Ctrl+R)" aria-label="Align Right">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="9" y1="10" x2="21" y2="10"></line><line x1="5" y1="14" x2="21" y2="14"></line><line x1="11" y1="18" x2="21" y2="18"></line></svg>
-        </button>
-      </div>
     </div>
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="mainWorkspace">
   <div class="dashboard-bar">
     <div class="controls">
       <label>Month
@@ -1713,7 +2141,16 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
       <div class="calendar" id="calendar"></div>
     </div>
   </div>
+
+  <div id="extraCalendarsContainer"></div>
 </main>
+
+<footer class="app-footer" id="appFooter">
+  <div class="dev-credit-badge">
+    <span>Develop by</span>
+    <strong>CEV</strong>
+  </div>
+</footer>
 
 <!-- Exact Print Mount (mirrors preview sheet cleanly across Letter or A4 landscape) -->
 <div class="print-sheet-wrapper" id="printSheetWrapper" aria-hidden="true"></div>
@@ -1723,7 +2160,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   <div class="preview-bar">
     <div class="preview-bar-title">
       <span>A4 Landscape Preview</span>
-      <span class="preview-badge">Auto-Fit Letter / A4 • 1 Sheet</span>
+      <span class="preview-badge">Auto-Fit Letter / A4 • 1 Sheet/Month</span>
     </div>
     <div class="preview-actions">
       <div class="preview-seg-group" id="previewViewportControls" title="Simulate Device View">
@@ -1743,9 +2180,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   </div>
   <div class="preview-stage" id="previewStage" onclick="if(event.target===this)closeA4Preview()">
     <div class="preview-device-frame" id="previewDeviceFrame">
-      <div class="preview-scaler" id="previewScaler">
-        <div class="a4-sheet" id="a4SheetMount"></div>
-      </div>
+      <div id="previewSheetsList" style="display:flex;flex-direction:column;align-items:center;gap:20px;"></div>
     </div>
   </div>
 </div>
@@ -1753,7 +2188,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 <div id="resetConfirmOverlay" role="dialog" aria-modal="true" aria-labelledby="resetConfirmTitle">
   <div class="reset-confirm-card">
     <h2 class="reset-confirm-title" id="resetConfirmTitle">Reset schedule?</h2>
-    <p class="reset-confirm-desc">This will clear all saved shifts and tasks for the selected month.</p>
+    <p class="reset-confirm-desc" id="resetConfirmDesc">This will clear all saved shifts and tasks for the selected month.</p>
     <div class="reset-confirm-actions">
       <button type="button" class="reset-btn-cancel" id="resetCancelBtn">Cancel</button>
       <button type="button" class="reset-btn-confirm" id="resetConfirmBtn">Reset</button>
@@ -1804,6 +2239,9 @@ const taskOptions=[
   'Cleaning Around the Area'
 ];
 
+let totalCalendarPages = 1;
+let pendingPageCount = 2;
+
 function syncThemeUI(){
   const isDark = document.body.classList.contains('theme-dark');
   const iconEl = document.getElementById('themeToggleIcon');
@@ -1833,12 +2271,193 @@ function toggleThemeMode(){
   syncThemeUI();
 })();
 
-function key(){
-  return 'workplan-'+document.getElementById('year').value+'-'+document.getElementById('month').value;
+function syncPageSelectorUI(){
+  const valEl = document.getElementById('selectedPageCountVal');
+  const btnLbl = document.getElementById('createCalBtnLabel');
+  const tagEl = document.getElementById('newCalendarLeftTag');
+  const tagLbl = document.getElementById('newCalendarLeftTagLabel');
+
+  if(valEl) valEl.textContent = String(pendingPageCount);
+  if(btnLbl){
+    btnLbl.textContent = pendingPageCount === 1
+      ? 'Use 1 Workplan Page'
+      : 'Create ' + pendingPageCount + ' Workplans';
+  }
+  document.querySelectorAll('#pageCountPills .page-count-pill').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.pages) === pendingPageCount);
+  });
+  if(tagEl){
+    tagEl.classList.toggle('is-active', totalCalendarPages > 1);
+  }
+  if(tagLbl){
+    tagLbl.textContent = totalCalendarPages > 1
+      ? totalCalendarPages + ' Workplans'
+      : 'New Workplan';
+  }
 }
 
-function customTasksKey(){
-  return 'workplan-custom-tasks-'+document.getElementById('year').value+'-'+document.getElementById('month').value;
+function toggleNewCalPopover(e){
+  if(e) e.stopPropagation();
+  const pop = document.getElementById('newCalPopover');
+  const tag = document.getElementById('newCalendarLeftTag');
+  if(!pop) return;
+  const willOpen = !pop.classList.contains('open');
+  if(willOpen){
+    pendingPageCount = Math.max(2, totalCalendarPages || 2);
+    syncPageSelectorUI();
+    pop.classList.add('open');
+    if(tag) tag.setAttribute('aria-expanded', 'true');
+  } else {
+    pop.classList.remove('open');
+    if(tag) tag.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function closeNewCalPopover(){
+  const pop = document.getElementById('newCalPopover');
+  const tag = document.getElementById('newCalendarLeftTag');
+  if(pop) pop.classList.remove('open');
+  if(tag) tag.setAttribute('aria-expanded', 'false');
+}
+
+function selectPageCount(count){
+  pendingPageCount = Math.max(1, Math.min(6, Number(count) || 1));
+  syncPageSelectorUI();
+}
+
+function stepPageCount(delta){
+  pendingPageCount = Math.max(1, Math.min(6, pendingPageCount + delta));
+  syncPageSelectorUI();
+}
+
+function getMonthYearSelectOptionsHTML(selectedYear){
+  let html = '';
+  for(let y = 2020; y <= 2040; y++){
+    html += '<option value="'+y+'"'+(Number(selectedYear) === y ? ' selected' : '')+'>'+y+'</option>';
+  }
+  return html;
+}
+
+function getMonthSelectOptionsHTML(selectedMonth){
+  return monthNames.map((name, idx) =>
+    '<option value="'+idx+'"'+(Number(selectedMonth) === idx ? ' selected' : '')+'>'+name+'</option>'
+  ).join('');
+}
+
+function updateCalendarSeparatorMonth(idx){
+  const mSel = document.getElementById('month' + idx);
+  const ySel = document.getElementById('year' + idx);
+  const pillEl = document.getElementById('calSepMonthPill' + idx);
+  if(!mSel || !ySel || !pillEl) return;
+  const m = +mSel.value;
+  const y = +ySel.value;
+  pillEl.textContent = monthNames[m].toUpperCase() + ' ' + y;
+}
+
+function buildExtraCalendarSections(){
+  const container = document.getElementById('extraCalendarsContainer');
+  if(!container) return;
+
+  const prevState = {};
+  container.querySelectorAll('.extra-cal-section').forEach(sec => {
+    const idx = Number(sec.dataset.calIndex);
+    prevState[idx] = {
+      month: document.getElementById('month' + idx)?.value,
+      year: document.getElementById('year' + idx)?.value
+    };
+  });
+
+  container.innerHTML = '';
+  const baseM = +document.getElementById('month').value;
+  const baseY = +document.getElementById('year').value;
+
+  for(let idx = 2; idx <= totalCalendarPages; idx++){
+    const offsetMonths = idx - 1;
+    const defaultTotalM = baseY * 12 + baseM + offsetMonths;
+    const defaultY = Math.floor(defaultTotalM / 12);
+    const defaultM = defaultTotalM % 12;
+
+    const chosenY = prevState[idx]?.year ?? defaultY;
+    const chosenM = prevState[idx]?.month ?? defaultM;
+    const initialMonthText = monthNames[Number(chosenM)].toUpperCase() + ' ' + chosenY;
+
+    const sec = document.createElement('section');
+    sec.className = 'extra-cal-section';
+    sec.id = 'extraCalendarSection' + idx;
+    sec.dataset.calIndex = String(idx);
+    sec.setAttribute('aria-label', 'Workplan #' + idx);
+
+    sec.innerHTML =
+      '<div class="cal-month-separator" id="calMonthSeparator' + idx + '">' +
+        '<div class="cal-sep-left">' +
+          '<span class="cal-sep-tag">WORKPLAN #' + idx + '</span>' +
+          '<span class="cal-sep-month-label">Workplan Month:</span>' +
+          '<span class="cal-sep-month-pill" id="calSepMonthPill' + idx + '">' + initialMonthText + '</span>' +
+        '</div>' +
+        '<div class="extra-cal-banner-actions">' +
+          '<button type="button" class="btn-modern-soft" onclick="clearCalendarSlot(' + idx + ')">Reset #' + idx + '</button>' +
+          '<button type="button" class="btn-mini-danger" onclick="removeCalendarSlot(' + idx + ')">Remove</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="dashboard-bar">' +
+        '<div class="controls">' +
+          '<label>Month (#' + idx + ')<select id="month' + idx + '" onchange="renderExtraCalendar(' + idx + ')">' + getMonthSelectOptionsHTML(chosenM) + '</select></label>' +
+          '<label>Year (#' + idx + ')<select id="year' + idx + '" onchange="renderExtraCalendar(' + idx + ')">' + getMonthYearSelectOptionsHTML(chosenY) + '</select></label>' +
+        '</div>' +
+        '<div class="stats-strip" aria-label="Workplan #' + idx + ' Summary">' +
+          '<div class="stat-item"><span class="stat-label">Days</span><span class="stat-value" id="statTotalDays' + idx + '">30</span></div>' +
+          '<div class="stat-item"><span class="stat-label">Scheduled</span><span class="stat-value is-blue" id="statScheduled' + idx + '">0</span></div>' +
+          '<div class="stat-item"><span class="stat-label">Dayoffs</span><span class="stat-value is-red" id="statDayoffs' + idx + '">0</span></div>' +
+          '<div class="stat-item"><span class="stat-label">Open</span><span class="stat-value is-muted" id="statOpen' + idx + '">30</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sheet-card">' +
+        '<div class="monthtitle" id="title' + idx + '"></div>' +
+        '<div class="calendar-scroll"><div class="calendar" id="calendar' + idx + '"></div></div>' +
+        '<div class="signatures" id="signatures' + idx + '"></div>' +
+      '</div>';
+
+    container.append(sec);
+    renderExtraCalendar(idx);
+  }
+}
+
+function applySelectedCalendarPages(){
+  totalCalendarPages = Math.max(1, Math.min(6, pendingPageCount));
+  localStorage.setItem('workplan-total-pages', String(totalCalendarPages));
+  closeNewCalPopover();
+  syncPageSelectorUI();
+  buildExtraCalendarSections();
+
+  if(totalCalendarPages > 1){
+    const targetSec = document.getElementById('extraCalendarSection2');
+    targetSec?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showResetToast(totalCalendarPages + ' workplan pages ready.');
+  } else {
+    showResetToast('Single workplan active.');
+  }
+}
+
+function removeCalendarSlot(idx){
+  totalCalendarPages = Math.max(1, idx - 1);
+  localStorage.setItem('workplan-total-pages', String(totalCalendarPages));
+  syncPageSelectorUI();
+  buildExtraCalendarSections();
+  showResetToast('Workplan #' + idx + ' removed.');
+}
+
+function key(slot = 1){
+  if(slot > 1){
+    return 'workplan-cal' + slot + '-' + document.getElementById('year' + slot).value + '-' + document.getElementById('month' + slot).value;
+  }
+  return 'workplan-' + document.getElementById('year').value + '-' + document.getElementById('month').value;
+}
+
+function customTasksKey(slot = 1){
+  if(slot > 1){
+    return 'workplan-custom-tasks-cal' + slot + '-' + document.getElementById('year' + slot).value + '-' + document.getElementById('month' + slot).value;
+  }
+  return 'workplan-custom-tasks-' + document.getElementById('year').value + '-' + document.getElementById('month').value;
 }
 
 function getAllTaskOptions(savedCustomTasks){
@@ -1949,8 +2568,10 @@ function positionTaskDropdown(toggleEl, listEl, pickWrap){
   }
 }
 
-function updateDashboardStats(){
-  const dayCells = document.querySelectorAll('.day[data-day]');
+function updateDashboardStatsForContainer(calId, ids){
+  const calEl = document.getElementById(calId);
+  if(!calEl) return;
+  const dayCells = calEl.querySelectorAll('.day[data-day]');
   const total = dayCells.length;
   let scheduled = 0;
   let dayoffs = 0;
@@ -1966,14 +2587,31 @@ function updateDashboardStats(){
   });
 
   const open = Math.max(0, total - scheduled - dayoffs);
-  const elTotal = document.getElementById('statTotalDays');
-  const elSched = document.getElementById('statScheduled');
-  const elOff = document.getElementById('statDayoffs');
-  const elOpen = document.getElementById('statOpen');
+  const elTotal = document.getElementById(ids.total);
+  const elSched = document.getElementById(ids.scheduled);
+  const elOff = document.getElementById(ids.dayoffs);
+  const elOpen = document.getElementById(ids.open);
   if(elTotal) elTotal.textContent = total;
   if(elSched) elSched.textContent = scheduled;
   if(elOff) elOff.textContent = dayoffs;
   if(elOpen) elOpen.textContent = open;
+}
+
+function updateDashboardStats(){
+  updateDashboardStatsForContainer('calendar', {
+    total: 'statTotalDays',
+    scheduled: 'statScheduled',
+    dayoffs: 'statDayoffs',
+    open: 'statOpen'
+  });
+  for(let idx = 2; idx <= totalCalendarPages; idx++){
+    updateDashboardStatsForContainer('calendar' + idx, {
+      total: 'statTotalDays' + idx,
+      scheduled: 'statScheduled' + idx,
+      dayoffs: 'statDayoffs' + idx,
+      open: 'statOpen' + idx
+    });
+  }
 }
 
 function setShiftUI(cell, val){
@@ -2008,7 +2646,7 @@ function applyDayoffAppearance(shiftEl, taEl){
   }
 }
 
-function createTaskOptionRow(taskText, isChecked){
+function createTaskOptionRow(taskText, isChecked, slot = 1){
   const custom = isCustomTask(taskText);
   const lab = document.createElement('label');
   if(custom) lab.className = 'is-custom-task-row';
@@ -2041,7 +2679,7 @@ function createTaskOptionRow(taskText, isChecked){
   editBtn.onclick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    openInlineEditCustomTask(lab, cb.value);
+    openInlineEditCustomTask(lab, cb.value, slot);
   };
 
   const delBtn = document.createElement('button');
@@ -2052,7 +2690,7 @@ function createTaskOptionRow(taskText, isChecked){
   delBtn.onclick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    deleteCustomTaskEverywhere(cb.value);
+    deleteCustomTaskEverywhere(cb.value, slot);
   };
 
   actions.append(editBtn, delBtn);
@@ -2060,7 +2698,7 @@ function createTaskOptionRow(taskText, isChecked){
   return lab;
 }
 
-function openInlineEditCustomTask(labelEl, oldTaskText){
+function openInlineEditCustomTask(labelEl, oldTaskText, slot = 1){
   const parent = labelEl.parentNode;
   if(!parent) return;
 
@@ -2090,7 +2728,7 @@ function openInlineEditCustomTask(labelEl, oldTaskText){
       return;
     }
     if(newVal.toLowerCase() !== oldTaskText.toLowerCase()){
-      const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+      const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey(slot)) || '[]');
       const duplicateExists = getAllTaskOptions(currentCustomList).some(
         t => t.toLowerCase() === newVal.toLowerCase() && t.toLowerCase() !== oldTaskText.toLowerCase()
       );
@@ -2100,7 +2738,7 @@ function openInlineEditCustomTask(labelEl, oldTaskText){
         return;
       }
     }
-    renameCustomTaskEverywhere(oldTaskText, newVal);
+    renameCustomTaskEverywhere(oldTaskText, newVal, slot);
   };
 
   saveBtn.onclick = (e) => {
@@ -2110,7 +2748,7 @@ function openInlineEditCustomTask(labelEl, oldTaskText){
   cancelBtn.onclick = (e) => {
     e.stopPropagation();
     const cb = labelEl.querySelector('input[type="checkbox"]');
-    const restored = createTaskOptionRow(oldTaskText, cb ? cb.checked : false);
+    const restored = createTaskOptionRow(oldTaskText, cb ? cb.checked : false, slot);
     if(editRow.parentNode) editRow.parentNode.replaceChild(restored, editRow);
   };
   input.onkeydown = (e) => {
@@ -2131,29 +2769,30 @@ function openInlineEditCustomTask(labelEl, oldTaskText){
   input.select();
 }
 
-function renameCustomTaskEverywhere(oldText, newText){
+function renameCustomTaskEverywhere(oldText, newText, slot = 1){
   const oldLower = oldText.trim().toLowerCase();
-  const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+  const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey(slot)) || '[]');
   const updatedCustomList = currentCustomList.map(item =>
     item.trim().toLowerCase() === oldLower ? newText : item
   );
-  localStorage.setItem(customTasksKey(), JSON.stringify(updatedCustomList));
+  localStorage.setItem(customTasksKey(slot), JSON.stringify(updatedCustomList));
 
-  document.querySelectorAll('.day[data-day]').forEach(dayCell => {
+  const calEl = document.getElementById(slot > 1 ? 'calendar' + slot : 'calendar');
+  calEl?.querySelectorAll('.day[data-day]').forEach(dayCell => {
     const itemsWrap = dayCell.querySelector('.task-checkbox-items');
     if(itemsWrap){
       const editRow = itemsWrap.querySelector('.custom-inline-edit-row');
       if(editRow){
         const editInp = editRow.querySelector('input');
         if(editInp && editInp.value.trim().toLowerCase() === oldLower){
-          const newRow = createTaskOptionRow(newText, true);
+          const newRow = createTaskOptionRow(newText, true, slot);
           itemsWrap.replaceChild(newRow, editRow);
         }
       }
       itemsWrap.querySelectorAll('label').forEach(lab => {
         const cb = lab.querySelector('input[type="checkbox"]');
         if(cb && cb.value.trim().toLowerCase() === oldLower){
-          const replacement = createTaskOptionRow(newText, cb.checked);
+          const replacement = createTaskOptionRow(newText, cb.checked, slot);
           itemsWrap.replaceChild(replacement, lab);
         }
       });
@@ -2187,15 +2826,16 @@ function renameCustomTaskEverywhere(oldText, newText){
   showResetToast('Custom task updated.');
 }
 
-function deleteCustomTaskEverywhere(taskText){
+function deleteCustomTaskEverywhere(taskText, slot = 1){
   const targetLower = taskText.trim().toLowerCase();
-  const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+  const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey(slot)) || '[]');
   const filteredCustomList = currentCustomList.filter(
     item => item.trim().toLowerCase() !== targetLower
   );
-  localStorage.setItem(customTasksKey(), JSON.stringify(filteredCustomList));
+  localStorage.setItem(customTasksKey(slot), JSON.stringify(filteredCustomList));
 
-  document.querySelectorAll('.day[data-day]').forEach(dayCell => {
+  const calEl = document.getElementById(slot > 1 ? 'calendar' + slot : 'calendar');
+  calEl?.querySelectorAll('.day[data-day]').forEach(dayCell => {
     const itemsWrap = dayCell.querySelector('.task-checkbox-items');
     if(itemsWrap){
       itemsWrap.querySelectorAll('label').forEach(lab => {
@@ -2238,15 +2878,15 @@ function applyCaseByMode(str, mode){
   return str.toUpperCase();
 }
 
-function render(){
-  const m = +document.getElementById('month').value;
-  const y = +document.getElementById('year').value;
+function renderCalendarInto({ monthId, yearId, titleId, calId, slot }){
+  const m = +document.getElementById(monthId).value;
+  const y = +document.getElementById(yearId).value;
   const offset = getEffectiveOffset(y, m);
   const daysInMonth = getDaysInMonth(y, m);
 
-  document.getElementById('title').innerHTML = 'WORKPLAN for the Month of <strong>'+monthNames[m].toUpperCase()+'</strong> '+y;
+  document.getElementById(titleId).innerHTML = 'WORKPLAN for the Month of <strong>'+monthNames[m].toUpperCase()+'</strong> '+y;
 
-  const cal = document.getElementById('calendar');
+  const cal = document.getElementById(calId);
   cal.innerHTML = '';
 
   ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].forEach(d => {
@@ -2256,8 +2896,8 @@ function render(){
     cal.append(el);
   });
 
-  const saved = JSON.parse(localStorage.getItem(key()) || '{}');
-  const savedCustomTasks = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+  const saved = JSON.parse(localStorage.getItem(key(slot)) || '{}');
+  const savedCustomTasks = JSON.parse(localStorage.getItem(customTasksKey(slot)) || '[]');
   const availableTasks = getAllTaskOptions(savedCustomTasks);
 
   for(let i = 0; i < offset; i++){
@@ -2303,10 +2943,12 @@ function render(){
     const hasShiftBoxBelow = (day + 7) <= daysInMonth;
     let shiftIncludeBelowCb = null;
     if(hasShiftBoxBelow){
+      const shiftStickyHdr = document.createElement('div');
+      shiftStickyHdr.className = 'shift-sticky-header';
+      shiftStickyHdr.onclick = (e) => e.stopPropagation();
+
       const shiftBelowBar = document.createElement('label');
       shiftBelowBar.className = 'shift-include-below-bar';
-      shiftBelowBar.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 7px;margin-bottom:3px;background:var(--accent-soft);border:1px solid rgba(59,130,246,0.35);border-radius:6px;font-size:10px;font-weight:600;color:var(--accent);cursor:pointer;white-space:nowrap;';
-      shiftBelowBar.onclick = (e) => e.stopPropagation();
 
       shiftIncludeBelowCb = document.createElement('input');
       shiftIncludeBelowCb.type = 'checkbox';
@@ -2327,7 +2969,8 @@ function render(){
         ? 'Auto-include boxes below (column)'
         : 'Include succeeding boxes below';
       shiftBelowBar.append(shiftIncludeBelowCb, shiftBelowTxt);
-      shiftMenu.append(shiftBelowBar);
+      shiftStickyHdr.append(shiftBelowBar);
+      shiftMenu.append(shiftStickyHdr);
     }
 
     const shiftChoices = [
@@ -2395,6 +3038,9 @@ function render(){
     let caseMode = saved[day]?.caseMode && caseModes.includes(saved[day].caseMode) ? saved[day].caseMode : 'upper';
     cell.dataset.caseMode = caseMode;
 
+    const stickyHeader = document.createElement('div');
+    stickyHeader.className = 'task-sticky-header';
+
     const topBar = document.createElement('div');
     topBar.className = 'task-top-bar';
 
@@ -2429,14 +3075,13 @@ function render(){
     apply.textContent = 'Apply';
 
     topBar.append(caseBtn, clearBtn, apply);
-    list.append(topBar);
+    stickyHeader.append(topBar);
 
     const hasBoxBelow = (day + 7) <= daysInMonth;
     let includeBelowCb = null;
     if(hasBoxBelow){
       const belowBar = document.createElement('label');
       belowBar.className = 'include-below-bar';
-      belowBar.style.cssText = 'display:flex;align-items:center;gap:7px;padding:6px 7px;margin-bottom:4px;background:var(--accent-soft);border:1px solid rgba(59,130,246,0.35);border-radius:6px;font-size:11px;font-weight:600;color:var(--accent);';
       includeBelowCb = document.createElement('input');
       includeBelowCb.type = 'checkbox';
       includeBelowCb.className = 'include-below-cb';
@@ -2451,8 +3096,10 @@ function render(){
         ? 'Auto-include boxes below (column)'
         : 'Include succeeding boxes below';
       belowBar.append(includeBelowCb, belowTxt);
-      list.append(belowBar);
+      stickyHeader.append(belowBar);
     }
+
+    list.append(stickyHeader);
 
     summary.onclick = () => {
       const isHidden = list.style.display === 'none';
@@ -2481,7 +3128,7 @@ function render(){
     }
 
     availableTasks.forEach(task => {
-      itemsContainer.append(createTaskOptionRow(task, initialSelected.includes(task)));
+      itemsContainer.append(createTaskOptionRow(task, initialSelected.includes(task), slot));
     });
     list.append(itemsContainer);
 
@@ -2518,19 +3165,19 @@ function render(){
       if(existingRow){
         existingRow.checked = true;
       } else {
-        const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+        const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey(slot)) || '[]');
         if(!currentCustomList.some(t => t.toLowerCase() === rawCustom.toLowerCase())){
           currentCustomList.push(rawCustom);
-          localStorage.setItem(customTasksKey(), JSON.stringify(currentCustomList));
+          localStorage.setItem(customTasksKey(slot), JSON.stringify(currentCustomList));
         }
-        document.querySelectorAll('.day[data-day]').forEach(otherDay => {
+        cal.querySelectorAll('.day[data-day]').forEach(otherDay => {
           const otherItems = otherDay.querySelector('.task-checkbox-items');
           if(!otherItems) return;
           const alreadyExists = [...otherItems.querySelectorAll('input[type="checkbox"]')].some(
             c => c.value.toLowerCase() === rawCustom.toLowerCase()
           );
           if(!alreadyExists){
-            otherItems.append(createTaskOptionRow(rawCustom, otherDay === cell));
+            otherItems.append(createTaskOptionRow(rawCustom, otherDay === cell, slot));
           } else if(otherDay === cell){
             const matchCb = [...otherItems.querySelectorAll('input[type="checkbox"]')].find(
               c => c.value.toLowerCase() === rawCustom.toLowerCase()
@@ -2578,7 +3225,7 @@ function render(){
       const step = applyBelow ? 7 : (daysInMonth + 1);
 
       for(let targetDay = day; targetDay <= daysInMonth; targetDay += step){
-        const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
+        const targetCell = cal.querySelector('.day[data-day="'+targetDay+'"]');
         const targetTa = targetCell?.querySelector('textarea');
         if(!targetTa) continue;
         targetCell.dataset.caseMode = caseMode;
@@ -2624,7 +3271,7 @@ function render(){
       const fillColumn = hasShiftBoxBelow && shiftIncludeBelowCb ? shiftIncludeBelowCb.checked : false;
       const step = fillColumn ? 7 : (daysInMonth + 1);
       for(let targetDay = day; targetDay <= daysInMonth; targetDay += step){
-        const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
+        const targetCell = cal.querySelector('.day[data-day="'+targetDay+'"]');
         const targetShift = targetCell?.querySelector('.shift-select');
         const targetTa = targetCell?.querySelector('textarea');
         if(targetShift && targetTa){
@@ -2650,7 +3297,7 @@ function render(){
         const applyBelow = hasBoxBelow && includeBelowCb ? includeBelowCb.checked : false;
         const step = applyBelow ? 7 : (daysInMonth + 1);
         for(let targetDay = day; targetDay <= daysInMonth; targetDay += step){
-          const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
+          const targetCell = cal.querySelector('.day[data-day="'+targetDay+'"]');
           const target = targetCell?.querySelector('textarea');
           const targetShiftVal = (targetCell?.querySelector('.shift-select')?.value || '').toUpperCase();
           if(target){
@@ -2714,14 +3361,11 @@ function render(){
     filler.className = 'day filler';
     cal.append(filler);
   }
+}
 
-  let sig = document.getElementById('signatures');
-  if(!sig){
-    sig = document.createElement('div');
-    sig.id = 'signatures';
-    sig.className = 'signatures';
-    cal.closest('.sheet-card').appendChild(sig);
-  }
+function renderSignaturesInto(sigContainerId){
+  const sig = document.getElementById(sigContainerId);
+  if(!sig) return;
   sig.innerHTML =
     '<div class="signature"><div contenteditable="true" oninput="saveSignatures()">Prepared by:</div><div class="name" contenteditable="true" oninput="handleSignatoryNameInput(this)">FULLNAME</div><div class="role" contenteditable="true" oninput="saveSignatures()">Position</div></div>' +
     '<div class="signature"><div contenteditable="true" oninput="saveSignatures()">Noted by:</div><div class="name" contenteditable="true" oninput="handleSignatoryNameInput(this)">DIVINA P. SILOS</div><div class="role" contenteditable="true" oninput="saveSignatures()">Center Head</div></div>';
@@ -2736,6 +3380,63 @@ function render(){
       })
     );
   }
+}
+
+function syncAllSignatureBlocks(sourceEl){
+  const allSigs = document.querySelectorAll('.signatures');
+  if(!sourceEl) return;
+  const sourceSigCard = sourceEl.closest('.signature');
+  const allCardsInSource = sourceSigCard ? Array.from(sourceSigCard.parentElement.children) : [];
+  const cardIdx = sourceSigCard ? allCardsInSource.indexOf(sourceSigCard) : -1;
+  const editablesInCard = sourceSigCard ? Array.from(sourceSigCard.querySelectorAll('[contenteditable]')) : [];
+  const fieldIdx = editablesInCard.indexOf(sourceEl);
+
+  if(cardIdx >= 0 && fieldIdx >= 0){
+    allSigs.forEach(sigGroup => {
+      const targetCard = sigGroup.children[cardIdx];
+      const targetEditables = targetCard ? targetCard.querySelectorAll('[contenteditable]') : [];
+      const targetEl = targetEditables[fieldIdx];
+      if(targetEl && targetEl !== sourceEl && targetEl.textContent !== sourceEl.textContent){
+        targetEl.textContent = sourceEl.textContent;
+      }
+    });
+  }
+}
+
+function renderExtraCalendar(idx){
+  updateCalendarSeparatorMonth(idx);
+  renderCalendarInto({
+    monthId: 'month' + idx,
+    yearId: 'year' + idx,
+    titleId: 'title' + idx,
+    calId: 'calendar' + idx,
+    slot: idx
+  });
+  renderSignaturesInto('signatures' + idx);
+  const savedAlign = localStorage.getItem('workplan-text-align') || 'left';
+  document.querySelectorAll('#calendar' + idx + ' .day textarea').forEach(t => {
+    if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = savedAlign;
+  });
+  updateDashboardStats();
+}
+
+function render(){
+  renderCalendarInto({
+    monthId: 'month',
+    yearId: 'year',
+    titleId: 'title',
+    calId: 'calendar',
+    slot: 1
+  });
+
+  let sig = document.getElementById('signatures');
+  if(!sig){
+    sig = document.createElement('div');
+    sig.id = 'signatures';
+    sig.className = 'signatures';
+    document.getElementById('calendar').closest('.sheet-card').appendChild(sig);
+  }
+  renderSignaturesInto('signatures');
 
   const savedAlign = localStorage.getItem('workplan-text-align') || 'left';
   document.getElementById('textAlign').value = savedAlign;
@@ -2745,6 +3446,7 @@ function render(){
     if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = savedAlign;
   });
 
+  buildExtraCalendarSections();
   updateDashboardStats();
 }
 
@@ -2770,6 +3472,7 @@ function handleSignatoryNameInput(el){
       sel.addRange(newRange);
     }
   }
+  syncAllSignatureBlocks(el);
   saveSignatures();
 }
 
@@ -2778,9 +3481,9 @@ function saveSignatures(){
   localStorage.setItem('workplan-signatures', JSON.stringify(Array.from(sig, s => Array.from(s.children, c => c.textContent))));
 }
 
-function saveLocal(){
+function serializeCalendarCells(calSelector){
   const saved = {};
-  document.querySelectorAll('.day[data-day]').forEach(c => {
+  document.querySelectorAll(calSelector).forEach(c => {
     const ta = c.querySelector('textarea');
     const belowBox = c.querySelector('.include-below-cb');
     const shiftBelowBox = c.querySelector('.shift-include-below-cb');
@@ -2794,7 +3497,16 @@ function saveLocal(){
       shiftIncludeBelow: shiftBelowBox ? shiftBelowBox.checked : undefined
     };
   });
-  localStorage.setItem(key(), JSON.stringify(saved));
+  return saved;
+}
+
+function saveLocal(){
+  localStorage.setItem(key(1), JSON.stringify(serializeCalendarCells('#calendar .day[data-day]')));
+  for(let idx = 2; idx <= totalCalendarPages; idx++){
+    if(document.querySelector('#calendar' + idx + ' .day[data-day]')){
+      localStorage.setItem(key(idx), JSON.stringify(serializeCalendarCells('#calendar' + idx + ' .day[data-day]')));
+    }
+  }
   updateDashboardStats();
 }
 
@@ -2807,15 +3519,18 @@ function showResetToast(msg){
   window.__resetToastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
-function clearMonth(){
+function openConfirmDialog({ title, desc, onConfirm }){
   const overlay = document.getElementById('resetConfirmOverlay');
+  const titleEl = document.getElementById('resetConfirmTitle');
+  const descEl = document.getElementById('resetConfirmDesc');
   const cancelBtn = document.getElementById('resetCancelBtn');
   const confirmBtn = document.getElementById('resetConfirmBtn');
   if(!overlay || !cancelBtn || !confirmBtn){
-    localStorage.removeItem(key());
-    render();
+    onConfirm();
     return;
   }
+  if(titleEl) titleEl.textContent = title;
+  if(descEl) descEl.textContent = desc;
   overlay.classList.add('open');
   const cleanup = () => {
     overlay.classList.remove('open');
@@ -2827,10 +3542,32 @@ function clearMonth(){
   overlay.onclick = (e) => { if(e.target === overlay) cleanup(); };
   confirmBtn.onclick = () => {
     cleanup();
-    localStorage.removeItem(key());
-    render();
-    showResetToast('Month schedule reset.');
+    onConfirm();
   };
+}
+
+function clearMonth(){
+  openConfirmDialog({
+    title: 'Reset schedule?',
+    desc: 'This will clear all saved shifts and tasks for the selected month.',
+    onConfirm: () => {
+      localStorage.removeItem(key(1));
+      render();
+      showResetToast('Month schedule reset.');
+    }
+  });
+}
+
+function clearCalendarSlot(idx){
+  openConfirmDialog({
+    title: 'Reset Workplan #' + idx + '?',
+    desc: 'This will clear all saved shifts and tasks for Workplan #' + idx + '.',
+    onConfirm: () => {
+      localStorage.removeItem(key(idx));
+      renderExtraCalendar(idx);
+      showResetToast('Workplan #' + idx + ' reset.');
+    }
+  });
 }
 
 function syncTextAlignTap(val){
@@ -2860,12 +3597,12 @@ function applyAlign(){
 }
 
 /* Shared Sheet Builder: Identical layout for Preview AND Letter/A4 Printout */
-function buildSheetMarkup(){
-  const titleHTML = document.getElementById('title').innerHTML;
+function buildSheetMarkup(titleId = 'title', calId = 'calendar', sigId = 'signatures'){
+  const titleHTML = document.getElementById(titleId)?.innerHTML || '';
   const align = document.getElementById('textAlign').value || 'left';
   const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-  const cells = Array.from(document.querySelectorAll('#calendar .day'));
+  const cells = Array.from(document.querySelectorAll('#'+calId+' .day'));
   const totalWeeks = Math.max(1, Math.ceil(cells.length / 7));
 
   let gridHTML = days.map(d => '<div class="pv-dow">'+d+'</div>').join('');
@@ -2920,7 +3657,7 @@ function buildSheetMarkup(){
     '</div>';
   });
 
-  const sigEls = document.querySelectorAll('#signatures .signature');
+  const sigEls = document.querySelectorAll('#' + sigId + ' .signature');
   let sigHTML = '';
   sigEls.forEach(s => {
     const parts = s.querySelectorAll('[contenteditable]');
@@ -2933,6 +3670,22 @@ function buildSheetMarkup(){
   return '<div class="pv-title">'+titleHTML+'</div>' +
     '<div class="pv-grid" style="grid-template-rows:7mm repeat('+totalWeeks+',minmax(0,1fr))">'+gridHTML+'</div>' +
     '<div class="pv-sigs">'+sigHTML+'</div>';
+}
+
+function getActiveCalendarSheetsData(){
+  const list = [{ titleId: 'title', calId: 'calendar', sigId: 'signatures' }];
+  for(let idx = 2; idx <= totalCalendarPages; idx++){
+    list.push({ titleId: 'title' + idx, calId: 'calendar' + idx, sigId: 'signatures' + idx });
+  }
+  return list;
+}
+
+function buildAllPrintSheetsMarkup(){
+  const sheets = getActiveCalendarSheetsData();
+  return sheets.map((s, i) => {
+    const sheetMarkup = '<div class="a4-sheet">' + buildSheetMarkup(s.titleId, s.calId, s.sigId) + '</div>';
+    return i === 0 ? sheetMarkup : '<div class="print-page-break">' + sheetMarkup + '</div>';
+  }).join('');
 }
 
 /* Responsive A4 Landscape Print Preview Logic (Phone & Desktop) */
@@ -2974,9 +3727,25 @@ function fitPreviewSheetTextSizes(root){
 }
 
 function buildA4PreviewSheet(){
-  const mount = document.getElementById('a4SheetMount');
-  mount.innerHTML = buildSheetMarkup();
-  fitPreviewSheetTextSizes(mount);
+  const listEl = document.getElementById('previewSheetsList');
+  if(!listEl) return;
+  listEl.innerHTML = '';
+
+  const sheets = getActiveCalendarSheetsData();
+  sheets.forEach((s, i) => {
+    const scaler = document.createElement('div');
+    scaler.className = 'preview-scaler';
+    scaler.id = 'previewScaler_' + i;
+
+    const sheet = document.createElement('div');
+    sheet.className = 'a4-sheet';
+    sheet.id = 'a4SheetMount_' + i;
+    sheet.innerHTML = buildSheetMarkup(s.titleId, s.calId, s.sigId);
+
+    scaler.append(sheet);
+    listEl.append(scaler);
+    fitPreviewSheetTextSizes(sheet);
+  });
 }
 
 function updatePreviewScale(){
@@ -2984,15 +3753,17 @@ function updatePreviewScale(){
   if(!modal.classList.contains('open')) return;
   const stage = document.getElementById('previewStage');
   const frame = document.getElementById('previewDeviceFrame');
-  const scaler = document.getElementById('previewScaler');
-  const sheet = document.getElementById('a4SheetMount');
 
   const isPhoneSim = currentPreviewViewport === 'phone' && window.innerWidth > 800;
   stage.classList.toggle('is-phone-sim', isPhoneSim);
   frame.classList.toggle('phone-mode', isPhoneSim);
 
-  const sheetW = sheet.offsetWidth || 1122.5;
-  const sheetH = sheet.offsetHeight || 793.7;
+  const sheets = document.querySelectorAll('#previewSheetsList .a4-sheet');
+  if(!sheets.length) return;
+
+  const firstSheet = sheets[0];
+  const sheetW = firstSheet.offsetWidth || 1122.5;
+  const sheetH = firstSheet.offsetHeight || 793.7;
   let scale = 1;
 
   if(currentPreviewZoom === 'fit'){
@@ -3006,9 +3777,14 @@ function updatePreviewScale(){
     scale = Number(currentPreviewZoom) || 1;
   }
 
-  sheet.style.transform = 'scale('+scale+')';
-  scaler.style.width = Math.round(sheetW * scale) + 'px';
-  scaler.style.height = Math.round(sheetH * scale) + 'px';
+  sheets.forEach(sheet => {
+    const scaler = sheet.parentElement;
+    sheet.style.transform = 'scale('+scale+')';
+    if(scaler){
+      scaler.style.width = Math.round(sheetW * scale) + 'px';
+      scaler.style.height = Math.round(sheetH * scale) + 'px';
+    }
+  });
 }
 
 function setPreviewViewport(vp){
@@ -3041,7 +3817,7 @@ function closeA4Preview(){
 
 function triggerExactPrint(){
   const wrapper = document.getElementById('printSheetWrapper');
-  wrapper.innerHTML = '<div class="a4-sheet">' + buildSheetMarkup() + '</div>';
+  wrapper.innerHTML = buildAllPrintSheetsMarkup();
   fitPreviewSheetTextSizes(wrapper);
   window.print();
 }
@@ -3060,11 +3836,17 @@ window.addEventListener('resize', () => {
   });
 });
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape') closeA4Preview();
+  if(e.key === 'Escape'){
+    closeA4Preview();
+    closeNewCalPopover();
+  }
 });
 
-// Close task dropdowns when clicking outside
+// Close task/shift/new-cal dropdowns when clicking outside
 document.addEventListener('click', function(event){
+  if(!event.target.closest('#newCalPopover') && !event.target.closest('#newCalendarLeftTag')){
+    closeNewCalPopover();
+  }
   if(!event.target.closest('.taskpick')){
     document.querySelectorAll('.taskpick.dropdown-open').forEach(function(p){
       p.classList.remove('dropdown-open');
@@ -3171,7 +3953,7 @@ window.addEventListener('scroll', function(e){
 window.addEventListener('beforeprint', function(){
   const wrapper = document.getElementById('printSheetWrapper');
   if(wrapper && !wrapper.innerHTML.trim()){
-    wrapper.innerHTML = '<div class="a4-sheet">' + buildSheetMarkup() + '</div>';
+    wrapper.innerHTML = buildAllPrintSheetsMarkup();
     fitPreviewSheetTextSizes(wrapper);
   }
 });
@@ -3189,6 +3971,12 @@ window.addEventListener('afterprint', function(){
     ySel.value = String(now.getFullYear());
   }
   mSel.value = String(now.getMonth());
+
+  const savedPages = Number(localStorage.getItem('workplan-total-pages') || '1');
+  totalCalendarPages = (savedPages >= 1 && savedPages <= 6) ? savedPages : 1;
+  pendingPageCount = Math.max(2, totalCalendarPages || 2);
+  syncPageSelectorUI();
+
   render();
 })();
 </script>
