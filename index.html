@@ -3791,19 +3791,108 @@ function buildAllPrintSheetsMarkup(){
   }).join('');
 }
 
-/* Exact Preview-Mirrored A4 Landscape PDF Generator (Zero External Dependencies) */
-function sanitizePdfText(str){
-  return String(str || '')
-    .replace(/[^\x20-\x7E]/g, ' ')
-    .replace(/\\/g, '\\\\')
-    .replace(/\(/g, '\\(')
-    .replace(/\)/g, '\\)');
+/* Exact Preview-Mirrored A4 Landscape PDF Generator (Rasterizes Exact .a4-sheet HTML+CSS) */
+function collectSheetStyleCSS(){
+  let css = '';
+  for(const sheet of document.styleSheets){
+    try {
+      for(const rule of sheet.cssRules){
+        if(rule.type === CSSRule.MEDIA_RULE && rule.media && rule.media.mediaText.includes('print')) continue;
+        css += rule.cssText + '\n';
+      }
+    } catch {}
+  }
+  return css;
 }
 
-function generateWorkplanPdfBlob(){
+function rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH){
+  return new Promise((resolve) => {
+    const clone = sheetEl.cloneNode(true);
+    clone.style.position = 'static';
+    clone.style.left = 'auto';
+    clone.style.top = 'auto';
+    clone.style.transform = 'none';
+    clone.style.margin = '0';
+    clone.style.boxShadow = 'none';
+    clone.style.width = '297mm';
+    clone.style.height = '210mm';
+
+    const xhtml =
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${renderH}" viewBox="0 0 ${renderW} ${renderH}">` +
+      `<foreignObject x="0" y="0" width="297mm" height="210mm" transform="scale(${(renderW / 1122.5197).toFixed(6)})">` +
+      `<div xmlns="http://www.w3.org/1999/xhtml" style="width:297mm;height:210mm;background:#ffffff;">` +
+      `<style>${styleCSS}</style>` +
+      clone.outerHTML +
+      `</div></foreignObject></svg>`;
+
+    const svgBlob = new Blob([xhtml], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.decoding = 'async';
+
+    let settled = false;
+    const finish = (bytes) => {
+      if(settled) return;
+      settled = true;
+      URL.revokeObjectURL(url);
+      resolve(bytes);
+    };
+
+    const timer = setTimeout(() => finish(null), 2500);
+
+    img.onload = () => {
+      clearTimeout(timer);
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = renderW;
+        canvas.height = renderH;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, renderW, renderH);
+        ctx.drawImage(img, 0, 0, renderW, renderH);
+
+        // Verify non-blank raster (some browsers block foreignObject drawImage silently)
+        const sample = ctx.getImageData(Math.floor(renderW * 0.5), Math.floor(renderH * 0.25), 1, 1).data;
+        canvas.toBlob((jpegBlob) => {
+          if(!jpegBlob) return finish(null);
+          jpegBlob.arrayBuffer().then(buf => {
+            const arr = new Uint8Array(buf);
+            if(arr.length < 4000 && sample[0] === 255 && sample[1] === 255 && sample[2] === 255){
+              return finish(null);
+            }
+            finish(arr);
+          }).catch(() => finish(null));
+        }, 'image/jpeg', 0.92);
+      } catch {
+        finish(null);
+      }
+    };
+
+    img.onerror = () => {
+      clearTimeout(timer);
+      finish(null);
+    };
+
+    img.src = url;
+  });
+}
+
+function concatUint8Arrays(chunks){
+  const totalLen = chunks.reduce((sum, c) => sum + c.length, 0);
+  const out = new Uint8Array(totalLen);
+  let offset = 0;
+  for(const c of chunks){
+    out.set(c, offset);
+    offset += c.length;
+  }
+  return out;
+}
+
+async function generateWorkplanPdfBlob(){
   const pageW = 841.89;
   const pageH = 595.28;
-  const pxToPt = 72 / 96;
+  const renderW = 1684;
+  const renderH = 1191;
 
   const measureHost = document.createElement('div');
   measureHost.style.cssText = 'position:fixed;left:-99999px;top:0;width:297mm;visibility:hidden;pointer-events:none;';
@@ -3820,9 +3909,116 @@ function generateWorkplanPdfBlob(){
   document.body.append(measureHost);
   sheetElements.forEach(el => fitPreviewSheetTextSizes(el));
 
-  const pagesOps = [];
+  const styleCSS = collectSheetStyleCSS();
+  const renderedPages = [];
+  for(const sheetEl of sheetElements){
+    const jpegBytes = await rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH);
+    if(jpegBytes){
+      renderedPages.push({ jpegBytes, w: renderW, h: renderH });
+    }
+  }
 
-  sheetElements.forEach((sheetEl) => {
+  document.body.removeChild(measureHost);
+
+  if(renderedPages.length === sheetsData.length && renderedPages.length > 0){
+    const encoder = new TextEncoder();
+    const parts = [];
+    const offsets = [0];
+    let byteLen = 0;
+
+    const pushChunk = (u8) => {
+      parts.push(u8);
+      byteLen += u8.length;
+    };
+    const pushStr = (s) => pushChunk(encoder.encode(s));
+
+    const objects = [];
+    const allocId = () => {
+      objects.push(null);
+      return objects.length;
+    };
+
+    const catalogId = allocId();
+    const pagesId = allocId();
+    const pageEntries = [];
+
+    for(const rp of renderedPages){
+      const imgId = allocId();
+      const contentId = allocId();
+      const pageId = allocId();
+      pageEntries.push({ imgId, contentId, pageId, w: rp.w, h: rp.h, jpegBytes: rp.jpegBytes });
+    }
+
+    pushStr('%PDF-1.4\n');
+
+    const writeObj = (id, headerStr, binaryBody, footerStr = '') => {
+      offsets[id] = byteLen;
+      pushStr(`${id} 0 obj\n${headerStr}`);
+      if(binaryBody) pushChunk(binaryBody);
+      pushStr(`${footerStr}\nendobj\n`);
+    };
+
+    writeObj(catalogId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+    writeObj(pagesId, `<< /Type /Pages /Kids [${pageEntries.map(p => `${p.pageId} 0 R`).join(' ')}] /Count ${pageEntries.length} >>`);
+
+    for(const pe of pageEntries){
+      const streamCmd = `q ${pageW.toFixed(2)} 0 0 ${pageH.toFixed(2)} 0 0 cm /Im1 Do Q\n`;
+      const streamCmdBytes = encoder.encode(streamCmd);
+
+      writeObj(
+        pe.imgId,
+        `<< /Type /XObject /Subtype /Image /Width ${pe.w} /Height ${pe.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pe.jpegBytes.length} >>\nstream\n`,
+        pe.jpegBytes,
+        '\nendstream'
+      );
+
+      writeObj(
+        pe.contentId,
+        `<< /Length ${streamCmdBytes.length} >>\nstream\n`,
+        streamCmdBytes,
+        'endstream'
+      );
+
+      writeObj(
+        pe.pageId,
+        `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] ` +
+        `/Resources << /XObject << /Im1 ${pe.imgId} 0 R >> >> /Contents ${pe.contentId} 0 R >>`
+      );
+    }
+
+    const xrefStart = byteLen;
+    let xrefStr = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+    for(let i = 1; i <= objects.length; i++){
+      xrefStr += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+    }
+    pushStr(xrefStr + `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
+
+    return new Blob([concatUint8Arrays(parts)], { type: 'application/pdf' });
+  }
+
+  // Fallback vector PDF if foreignObject rendering is blocked by browser sandbox
+  const pxToPt = 72 / 96;
+  const fallbackHost = document.createElement('div');
+  fallbackHost.style.cssText = 'position:fixed;left:-99999px;top:0;width:297mm;visibility:hidden;pointer-events:none;';
+  const fbSheets = sheetsData.map((s) => {
+    const el = document.createElement('div');
+    el.className = 'a4-sheet';
+    el.style.position = 'relative';
+    el.style.transform = 'none';
+    el.innerHTML = buildSheetMarkup(s.titleId, s.calId, s.sigId);
+    fallbackHost.append(el);
+    return el;
+  });
+  document.body.append(fallbackHost);
+  fbSheets.forEach(el => fitPreviewSheetTextSizes(el));
+
+  const sanitizePdfText = (str) => String(str || '')
+    .replace(/[^\x20-\x7E]/g, ' ')
+    .replace(/\\/g, '\\\\')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)');
+
+  const pagesOps = fbSheets.map((sheetEl) => {
     const ops = [];
     const sheetRect = sheetEl.getBoundingClientRect();
     const toPdfX = (clientX) => (clientX - sheetRect.left) * pxToPt;
@@ -3848,7 +4044,6 @@ function generateWorkplanPdfBlob(){
       const gw = gRect.width * pxToPt;
       const gh = gRect.height * pxToPt;
       const gyBot = gyTop - gh;
-
       ops.push('0.45 w 0.27 0.27 0.27 RG');
       ops.push(`${gx0.toFixed(2)} ${gyBot.toFixed(2)} ${gw.toFixed(2)} ${gh.toFixed(2)} re S`);
 
@@ -3858,13 +4053,10 @@ function generateWorkplanPdfBlob(){
         const dyTop = toPdfY(dRect.top);
         const dw = dRect.width * pxToPt;
         const dh = dRect.height * pxToPt;
-        if(idx > 0){
-          ops.push(`${dx0.toFixed(2)} ${(dyTop - dh).toFixed(2)} m ${dx0.toFixed(2)} ${dyTop.toFixed(2)} l S`);
-        }
+        if(idx > 0) ops.push(`${dx0.toFixed(2)} ${(dyTop - dh).toFixed(2)} m ${dx0.toFixed(2)} ${dyTop.toFixed(2)} l S`);
         const label = sanitizePdfText(dowEl.textContent || '');
         const fPt = Math.max(6.5, (parseFloat(getComputedStyle(dowEl).fontSize) || 10.6) * pxToPt);
-        const estW = label.length * (fPt * 0.44);
-        const tx = dx0 + Math.max(2, (dw - estW) / 2);
+        const tx = dx0 + Math.max(2, (dw - label.length * fPt * 0.44) / 2);
         const ty = toPdfY(dRect.top + dRect.height * 0.72);
         ops.push(`0.07 0.07 0.07 rg BT /F2 ${fPt.toFixed(2)} Tf ${tx.toFixed(2)} ${ty.toFixed(2)} Td (${label}) Tj ET`);
       });
@@ -3876,19 +4068,9 @@ function generateWorkplanPdfBlob(){
         const cw = cRect.width * pxToPt;
         const ch = cRect.height * pxToPt;
         const cyBot = cyTop - ch;
-
         ops.push('0.45 w 0.27 0.27 0.27 RG');
         ops.push(`${cx0.toFixed(2)} ${cyBot.toFixed(2)} m ${cx0.toFixed(2)} ${cyTop.toFixed(2)} l S`);
         ops.push(`${cx0.toFixed(2)} ${cyBot.toFixed(2)} m ${(cx0 + cw).toFixed(2)} ${cyBot.toFixed(2)} l S`);
-
-        const pad = 1.2;
-        const clipX = cx0 + pad;
-        const clipY = cyBot + pad;
-        const clipW = Math.max(2, cw - pad * 2);
-        const clipH = Math.max(2, ch - pad * 2);
-
-        ops.push('q');
-        ops.push(`${clipX.toFixed(2)} ${clipY.toFixed(2)} ${clipW.toFixed(2)} ${clipH.toFixed(2)} re W n`);
 
         const numEl = cellEl.querySelector('.pv-num');
         const shiftEl = cellEl.querySelector('.pv-shift');
@@ -3898,144 +4080,84 @@ function generateWorkplanPdfBlob(){
         if(numEl && numEl.textContent.trim()){
           const nRect = numEl.getBoundingClientRect();
           const nFont = Math.max(5.5, (parseFloat(getComputedStyle(numEl).fontSize) || 9.6) * pxToPt);
-          const nx = toPdfX(nRect.left);
-          const ny = toPdfY(nRect.top + nRect.height * 0.82);
-          ops.push(`0.07 0.07 0.07 rg BT /F2 ${nFont.toFixed(2)} Tf ${nx.toFixed(2)} ${ny.toFixed(2)} Td (${sanitizePdfText(numEl.textContent.trim())}) Tj ET`);
+          ops.push(`0.07 0.07 0.07 rg BT /F2 ${nFont.toFixed(2)} Tf ${toPdfX(nRect.left).toFixed(2)} ${toPdfY(nRect.top + nRect.height * 0.82).toFixed(2)} Td (${sanitizePdfText(numEl.textContent.trim())}) Tj ET`);
         }
-
         if(shiftEl && shiftEl.textContent.trim()){
           const sRect = shiftEl.getBoundingClientRect();
           const sFont = Math.max(4.8, (parseFloat(getComputedStyle(shiftEl).fontSize) || 6.9) * pxToPt);
-          const sx = toPdfX(sRect.left);
-          const sy = toPdfY(sRect.top + sRect.height * 0.82);
-          ops.push(`0.15 0.39 0.92 rg BT /F3 ${sFont.toFixed(2)} Tf ${sx.toFixed(2)} ${sy.toFixed(2)} Td (${sanitizePdfText(shiftEl.textContent.trim())}) Tj ET`);
+          ops.push(`0.15 0.39 0.92 rg BT /F3 ${sFont.toFixed(2)} Tf ${toPdfX(sRect.left).toFixed(2)} ${toPdfY(sRect.top + sRect.height * 0.82).toFixed(2)} Td (${sanitizePdfText(shiftEl.textContent.trim())}) Tj ET`);
         }
-
         if(bodyEl && innerEl){
           const rawText = (innerEl.textContent || '').trim();
           if(rawText){
             const isOff = bodyEl.classList.contains('is-off');
-            const computedBody = getComputedStyle(bodyEl);
-            const bFont = Math.max(4.5, (parseFloat(bodyEl.style.fontSize || computedBody.fontSize) || 9) * pxToPt);
-            const bLineH = Math.max(bFont * 1.02, (parseFloat(bodyEl.style.lineHeight || computedBody.lineHeight) || (bFont * 1.14)) * pxToPt);
-            const alignVal = (bodyEl.style.textAlign || computedBody.textAlign || 'left').toLowerCase();
-
-            const maxLineWidthPt = Math.max(10, (innerEl.clientWidth || (cRect.width - 6)) * pxToPt);
-            const avgCharWidthPt = bFont * 0.47;
-            const maxChars = Math.max(6, Math.floor(maxLineWidthPt / avgCharWidthPt));
-
+            const bFont = Math.max(4.5, (parseFloat(bodyEl.style.fontSize || getComputedStyle(bodyEl).fontSize) || 9) * pxToPt);
+            const bLineH = Math.max(bFont * 1.02, (parseFloat(bodyEl.style.lineHeight || getComputedStyle(bodyEl).lineHeight) || bFont * 1.14) * pxToPt);
+            const alignVal = (bodyEl.style.textAlign || getComputedStyle(bodyEl).textAlign || 'left').toLowerCase();
+            const maxChars = Math.max(6, Math.floor(Math.max(10, (innerEl.clientWidth || cRect.width - 6) * pxToPt) / (bFont * 0.47)));
             const lines = [];
             rawText.split('\n').forEach(srcLine => {
               const clean = srcLine.trim();
               if(!clean) return;
-              for(let i = 0; i < clean.length; i += maxChars){
-                lines.push(clean.slice(i, i + maxChars));
-              }
+              for(let i = 0; i < clean.length; i += maxChars) lines.push(clean.slice(i, i + maxChars));
             });
-
             const bRect = bodyEl.getBoundingClientRect();
             const bTopPt = toPdfY(bRect.top);
             const bBotPt = toPdfY(bRect.bottom);
-            const bBoxH = Math.max(4, bTopPt - bBotPt);
-            const totalBlockH = lines.length * bLineH;
-            const startBaselineY = bBotPt + Math.max(1, (bBoxH - totalBlockH) / 2) + totalBlockH - bFont * 0.85;
-
+            const startBaselineY = bBotPt + Math.max(1, (Math.max(4, bTopPt - bBotPt) - lines.length * bLineH) / 2) + lines.length * bLineH - bFont * 0.85;
             ops.push(isOff ? '0.95 0.00 0.00 rg' : '0.07 0.07 0.07 rg');
-            const fontTag = isOff ? '/F2' : '/F1';
-
             lines.forEach((ln, idxLine) => {
               const esc = sanitizePdfText(ln);
-              const lineW = esc.length * avgCharWidthPt;
-              let lx = clipX + 2;
-              if(alignVal === 'center' || isOff){
-                lx = clipX + Math.max(1, (clipW - lineW) / 2);
-              } else if(alignVal === 'right'){
-                lx = clipX + Math.max(1, clipW - lineW - 2);
-              }
-              const ly = startBaselineY - idxLine * bLineH;
-              ops.push(`BT ${fontTag} ${bFont.toFixed(2)} Tf ${lx.toFixed(2)} ${ly.toFixed(2)} Td (${esc}) Tj ET`);
+              const lineW = esc.length * bFont * 0.47;
+              let lx = cx0 + 2;
+              if(alignVal === 'center' || isOff) lx = cx0 + Math.max(1, (cw - lineW) / 2);
+              else if(alignVal === 'right') lx = cx0 + Math.max(1, cw - lineW - 2);
+              ops.push(`BT ${isOff ? '/F2' : '/F1'} ${bFont.toFixed(2)} Tf ${lx.toFixed(2)} ${(startBaselineY - idxLine * bLineH).toFixed(2)} Td (${esc}) Tj ET`);
             });
           }
         }
-
-        ops.push('Q');
       });
     }
 
     sheetEl.querySelectorAll('.pv-sig').forEach((sigEl) => {
-      const children = sigEl.children;
-      if(children.length >= 3){
-        const lblEl = children[0];
-        const nmEl = children[1];
-        const rlEl = children[2];
-
-        const drawSigItem = (el, isBold) => {
+      if(sigEl.children.length >= 3){
+        [0, 1, 2].forEach(idxC => {
+          const el = sigEl.children[idxC];
           const r = el.getBoundingClientRect();
           const txt = sanitizePdfText((el.textContent || '').trim());
           if(!txt) return;
           const fPt = Math.max(6.5, (parseFloat(getComputedStyle(el).fontSize) || 10.9) * pxToPt);
-          const estW = txt.length * (fPt * 0.45);
-          const x = toPdfX(r.left + r.width / 2) - estW / 2;
+          const x = toPdfX(r.left + r.width / 2) - (txt.length * fPt * 0.45) / 2;
           const y = toPdfY(r.top + r.height * 0.78);
-          ops.push(`0.07 0.07 0.07 rg BT ${isBold ? '/F2' : '/F1'} ${fPt.toFixed(2)} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${txt}) Tj ET`);
-          if(isBold){
-            ops.push(`0.5 w 0.07 0.07 0.07 RG ${x.toFixed(2)} ${(y - 1.5).toFixed(2)} m ${(x + estW).toFixed(2)} ${(y - 1.5).toFixed(2)} l S`);
-          }
-        };
-
-        drawSigItem(lblEl, false);
-        drawSigItem(nmEl, true);
-        drawSigItem(rlEl, false);
+          ops.push(`0.07 0.07 0.07 rg BT ${idxC === 1 ? '/F2' : '/F1'} ${fPt.toFixed(2)} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${txt}) Tj ET`);
+        });
       }
     });
 
-    pagesOps.push(ops.join('\n'));
+    return ops.join('\n');
   });
 
-  document.body.removeChild(measureHost);
+  document.body.removeChild(fallbackHost);
 
-  const objects = [];
-  const addObj = (body) => {
-    objects.push(body);
-    return objects.length;
-  };
-
-  const catalogId = addObj('');
-  const pagesId = addObj('');
-  const fontRegularId = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
-  const fontBoldId = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
-  const fontItalicId = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>');
-
+  const objects = ['', '', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>'];
   const pageIds = [];
   pagesOps.forEach(streamContent => {
     const streamBytes = new TextEncoder().encode(streamContent);
-    const contentId = addObj(`<< /Length ${streamBytes.length} >>\nstream\n${streamContent}\nendstream`);
-    const pId = addObj(
-      `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] ` +
-      `/Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R /F3 ${fontItalicId} 0 R >> >> ` +
-      `/Contents ${contentId} 0 R >>`
-    );
-    pageIds.push(pId);
+    objects.push(`<< /Length ${streamBytes.length} >>\nstream\n${streamContent}\nendstream`);
+    const contentId = objects.length;
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents ${contentId} 0 R >>`);
+    pageIds.push(`${objects.length} 0 R`);
   });
-
-  objects[catalogId - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R >>`;
-  objects[pagesId - 1] = `<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(' ')}] /Count ${pageIds.length} >>`;
+  objects[0] = '<< /Type /Catalog /Pages 2 0 R >>';
+  objects[1] = `<< /Type /Pages /Kids [${pageIds.join(' ')}] /Count ${pageIds.length} >>`;
 
   let pdfStr = '%PDF-1.4\n';
   const offsets = [0];
-  objects.forEach((objBody, i) => {
-    offsets.push(pdfStr.length);
-    pdfStr += `${i + 1} 0 obj\n${objBody}\nendobj\n`;
-  });
-
+  objects.forEach((b, i) => { offsets.push(pdfStr.length); pdfStr += `${i + 1} 0 obj\n${b}\nendobj\n`; });
   const xrefStart = pdfStr.length;
-  pdfStr += `xref\n0 ${objects.length + 1}\n`;
-  pdfStr += '0000000000 65535 f \n';
-  for(let i = 1; i <= objects.length; i++){
-    pdfStr += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
-  }
-  pdfStr += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
-
+  pdfStr += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for(let i = 1; i <= objects.length; i++) pdfStr += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+  pdfStr += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
   return new Blob([pdfStr], { type: 'application/pdf' });
 }
 
@@ -4055,7 +4177,7 @@ async function sendFromPreview(){
   const baseName = primaryTitle.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') || 'Workplan_Schedule';
   const fileName = baseName + '.pdf';
 
-  const pdfBlob = generateWorkplanPdfBlob();
+  const pdfBlob = await generateWorkplanPdfBlob();
   const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
   try {
