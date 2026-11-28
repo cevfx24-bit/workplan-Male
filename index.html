@@ -277,7 +277,43 @@ body.theme-dark .new-cal-left-tag{
   box-shadow:0 10px 22px rgba(37,99,235,0.38),inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
-/* Styled Workplan Month Separator */
+/* Styled Workplan Month Separator & Slot Bar */
+.wp1-action-bar{
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:12px;
+  padding:8px 14px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-left:4px solid var(--accent);
+  border-radius:12px;
+  box-shadow:var(--shadow-xs);
+}
+.wp1-action-bar.has-content{
+  display:flex;
+}
+.wp1-bar-label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--ink);
+}
+.wp1-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:2px 9px;
+  border-radius:999px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:0.03em;
+}
 .extra-cal-section{
   margin-top:28px;
   padding-top:6px;
@@ -2055,7 +2091,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
           <span>Print PDF</span>
         </button>
 
-        <button type="button" class="btn-reset" onclick="clearMonth()">
+        <button type="button" class="btn-reset" onclick="clearAllPages()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
           <span>Reset</span>
         </button>
@@ -2065,6 +2101,16 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 </header>
 
 <main class="wrap" id="mainWorkspace">
+  <div class="wp1-action-bar" id="wp1ActionBar">
+    <div class="wp1-bar-label">
+      <span class="wp1-badge">WORKPLAN #1</span>
+      <span>Primary Workplan Sheet</span>
+    </div>
+    <div class="extra-cal-banner-actions">
+      <button type="button" class="btn-modern-soft" onclick="clearCalendarSlot(1)">Reset #1</button>
+    </div>
+  </div>
+
   <div class="dashboard-bar">
     <div class="controls">
       <label>Month
@@ -2142,7 +2188,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 
 <footer class="app-footer" id="appFooter">
   <div class="dev-credit-badge">
-    <span>Developed by.</span>
+    <span>Develop by</span>
     <strong>CEV</strong>
   </div>
 </footer>
@@ -2366,18 +2412,38 @@ function updateCalendarSeparatorMonth(idx){
   pillEl.textContent = monthNames[+mSel.value].toUpperCase() + ' ' + (+ySel.value);
 }
 
-function buildExtraCalendarSections(){
+function key(slot = 1){
+  if(slot > 1){
+    const yEl = document.getElementById('year' + slot);
+    const mEl = document.getElementById('month' + slot);
+    return 'workplan-cal' + slot + '-' + (yEl ? yEl.value : '') + '-' + (mEl ? mEl.value : '');
+  }
+  return 'workplan-' + document.getElementById('year').value + '-' + document.getElementById('month').value;
+}
+
+function customTasksKey(slot = 1){
+  if(slot > 1){
+    const yEl = document.getElementById('year' + slot);
+    const mEl = document.getElementById('month' + slot);
+    return 'workplan-custom-tasks-cal' + slot + '-' + (yEl ? yEl.value : '') + '-' + (mEl ? mEl.value : '');
+  }
+  return 'workplan-custom-tasks-' + document.getElementById('year').value + '-' + document.getElementById('month').value;
+}
+
+function buildExtraCalendarSections(customSlotStates = null){
   const container = document.getElementById('extraCalendarsContainer');
   if(!container) return;
 
-  const prevState = {};
-  container.querySelectorAll('.extra-cal-section').forEach(sec => {
-    const idx = Number(sec.dataset.calIndex);
-    prevState[idx] = {
-      month: document.getElementById('month' + idx)?.value,
-      year: document.getElementById('year' + idx)?.value
-    };
-  });
+  const prevState = customSlotStates || {};
+  if(!customSlotStates){
+    container.querySelectorAll('.extra-cal-section').forEach(sec => {
+      const idx = Number(sec.dataset.calIndex);
+      prevState[idx] = {
+        month: document.getElementById('month' + idx)?.value,
+        year: document.getElementById('year' + idx)?.value
+      };
+    });
+  }
 
   const baseM = +document.getElementById('month').value;
   const baseY = +document.getElementById('year').value;
@@ -2453,26 +2519,59 @@ function applySelectedCalendarPages(){
   }
 }
 
-function removeCalendarSlot(idx){
-  totalCalendarPages = Math.max(1, idx - 1);
+/* Remove ONLY the selected slot (e.g., #2) without deleting succeeding slots (#3, #4, ...) */
+function removeCalendarSlot(removedIdx){
+  if(removedIdx <= 1 || totalCalendarPages <= 1) return;
+
+  const remainingSlots = [];
+  for(let i = 2; i <= totalCalendarPages; i++){
+    if(i === removedIdx) continue;
+    const mVal = document.getElementById('month' + i)?.value ?? '0';
+    const yVal = document.getElementById('year' + i)?.value ?? String(new Date().getFullYear());
+    const dataKey = 'workplan-cal' + i + '-' + yVal + '-' + mVal;
+    const customKey = 'workplan-custom-tasks-cal' + i + '-' + yVal + '-' + mVal;
+    remainingSlots.push({
+      month: mVal,
+      year: yVal,
+      data: localStorage.getItem(dataKey),
+      customTasks: localStorage.getItem(customKey)
+    });
+  }
+
+  // Clear old extra-slot storage keys before re-assigning remaining slots (#2, #3, ...)
+  for(let i = 2; i <= 6; i++){
+    const mEl = document.getElementById('month' + i);
+    const yEl = document.getElementById('year' + i);
+    if(mEl && yEl){
+      localStorage.removeItem('workplan-cal' + i + '-' + yEl.value + '-' + mEl.value);
+      localStorage.removeItem('workplan-custom-tasks-cal' + i + '-' + yEl.value + '-' + mEl.value);
+    }
+  }
+
+  totalCalendarPages = Math.max(1, totalCalendarPages - 1);
   localStorage.setItem('workplan-total-pages', String(totalCalendarPages));
+  pendingPageCount = Math.max(2, totalCalendarPages || 2);
+
+  const reindexedStates = {};
+  remainingSlots.forEach((slotObj, idxOffset) => {
+    const newSlotNum = idxOffset + 2;
+    reindexedStates[newSlotNum] = {
+      month: slotObj.month,
+      year: slotObj.year
+    };
+    const newDataKey = 'workplan-cal' + newSlotNum + '-' + slotObj.year + '-' + slotObj.month;
+    const newCustomKey = 'workplan-custom-tasks-cal' + newSlotNum + '-' + slotObj.year + '-' + slotObj.month;
+    if(slotObj.data !== null){
+      localStorage.setItem(newDataKey, slotObj.data);
+    }
+    if(slotObj.customTasks !== null){
+      localStorage.setItem(newCustomKey, slotObj.customTasks);
+    }
+  });
+
   syncPageSelectorUI();
-  buildExtraCalendarSections();
-  showResetToast('Workplan #' + idx + ' removed.');
-}
-
-function key(slot = 1){
-  if(slot > 1){
-    return 'workplan-cal' + slot + '-' + document.getElementById('year' + slot).value + '-' + document.getElementById('month' + slot).value;
-  }
-  return 'workplan-' + document.getElementById('year').value + '-' + document.getElementById('month').value;
-}
-
-function customTasksKey(slot = 1){
-  if(slot > 1){
-    return 'workplan-custom-tasks-cal' + slot + '-' + document.getElementById('year' + slot).value + '-' + document.getElementById('month' + slot).value;
-  }
-  return 'workplan-custom-tasks-' + document.getElementById('year').value + '-' + document.getElementById('month').value;
+  buildExtraCalendarSections(reindexedStates);
+  showResetToast('Workplan #' + removedIdx + ' removed.');
 }
 
 function getAllTaskOptions(savedCustomTasks){
@@ -2570,6 +2669,24 @@ function positionTaskDropdown(toggleEl, listEl, pickWrap){
   }
 }
 
+function syncWp1BarVisibility(){
+  const wp1Bar = document.getElementById('wp1ActionBar');
+  const calEl = document.getElementById('calendar');
+  if(!wp1Bar || !calEl) return;
+
+  let hasAnyContent = false;
+  calEl.querySelectorAll('.day[data-day]').forEach(cell => {
+    const shiftVal = (cell.querySelector('.shift-select')?.value || '').trim();
+    const taVal = (cell.querySelector('textarea')?.value || '').trim();
+    const checkedCount = cell.querySelectorAll('.task-checkbox-items input[type="checkbox"]:checked').length;
+    if(shiftVal !== '' || taVal !== '' || checkedCount > 0){
+      hasAnyContent = true;
+    }
+  });
+
+  wp1Bar.classList.toggle('has-content', hasAnyContent);
+}
+
 function updateDashboardStatsForContainer(calId, ids){
   const calEl = document.getElementById(calId);
   if(!calEl) return;
@@ -2614,6 +2731,7 @@ function updateDashboardStats(){
       open: 'statOpen' + idx
     });
   }
+  syncWp1BarVisibility();
 }
 
 function setShiftUI(cell, val){
@@ -3504,25 +3622,48 @@ function openConfirmDialog({ title, desc, onConfirm }){
   };
 }
 
-function clearMonth(){
+/* Reset ALL active workplan pages (#1 and any active extra workplans) */
+function clearAllPages(){
+  const count = totalCalendarPages;
   openConfirmDialog({
-    title: 'Reset schedule?',
-    desc: 'This will clear all saved shifts and tasks for the selected month.',
+    title: count > 1 ? 'Reset all ' + count + ' workplans?' : 'Reset schedule?',
+    desc: count > 1
+      ? 'This will clear all saved shifts and tasks across all ' + count + ' active workplan pages.'
+      : 'This will clear all saved shifts and tasks for the selected month.',
     onConfirm: () => {
       localStorage.removeItem(key(1));
+      for(let idx = 2; idx <= totalCalendarPages; idx++){
+        localStorage.removeItem(key(idx));
+      }
       render();
-      showResetToast('Month schedule reset.');
+      showResetToast(count > 1 ? 'All ' + count + ' workplans reset.' : 'Month schedule reset.');
     }
   });
 }
 
+/* Reset ONLY a single workplan slot (#1, #2, #3, ...) */
 function clearCalendarSlot(idx){
   openConfirmDialog({
     title: 'Reset Workplan #' + idx + '?',
     desc: 'This will clear all saved shifts and tasks for Workplan #' + idx + '.',
     onConfirm: () => {
       localStorage.removeItem(key(idx));
-      renderExtraCalendar(idx);
+      if(idx === 1){
+        renderCalendarInto({
+          monthId: 'month',
+          yearId: 'year',
+          titleId: 'title',
+          calId: 'calendar',
+          slot: 1
+        });
+        const savedAlign = localStorage.getItem('workplan-text-align') || 'left';
+        document.querySelectorAll('#calendar .day textarea').forEach(t => {
+          if(t.value.trim().toUpperCase() !== 'OFF') t.style.textAlign = savedAlign;
+        });
+        updateDashboardStats();
+      } else {
+        renderExtraCalendar(idx);
+      }
       showResetToast('Workplan #' + idx + ' reset.');
     }
   });
