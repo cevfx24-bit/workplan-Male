@@ -1729,7 +1729,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   width:100%;
   white-space:pre-line;
   overflow-wrap:break-word;
-  word-break:normal;
+  word-break:break-word;
   line-height:1.14;
   color:#111;
   overflow:hidden;
@@ -1741,7 +1741,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 .a4-sheet .pv-body-inner{
   max-width:100%;
   overflow-wrap:break-word;
-  word-break:normal;
+  word-break:break-word;
   overflow:hidden;
 }
 .a4-sheet .pv-body.is-off{
@@ -3846,14 +3846,47 @@ function collectSheetStyleCSS(){
   }
   css += `
     *, *::before, *::after { box-sizing: border-box !important; }
-    .a4-sheet .pv-cell { overflow: hidden !important; max-width: 100% !important; }
-    .a4-sheet .pv-body { overflow: hidden !important; max-width: 100% !important; overflow-wrap: break-word !important; word-break: normal !important; }
-    .a4-sheet .pv-body-inner { overflow: hidden !important; max-width: 100% !important; overflow-wrap: break-word !important; word-break: normal !important; }
+    .a4-sheet {
+      width: 297mm !important;
+      height: 210mm !important;
+      padding: 4.5mm 5.5mm !important;
+      background: #ffffff !important;
+      color: #111111 !important;
+      overflow: hidden !important;
+    }
+    .a4-sheet .pv-grid {
+      border-top: 0.5px solid #444 !important;
+      border-left: 0.5px solid #444 !important;
+      overflow: hidden !important;
+    }
+    .a4-sheet .pv-dow,
+    .a4-sheet .pv-cell {
+      border-right: 0.5px solid #444 !important;
+      border-bottom: 0.5px solid #444 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+    }
+    .a4-sheet .pv-body {
+      overflow: hidden !important;
+      max-width: 100% !important;
+      min-height: 0 !important;
+      overflow-wrap: break-word !important;
+      word-break: break-word !important;
+    }
+    .a4-sheet .pv-body-inner {
+      overflow: hidden !important;
+      max-width: 100% !important;
+      overflow-wrap: break-word !important;
+      word-break: break-word !important;
+    }
   `;
   return css;
 }
 
-function rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH){
+function rasterizeSheetToCanvas(sheetEl, styleCSS, renderW, renderH){
   return new Promise((resolve) => {
     const clone = sheetEl.cloneNode(true);
     clone.style.position = 'static';
@@ -3867,9 +3900,10 @@ function rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH){
     clone.style.boxSizing = 'border-box';
     clone.style.overflow = 'hidden';
 
+    const scaleRatio = (renderW / 1122.5197).toFixed(6);
     const xhtml =
       `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${renderH}" viewBox="0 0 ${renderW} ${renderH}">` +
-      `<foreignObject x="0" y="0" width="297mm" height="210mm" transform="scale(${(renderW / 1122.5197).toFixed(6)})">` +
+      `<foreignObject x="0" y="0" width="297mm" height="210mm" transform="scale(${scaleRatio})">` +
       `<div xmlns="http://www.w3.org/1999/xhtml" style="width:297mm;height:210mm;background:#ffffff;overflow:hidden;box-sizing:border-box;">` +
       `<style>${styleCSS}</style>` +
       clone.outerHTML +
@@ -3881,14 +3915,14 @@ function rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH){
     img.decoding = 'async';
 
     let settled = false;
-    const finish = (bytes) => {
+    const finish = (canvasOut) => {
       if(settled) return;
       settled = true;
       URL.revokeObjectURL(url);
-      resolve(bytes);
+      resolve(canvasOut);
     };
 
-    const timer = setTimeout(() => finish(null), 2500);
+    const timer = setTimeout(() => finish(null), 3000);
 
     img.onload = () => {
       clearTimeout(timer);
@@ -3902,16 +3936,13 @@ function rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH){
         ctx.drawImage(img, 0, 0, renderW, renderH);
 
         const sample = ctx.getImageData(Math.floor(renderW * 0.5), Math.floor(renderH * 0.25), 1, 1).data;
-        canvas.toBlob((jpegBlob) => {
-          if(!jpegBlob) return finish(null);
-          jpegBlob.arrayBuffer().then(buf => {
-            const arr = new Uint8Array(buf);
-            if(arr.length < 4000 && sample[0] === 255 && sample[1] === 255 && sample[2] === 255){
-              return finish(null);
-            }
-            finish(arr);
-          }).catch(() => finish(null));
-        }, 'image/jpeg', 0.92);
+        if(sample[0] === 255 && sample[1] === 255 && sample[2] === 255){
+          const edgeSample = ctx.getImageData(Math.floor(renderW * 0.14), Math.floor(renderH * 0.14), 1, 1).data;
+          if(edgeSample[0] === 255 && edgeSample[1] === 255 && edgeSample[2] === 255){
+            return finish(null);
+          }
+        }
+        finish(canvas);
       } catch {
         finish(null);
       }
@@ -3923,6 +3954,202 @@ function rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH){
     };
 
     img.src = url;
+  });
+}
+
+function drawFallbackSheetOntoCanvas(sheetEl, renderW, renderH){
+  const canvas = document.createElement('canvas');
+  canvas.width = renderW;
+  canvas.height = renderH;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, renderW, renderH);
+
+  const sheetRect = sheetEl.getBoundingClientRect();
+  const sx = renderW / Math.max(1, sheetRect.width);
+  const sy = renderH / Math.max(1, sheetRect.height);
+
+  const titleEl = sheetEl.querySelector('.pv-title');
+  if(titleEl){
+    const tRect = titleEl.getBoundingClientRect();
+    const fSize = Math.max(14, (parseFloat(getComputedStyle(titleEl).fontSize) || 13.3) * sy * 1.15);
+    ctx.fillStyle = '#111111';
+    ctx.font = `700 ${fSize.toFixed(1)}px Inter, Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      (titleEl.textContent || '').replace(/\s+/g, ' ').trim(),
+      (tRect.left - sheetRect.left + tRect.width / 2) * sx,
+      (tRect.top - sheetRect.top + tRect.height / 2) * sy
+    );
+  }
+
+  const gridEl = sheetEl.querySelector('.pv-grid');
+  if(gridEl){
+    const gRect = gridEl.getBoundingClientRect();
+    const gx = (gRect.left - sheetRect.left) * sx;
+    const gy = (gRect.top - sheetRect.top) * sy;
+    const gw = gRect.width * sx;
+    const gh = gRect.height * sy;
+
+    ctx.strokeStyle = '#444444';
+    ctx.lineWidth = Math.max(1, 0.75 * sx);
+    ctx.strokeRect(gx, gy, gw, gh);
+
+    gridEl.querySelectorAll('.pv-dow').forEach((dowEl) => {
+      const dRect = dowEl.getBoundingClientRect();
+      const dx = (dRect.left - sheetRect.left) * sx;
+      const dy = (dRect.top - sheetRect.top) * sy;
+      const dw = dRect.width * sx;
+      const dh = dRect.height * sy;
+      ctx.strokeRect(dx, dy, dw, dh);
+
+      const fSize = Math.max(10, (parseFloat(getComputedStyle(dowEl).fontSize) || 10.6) * sy * 1.1);
+      ctx.fillStyle = '#111111';
+      ctx.font = `600 ${fSize.toFixed(1)}px Inter, Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText((dowEl.textContent || '').trim(), dx + dw / 2, dy + dh / 2);
+    });
+
+    gridEl.querySelectorAll('.pv-cell').forEach((cellEl) => {
+      const cRect = cellEl.getBoundingClientRect();
+      const cx = (cRect.left - sheetRect.left) * sx;
+      const cy = (cRect.top - sheetRect.top) * sy;
+      const cw = cRect.width * sx;
+      const ch = cRect.height * sy;
+
+      ctx.strokeStyle = '#444444';
+      ctx.lineWidth = Math.max(1, 0.75 * sx);
+      ctx.strokeRect(cx, cy, cw, ch);
+
+      const numEl = cellEl.querySelector('.pv-num');
+      const shiftEl = cellEl.querySelector('.pv-shift');
+      const bodyEl = cellEl.querySelector('.pv-body');
+      const innerEl = bodyEl ? (bodyEl.querySelector('.pv-body-inner') || bodyEl) : null;
+
+      if(numEl && numEl.textContent.trim()){
+        const nRect = numEl.getBoundingClientRect();
+        const nSize = Math.max(9.5, (parseFloat(getComputedStyle(numEl).fontSize) || 9.6) * sy * 1.1);
+        ctx.fillStyle = '#111111';
+        ctx.font = `600 ${nSize.toFixed(1)}px Inter, Arial, sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(numEl.textContent.trim(), (nRect.left - sheetRect.left) * sx, (nRect.top - sheetRect.top) * sy);
+      }
+
+      if(shiftEl && shiftEl.textContent.trim()){
+        const sRect = shiftEl.getBoundingClientRect();
+        const sSize = Math.max(8, (parseFloat(getComputedStyle(shiftEl).fontSize) || 6.9) * sy * 1.1);
+        ctx.fillStyle = '#2563eb';
+        ctx.font = `italic 600 ${sSize.toFixed(1)}px Inter, Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(
+          shiftEl.textContent.trim(),
+          (sRect.left - sheetRect.left + sRect.width / 2) * sx,
+          (sRect.top - sheetRect.top) * sy
+        );
+      }
+
+      if(bodyEl && innerEl){
+        const rawText = (innerEl.textContent || '').trim();
+        if(rawText){
+          const isOff = bodyEl.classList.contains('is-off');
+          const bSize = Math.max(8.5, (parseFloat(bodyEl.style.fontSize || getComputedStyle(bodyEl).fontSize) || 10) * sy * 1.12);
+          const lineH = Math.max(bSize * 1.08, (parseFloat(bodyEl.style.lineHeight || getComputedStyle(bodyEl).lineHeight) || bSize * 1.14) * sy);
+          const alignVal = isOff ? 'center' : ((bodyEl.style.textAlign || getComputedStyle(bodyEl).textAlign || 'left').toLowerCase());
+
+          const bRect = bodyEl.getBoundingClientRect();
+          const boxX = (bRect.left - sheetRect.left) * sx + 4;
+          const boxY = (bRect.top - sheetRect.top) * sy + 2;
+          const boxW = Math.max(16, bRect.width * sx - 8);
+          const boxH = Math.max(12, bRect.height * sy - 4);
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(cx + 1, cy + 1, Math.max(1, cw - 2), Math.max(1, ch - 2));
+          ctx.clip();
+
+          ctx.fillStyle = isOff ? '#ff0000' : '#111111';
+          ctx.font = `${isOff ? '700' : '400'} ${bSize.toFixed(1)}px Inter, Arial, sans-serif`;
+          ctx.textBaseline = 'top';
+
+          const wrappedLines = [];
+          rawText.split('\n').forEach(srcLine => {
+            const clean = srcLine.trim();
+            if(!clean) return;
+            let current = '';
+            for(const ch of clean){
+              const candidate = current + ch;
+              if(ctx.measureText(candidate).width > boxW && current.length > 0){
+                wrappedLines.push(current);
+                current = ch;
+              } else {
+                current = candidate;
+              }
+            }
+            if(current) wrappedLines.push(current);
+          });
+
+          const totalTextH = wrappedLines.length * lineH;
+          const startY = boxY + Math.max(0, (boxH - totalTextH) / 2);
+
+          wrappedLines.forEach((ln, idxLine) => {
+            let drawX = boxX;
+            ctx.textAlign = 'left';
+            if(alignVal === 'center'){
+              drawX = boxX + boxW / 2;
+              ctx.textAlign = 'center';
+            } else if(alignVal === 'right'){
+              drawX = boxX + boxW;
+              ctx.textAlign = 'right';
+            }
+            ctx.fillText(ln, drawX, startY + idxLine * lineH);
+          });
+          ctx.restore();
+        }
+      }
+    });
+  }
+
+  sheetEl.querySelectorAll('.pv-sig').forEach((sigEl) => {
+    if(sigEl.children.length >= 3){
+      [0, 1, 2].forEach(idxC => {
+        const el = sigEl.children[idxC];
+        const r = el.getBoundingClientRect();
+        const txt = (el.textContent || '').trim();
+        if(!txt) return;
+        const fSize = Math.max(10.5, (parseFloat(getComputedStyle(el).fontSize) || 10.9) * sy * 1.12);
+        const cx = (r.left - sheetRect.left + r.width / 2) * sx;
+        const cy = (r.top - sheetRect.top + r.height / 2) * sy;
+        ctx.fillStyle = '#111111';
+        ctx.font = `${idxC === 1 ? '700' : '400'} ${fSize.toFixed(1)}px Inter, Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(txt, cx, cy);
+        if(idxC === 1){
+          const textW = ctx.measureText(txt).width;
+          ctx.strokeStyle = '#111111';
+          ctx.lineWidth = Math.max(1, 0.9 * sx);
+          ctx.beginPath();
+          ctx.moveTo(cx - textW / 2, cy + fSize * 0.62);
+          ctx.lineTo(cx + textW / 2, cy + fSize * 0.62);
+          ctx.stroke();
+        }
+      });
+    }
+  });
+
+  return canvas;
+}
+
+function canvasToJpegBytes(canvas){
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      if(!blob) return resolve(null);
+      blob.arrayBuffer().then(buf => resolve(new Uint8Array(buf))).catch(() => resolve(null));
+    }, 'image/jpeg', 0.94);
   });
 }
 
@@ -3960,8 +4187,13 @@ async function generateWorkplanPdfBlob(){
 
   const styleCSS = collectSheetStyleCSS();
   const renderedPages = [];
+
   for(const sheetEl of sheetElements){
-    const jpegBytes = await rasterizeSheetToJpegBytes(sheetEl, styleCSS, renderW, renderH);
+    let canvas = await rasterizeSheetToCanvas(sheetEl, styleCSS, renderW, renderH);
+    if(!canvas){
+      canvas = drawFallbackSheetOntoCanvas(sheetEl, renderW, renderH);
+    }
+    const jpegBytes = await canvasToJpegBytes(canvas);
     if(jpegBytes){
       renderedPages.push({ jpegBytes, w: renderW, h: renderH });
     }
@@ -3969,244 +4201,79 @@ async function generateWorkplanPdfBlob(){
 
   document.body.removeChild(measureHost);
 
-  if(renderedPages.length === sheetsData.length && renderedPages.length > 0){
-    const encoder = new TextEncoder();
-    const parts = [];
-    const offsets = [0];
-    let byteLen = 0;
+  const encoder = new TextEncoder();
+  const parts = [];
+  const offsets = [0];
+  let byteLen = 0;
 
-    const pushChunk = (u8) => {
-      parts.push(u8);
-      byteLen += u8.length;
-    };
-    const pushStr = (s) => pushChunk(encoder.encode(s));
+  const pushChunk = (u8) => {
+    parts.push(u8);
+    byteLen += u8.length;
+  };
+  const pushStr = (s) => pushChunk(encoder.encode(s));
 
-    const objects = [];
-    const allocId = () => {
-      objects.push(null);
-      return objects.length;
-    };
+  const objects = [];
+  const allocId = () => {
+    objects.push(null);
+    return objects.length;
+  };
 
-    const catalogId = allocId();
-    const pagesId = allocId();
-    const pageEntries = [];
+  const catalogId = allocId();
+  const pagesId = allocId();
+  const pageEntries = [];
 
-    for(const rp of renderedPages){
-      const imgId = allocId();
-      const contentId = allocId();
-      const pageId = allocId();
-      pageEntries.push({ imgId, contentId, pageId, w: rp.w, h: rp.h, jpegBytes: rp.jpegBytes });
-    }
-
-    pushStr('%PDF-1.4\n');
-
-    const writeObj = (id, headerStr, binaryBody, footerStr = '') => {
-      offsets[id] = byteLen;
-      pushStr(`${id} 0 obj\n${headerStr}`);
-      if(binaryBody) pushChunk(binaryBody);
-      pushStr(`${footerStr}\nendobj\n`);
-    };
-
-    writeObj(catalogId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
-    writeObj(pagesId, `<< /Type /Pages /Kids [${pageEntries.map(p => `${p.pageId} 0 R`).join(' ')}] /Count ${pageEntries.length} >>`);
-
-    for(const pe of pageEntries){
-      const streamCmd = `q ${pageW.toFixed(2)} 0 0 ${pageH.toFixed(2)} 0 0 cm /Im1 Do Q\n`;
-      const streamCmdBytes = encoder.encode(streamCmd);
-
-      writeObj(
-        pe.imgId,
-        `<< /Type /XObject /Subtype /Image /Width ${pe.w} /Height ${pe.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pe.jpegBytes.length} >>\nstream\n`,
-        pe.jpegBytes,
-        '\nendstream'
-      );
-
-      writeObj(
-        pe.contentId,
-        `<< /Length ${streamCmdBytes.length} >>\nstream\n`,
-        streamCmdBytes,
-        'endstream'
-      );
-
-      writeObj(
-        pe.pageId,
-        `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] ` +
-        `/Resources << /XObject << /Im1 ${pe.imgId} 0 R >> >> /Contents ${pe.contentId} 0 R >>`
-      );
-    }
-
-    const xrefStart = byteLen;
-    let xrefStr = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-    for(let i = 1; i <= objects.length; i++){
-      xrefStr += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
-    }
-    pushStr(xrefStr + `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
-
-    return new Blob([concatUint8Arrays(parts)], { type: 'application/pdf' });
+  for(const rp of renderedPages){
+    const imgId = allocId();
+    const contentId = allocId();
+    const pageId = allocId();
+    pageEntries.push({ imgId, contentId, pageId, w: rp.w, h: rp.h, jpegBytes: rp.jpegBytes });
   }
 
-  const pxToPt = 72 / 96;
-  const fallbackHost = document.createElement('div');
-  fallbackHost.style.cssText = 'position:fixed;left:-99999px;top:0;width:297mm;visibility:hidden;pointer-events:none;';
-  const fbSheets = sheetsData.map((s) => {
-    const el = document.createElement('div');
-    el.className = 'a4-sheet';
-    el.style.position = 'relative';
-    el.style.transform = 'none';
-    el.innerHTML = buildSheetMarkup(s.titleId, s.calId, s.sigId);
-    fallbackHost.append(el);
-    return el;
-  });
-  document.body.append(fallbackHost);
-  fbSheets.forEach(el => fitPreviewSheetTextSizes(el));
+  pushStr('%PDF-1.4\n');
 
-  const sanitizePdfText = (str) => String(str || '')
-    .replace(/[^\x20-\x7E]/g, ' ')
-    .replace(/\\/g, '\\\\')
-    .replace(/\(/g, '\\(')
-    .replace(/\)/g, '\\)');
+  const writeObj = (id, headerStr, binaryBody, footerStr = '') => {
+    offsets[id] = byteLen;
+    pushStr(`${id} 0 obj\n${headerStr}`);
+    if(binaryBody) pushChunk(binaryBody);
+    pushStr(`${footerStr}\nendobj\n`);
+  };
 
-  const pagesOps = fbSheets.map((sheetEl) => {
-    const ops = [];
-    const sheetRect = sheetEl.getBoundingClientRect();
-    const toPdfX = (clientX) => (clientX - sheetRect.left) * pxToPt;
-    const toPdfY = (clientY) => pageH - (clientY - sheetRect.top) * pxToPt;
+  writeObj(catalogId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+  writeObj(pagesId, `<< /Type /Pages /Kids [${pageEntries.map(p => `${p.pageId} 0 R`).join(' ')}] /Count ${pageEntries.length} >>`);
 
-    const titleEl = sheetEl.querySelector('.pv-title');
-    if(titleEl){
-      const titleText = (titleEl.textContent || '').replace(/\s+/g, ' ').trim();
-      const tRect = titleEl.getBoundingClientRect();
-      const tEsc = sanitizePdfText(titleText);
-      const tFontPt = Math.max(8, (parseFloat(getComputedStyle(titleEl).fontSize) || 13.3) * pxToPt);
-      const approxW = tEsc.length * (tFontPt * 0.48);
-      const tx = Math.max(12, toPdfX(tRect.left + tRect.width / 2) - approxW / 2);
-      const ty = toPdfY(tRect.top + tRect.height * 0.78);
-      ops.push(`0.07 0.07 0.07 rg BT /F2 ${tFontPt.toFixed(2)} Tf ${tx.toFixed(2)} ${ty.toFixed(2)} Td (${tEsc}) Tj ET`);
-    }
+  for(const pe of pageEntries){
+    const streamCmd = `q ${pageW.toFixed(2)} 0 0 ${pageH.toFixed(2)} 0 0 cm /Im1 Do Q\n`;
+    const streamCmdBytes = encoder.encode(streamCmd);
 
-    const gridEl = sheetEl.querySelector('.pv-grid');
-    if(gridEl){
-      const gRect = gridEl.getBoundingClientRect();
-      const gx0 = toPdfX(gRect.left);
-      const gyTop = toPdfY(gRect.top);
-      const gw = gRect.width * pxToPt;
-      const gh = gRect.height * pxToPt;
-      const gyBot = gyTop - gh;
-      ops.push('0.45 w 0.27 0.27 0.27 RG');
-      ops.push(`${gx0.toFixed(2)} ${gyBot.toFixed(2)} ${gw.toFixed(2)} ${gh.toFixed(2)} re S`);
+    writeObj(
+      pe.imgId,
+      `<< /Type /XObject /Subtype /Image /Width ${pe.w} /Height ${pe.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pe.jpegBytes.length} >>\nstream\n`,
+      pe.jpegBytes,
+      '\nendstream'
+    );
 
-      gridEl.querySelectorAll('.pv-dow').forEach((dowEl, idx) => {
-        const dRect = dowEl.getBoundingClientRect();
-        const dx0 = toPdfX(dRect.left);
-        const dyTop = toPdfY(dRect.top);
-        const dw = dRect.width * pxToPt;
-        const dh = dRect.height * pxToPt;
-        if(idx > 0) ops.push(`${dx0.toFixed(2)} ${(dyTop - dh).toFixed(2)} m ${dx0.toFixed(2)} ${dyTop.toFixed(2)} l S`);
-        const label = sanitizePdfText(dowEl.textContent || '');
-        const fPt = Math.max(6.5, (parseFloat(getComputedStyle(dowEl).fontSize) || 10.6) * pxToPt);
-        const tx = dx0 + Math.max(2, (dw - label.length * fPt * 0.44) / 2);
-        const ty = toPdfY(dRect.top + dRect.height * 0.72);
-        ops.push(`0.07 0.07 0.07 rg BT /F2 ${fPt.toFixed(2)} Tf ${tx.toFixed(2)} ${ty.toFixed(2)} Td (${label}) Tj ET`);
-      });
+    writeObj(
+      pe.contentId,
+      `<< /Length ${streamCmdBytes.length} >>\nstream\n`,
+      streamCmdBytes,
+      'endstream'
+    );
 
-      gridEl.querySelectorAll('.pv-cell').forEach((cellEl) => {
-        const cRect = cellEl.getBoundingClientRect();
-        const cx0 = toPdfX(cRect.left);
-        const cyTop = toPdfY(cRect.top);
-        const cw = cRect.width * pxToPt;
-        const ch = cRect.height * pxToPt;
-        const cyBot = cyTop - ch;
-        ops.push('0.45 w 0.27 0.27 0.27 RG');
-        ops.push(`${cx0.toFixed(2)} ${cyBot.toFixed(2)} m ${cx0.toFixed(2)} ${cyTop.toFixed(2)} l S`);
-        ops.push(`${cx0.toFixed(2)} ${cyBot.toFixed(2)} m ${(cx0 + cw).toFixed(2)} ${cyBot.toFixed(2)} l S`);
+    writeObj(
+      pe.pageId,
+      `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] ` +
+      `/Resources << /XObject << /Im1 ${pe.imgId} 0 R >> >> /Contents ${pe.contentId} 0 R >>`
+    );
+  }
 
-        const numEl = cellEl.querySelector('.pv-num');
-        const shiftEl = cellEl.querySelector('.pv-shift');
-        const bodyEl = cellEl.querySelector('.pv-body');
-        const innerEl = bodyEl ? (bodyEl.querySelector('.pv-body-inner') || bodyEl) : null;
+  const xrefStart = byteLen;
+  let xrefStr = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for(let i = 1; i <= objects.length; i++){
+    xrefStr += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+  }
+  pushStr(xrefStr + `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
 
-        if(numEl && numEl.textContent.trim()){
-          const nRect = numEl.getBoundingClientRect();
-          const nFont = Math.max(5.5, (parseFloat(getComputedStyle(numEl).fontSize) || 9.6) * pxToPt);
-          ops.push(`0.07 0.07 0.07 rg BT /F2 ${nFont.toFixed(2)} Tf ${toPdfX(nRect.left).toFixed(2)} ${toPdfY(nRect.top + nRect.height * 0.82).toFixed(2)} Td (${sanitizePdfText(numEl.textContent.trim())}) Tj ET`);
-        }
-        if(shiftEl && shiftEl.textContent.trim()){
-          const sRect = shiftEl.getBoundingClientRect();
-          const sFont = Math.max(4.8, (parseFloat(getComputedStyle(shiftEl).fontSize) || 6.9) * pxToPt);
-          ops.push(`0.15 0.39 0.92 rg BT /F3 ${sFont.toFixed(2)} Tf ${toPdfX(sRect.left).toFixed(2)} ${toPdfY(sRect.top + sRect.height * 0.82).toFixed(2)} Td (${sanitizePdfText(shiftEl.textContent.trim())}) Tj ET`);
-        }
-        if(bodyEl && innerEl){
-          const rawText = (innerEl.textContent || '').trim();
-          if(rawText){
-            const isOff = bodyEl.classList.contains('is-off');
-            const bFont = Math.max(4.5, (parseFloat(bodyEl.style.fontSize || getComputedStyle(bodyEl).fontSize) || 9) * pxToPt);
-            const bLineH = Math.max(bFont * 1.02, (parseFloat(bodyEl.style.lineHeight || getComputedStyle(bodyEl).lineHeight) || bFont * 1.14) * pxToPt);
-            const alignVal = (bodyEl.style.textAlign || getComputedStyle(bodyEl).textAlign || 'left').toLowerCase();
-            const maxChars = Math.max(6, Math.floor(Math.max(10, (innerEl.clientWidth || cRect.width - 6) * pxToPt) / (bFont * 0.47)));
-            const lines = [];
-            rawText.split('\n').forEach(srcLine => {
-              const clean = srcLine.trim();
-              if(!clean) return;
-              for(let i = 0; i < clean.length; i += maxChars) lines.push(clean.slice(i, i + maxChars));
-            });
-            const bRect = bodyEl.getBoundingClientRect();
-            const bTopPt = toPdfY(bRect.top);
-            const bBotPt = toPdfY(bRect.bottom);
-            const startBaselineY = bBotPt + Math.max(1, (Math.max(4, bTopPt - bBotPt) - lines.length * bLineH) / 2) + lines.length * bLineH - bFont * 0.85;
-            ops.push(isOff ? '0.95 0.00 0.00 rg' : '0.07 0.07 0.07 rg');
-            lines.forEach((ln, idxLine) => {
-              const esc = sanitizePdfText(ln);
-              const lineW = esc.length * bFont * 0.47;
-              let lx = cx0 + 2;
-              if(alignVal === 'center' || isOff) lx = cx0 + Math.max(1, (cw - lineW) / 2);
-              else if(alignVal === 'right') lx = cx0 + Math.max(1, cw - lineW - 2);
-              ops.push(`BT ${isOff ? '/F2' : '/F1'} ${bFont.toFixed(2)} Tf ${lx.toFixed(2)} ${(startBaselineY - idxLine * bLineH).toFixed(2)} Td (${esc}) Tj ET`);
-            });
-          }
-        }
-      });
-    }
-
-    sheetEl.querySelectorAll('.pv-sig').forEach((sigEl) => {
-      if(sigEl.children.length >= 3){
-        [0, 1, 2].forEach(idxC => {
-          const el = sigEl.children[idxC];
-          const r = el.getBoundingClientRect();
-          const txt = sanitizePdfText((el.textContent || '').trim());
-          if(!txt) return;
-          const fPt = Math.max(6.5, (parseFloat(getComputedStyle(el).fontSize) || 10.9) * pxToPt);
-          const x = toPdfX(r.left + r.width / 2) - (txt.length * fPt * 0.45) / 2;
-          const y = toPdfY(r.top + r.height * 0.78);
-          ops.push(`0.07 0.07 0.07 rg BT ${idxC === 1 ? '/F2' : '/F1'} ${fPt.toFixed(2)} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${txt}) Tj ET`);
-        });
-      }
-    });
-
-    return ops.join('\n');
-  });
-
-  document.body.removeChild(fallbackHost);
-
-  const objects = ['', '', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>'];
-  const pageIds = [];
-  pagesOps.forEach(streamContent => {
-    const streamBytes = new TextEncoder().encode(streamContent);
-    objects.push(`<< /Length ${streamBytes.length} >>\nstream\n${streamContent}\nendstream`);
-    const contentId = objects.length;
-    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents ${contentId} 0 R >>`);
-    pageIds.push(`${objects.length} 0 R`);
-  });
-  objects[0] = '<< /Type /Catalog /Pages 2 0 R >>';
-  objects[1] = `<< /Type /Pages /Kids [${pageIds.join(' ')}] /Count ${pageIds.length} >>`;
-
-  let pdfStr = '%PDF-1.4\n';
-  const offsets = [0];
-  objects.forEach((b, i) => { offsets.push(pdfStr.length); pdfStr += `${i + 1} 0 obj\n${b}\nendobj\n`; });
-  const xrefStart = pdfStr.length;
-  pdfStr += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  for(let i = 1; i <= objects.length; i++) pdfStr += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
-  pdfStr += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
-  return new Blob([pdfStr], { type: 'application/pdf' });
+  return new Blob([concatUint8Arrays(parts)], { type: 'application/pdf' });
 }
 
 function downloadPdfFallback(blob, fileName){
