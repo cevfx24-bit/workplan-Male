@@ -1,6 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Editable Workplan Calendar</title><style>
 :root{
-  /* Default Light Mode — Soft, Low-Glare Slate Palette (Easy on the Eyes) */
   --bg:#f2f5f9;
   --surface:#fbfcfe;
   --surface-elevated:#ffffff;
@@ -19,7 +18,6 @@
   --weekend-bg:#f6f8fb;
   --filler-bg:#eef2f7;
 
-  /* Top Bar Tokens (Light Default) */
   --hdr-bg:rgba(251,252,254,0.97);
   --hdr-border:#dde4ee;
   --hdr-shadow:0 4px 18px rgba(15,23,42,0.05);
@@ -44,7 +42,6 @@
 }
 
 body.theme-dark{
-  /* Elevated Modern Dark Mode */
   --bg:#070b14;
   --surface:#0f1623;
   --surface-elevated:#151e30;
@@ -62,7 +59,6 @@ body.theme-dark{
   --weekend-bg:#0c121e;
   --filler-bg:#0a0f1a;
 
-  /* Top Bar Tokens (Dark Mode) */
   --hdr-bg:linear-gradient(180deg,rgba(13,19,33,0.97) 0%,rgba(10,15,26,0.95) 100%);
   --hdr-border:rgba(148,163,184,0.14);
   --hdr-shadow:0 10px 28px rgba(2,6,23,0.55);
@@ -98,7 +94,6 @@ body.theme-dark{
   background:radial-gradient(circle at 50% -10%,#111c33 0%,#070b14 52%);
 }
 
-/* Modern Floating Side Tag + Workplan Page Selector Popover */
 .new-cal-left-tag{
   position:fixed;
   left:0;
@@ -147,6 +142,207 @@ body.theme-dark .new-cal-left-tag{
   height:12px;
 }
 
+.music-right-tag{
+  position:fixed;
+  right:0;
+  top:52%;
+  transform:translateY(-50%);
+  z-index:190;
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  width:auto;
+  height:auto;
+  min-width:30px;
+  min-height:92px;
+  padding:10px 5px;
+  border-radius:14px 0 0 14px;
+  border:1px solid rgba(59,130,246,0.36);
+  border-right:0;
+  background:linear-gradient(180deg,var(--surface-elevated) 0%,var(--accent-soft) 100%);
+  color:var(--ink);
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  box-shadow:-4px 8px 22px rgba(15,23,42,0.16),inset 0 1px 0 rgba(255,255,255,0.45);
+  gap:5px;
+  will-change:transform;
+}
+body.theme-dark .music-right-tag{
+  background:linear-gradient(180deg,#151e30 0%,#18294a 100%);
+  border-color:rgba(96,165,250,0.35);
+  box-shadow:-4px 10px 24px rgba(2,6,23,0.6),inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.music-right-tag:hover,
+.music-right-tag.is-open,
+.music-right-tag.is-playing{
+  background:linear-gradient(180deg,#2563eb 0%,#4f46e5 100%);
+  border-color:rgba(147,197,253,0.65);
+  color:#ffffff;
+  transform:translateY(-50%) translateX(-2px);
+  box-shadow:-6px 10px 26px rgba(37,99,235,0.38),inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.music-right-tag svg{
+  width:12px;
+  height:12px;
+}
+
+.music-drawer{
+  position:fixed;
+  right:36px;
+  top:52%;
+  transform:translateY(-50%);
+  z-index:220;
+  width:312px;
+  max-width:calc(100vw - 80px);
+  max-height:74vh;
+  background:var(--surface-elevated);
+  border:1px solid var(--line-strong);
+  border-radius:16px;
+  box-shadow:var(--shadow-lg);
+  padding:14px;
+  display:none;
+  flex-direction:column;
+  gap:10px;
+}
+.music-drawer.open{
+  display:flex;
+}
+.music-drawer-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.music-drawer-title{
+  font-size:13px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-0.01em;
+}
+.music-drawer-sub{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+.music-search-form{
+  display:flex;
+  gap:6px;
+}
+.music-search-input{
+  flex:1 1 auto;
+  min-width:0;
+  height:34px;
+  padding:0 10px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--ink);
+  font-size:12px;
+  outline:none;
+}
+.music-search-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+}
+.music-search-btn{
+  height:34px;
+  padding:0 11px;
+  border-radius:9px;
+  font-size:11.5px;
+  background:linear-gradient(135deg,#2563eb 0%,#4f46e5 100%);
+  border-color:transparent;
+  color:#ffffff;
+  box-shadow:none;
+}
+.music-search-btn:hover{
+  transform:none;
+  box-shadow:none;
+  opacity:0.94;
+}
+.music-status{
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.3;
+}
+.music-results{
+  list-style:none;
+  margin:0;
+  padding:0;
+  overflow-y:auto;
+  max-height:190px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.music-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:7px 9px;
+  border-radius:9px;
+  background:var(--surface-subtle);
+  border:1px solid var(--line);
+}
+.music-item-meta{
+  min-width:0;
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.music-item-title{
+  font-size:11.5px;
+  font-weight:650;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.music-item-artist{
+  font-size:10.5px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.music-play-btn{
+  height:26px;
+  padding:0 9px;
+  border-radius:7px;
+  background:var(--accent);
+  border-color:transparent;
+  color:#ffffff;
+  font-size:11px;
+  font-weight:650;
+  flex-shrink:0;
+  box-shadow:none;
+}
+.music-play-btn:hover{
+  transform:none;
+  box-shadow:none;
+  background:var(--accent-hover);
+}
+.music-player-box{
+  border-top:1px solid var(--line);
+  padding-top:9px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.music-now-playing{
+  font-size:11.5px;
+  font-weight:700;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.music-audio{
+  width:100%;
+  height:32px;
+}
+
 .new-cal-popover{
   position:fixed;
   left:36px;
@@ -154,7 +350,7 @@ body.theme-dark .new-cal-left-tag{
   transform:translateY(-50%);
   z-index:220;
   width:274px;
-  max-width:calc(100vw - 48px);
+  max-width:calc(100vw - 80px);
   background:var(--surface-elevated);
   border:1px solid var(--line-strong);
   border-radius:16px;
@@ -277,7 +473,6 @@ body.theme-dark .new-cal-left-tag{
   box-shadow:0 10px 22px rgba(37,99,235,0.38),inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
-/* Styled Workplan Month Separator & Slot Bar */
 .wp1-action-bar{
   display:none;
   align-items:center;
@@ -431,7 +626,6 @@ body.theme-dark .new-cal-left-tag{
   box-shadow:none;
 }
 
-/* Sticky Top Bar */
 header{
   position:sticky;
   top:0;
@@ -495,7 +689,6 @@ header h1{
   white-space:nowrap;
 }
 
-/* Unified Modern Header Toolbar (Desktop & Mobile Equalized) */
 .header-toolbar{
   display:flex;
   align-items:center;
@@ -509,7 +702,6 @@ header h1{
   gap:8px;
 }
 
-/* Modern Tactile Buttons */
 button,.btn{
   display:inline-flex;
   align-items:center;
@@ -628,7 +820,6 @@ button.secondary:hover{
   background:#475569;
 }
 
-/* Segmented Alignment Pill (Equal Height with Action Buttons) */
 .word-align-group{
   display:inline-flex;
   align-items:center;
@@ -671,14 +862,12 @@ button.secondary:hover{
   box-shadow:0 1px 3px rgba(15,23,42,0.12);
 }
 
-/* Dashboard Main Container */
 .wrap{
   max-width:1480px;
   margin:0 auto;
   padding:20px clamp(14px,3vw,32px) 24px 40px;
 }
 
-/* Bottom-Right Developer Footer */
 .app-footer{
   max-width:1480px;
   margin:0 auto;
@@ -705,7 +894,6 @@ button.secondary:hover{
   font-weight:700;
 }
 
-/* Top Toolbar + Live Summary Strip */
 .dashboard-bar{
   display:grid;
   grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
@@ -757,7 +945,6 @@ button.secondary:hover{
   box-shadow:0 0 0 3px rgba(37,99,235,0.16);
 }
 
-/* Minimalist KPI Summary Strip */
 .stats-strip{
   background:var(--surface);
   border:1px solid var(--line);
@@ -795,7 +982,6 @@ button.secondary:hover{
 .stat-value.is-red{color:var(--danger)}
 .stat-value.is-muted{color:var(--muted)}
 
-/* Workspace Card */
 .sheet-card{
   background:var(--surface);
   border:1px solid var(--line);
@@ -860,7 +1046,6 @@ button.secondary:hover{
   background:var(--filler-bg);
 }
 
-/* Single-line Day Header so long shift names stay inside the box */
 .dayhead{
   display:flex;
   align-items:center;
@@ -1084,7 +1269,6 @@ button.secondary:hover{
   left:auto;
   right:0;
 }
-/* Sticky Header Group for Task Dropdown (Case/Clear/Apply + Include Succeeding Boxes Below) */
 .task-sticky-header{
   position:sticky;
   top:0;
@@ -1412,7 +1596,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   display:none !important;
 }
 
-/* Minimalist Signatory Cards */
 .signatures{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1502,7 +1685,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   display:block;
 }
 
-/* Responsive A4 Landscape Preview Modal (Phone & Desktop) */
 .preview-overlay{
   position:fixed;
   inset:0;
@@ -1630,7 +1812,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   flex-shrink:0;
   margin:0 auto;
 }
-/* Exact A4 Landscape Sheet (297mm x 210mm) */
 .a4-sheet{
   position:absolute;
   top:0;
@@ -1734,12 +1915,15 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   color:#111;
   overflow:hidden;
   display:flex;
-  align-items:center;
+  flex-direction:column;
   justify-content:center;
-  text-align:center;
+  align-items:stretch;
 }
 .a4-sheet .pv-body-inner{
+  display:block;
+  width:100%;
   max-width:100%;
+  box-sizing:border-box;
   overflow-wrap:break-word;
   word-break:break-word;
   overflow:hidden;
@@ -1749,6 +1933,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   text-align:center !important;
   font-weight:700;
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
 }
@@ -1856,7 +2041,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   box-shadow:none;
 }
 
-/* Responsive Breakpoints — Desktop, Tablet, Android & iPhone */
 @media(max-width:1060px){
   .dashboard-bar{grid-template-columns:1fr}
   .header-top-row{
@@ -1883,9 +2067,10 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     padding-top:max(10px,env(safe-area-inset-top));
   }
   header h1{font-size:0.98rem}
-  .wrap{padding:14px 12px 20px 32px}
-  .app-footer{padding:6px 12px 20px 32px}
-  .new-cal-left-tag{
+  .wrap{padding:14px 32px 20px 32px}
+  .app-footer{padding:6px 32px 20px 32px}
+  .new-cal-left-tag,
+  .music-right-tag{
     min-width:25px;
     min-height:92px;
     padding:7px 4px;
@@ -1893,6 +2078,9 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   }
   .new-cal-popover{
     left:30px;
+  }
+  .music-drawer{
+    right:30px;
   }
   .controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}
   .stats-strip{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:10px 8px;overflow-x:auto}
@@ -1917,7 +2105,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   .preview-stage{padding:10px}
 }
 
-/* Android & iPhone Portrait (360px - 580px): 2-Row Equal-Height Balanced Grid */
 @media(max-width:580px){
   header{
     padding:10px 12px;
@@ -1979,7 +2166,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   .day{min-width:118px}
 }
 
-/* Extra-Compact Phones (<= 360px) */
 @media(max-width:360px){
   .header-actions button{
     font-size:11px;
@@ -1992,7 +2178,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   }
 }
 
-/* Exact Print Layout matching Preview (.a4-sheet 297mm x 210mm) */
 .print-sheet-wrapper{
   display:none;
 }
@@ -2087,6 +2272,34 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     <span id="createCalBtnLabel">Create 2 Workplans</span>
   </button>
 </div>
+
+<button type="button" class="music-right-tag" id="musicRightTag" onclick="toggleMusicDrawer(event)" title="Free Streaming Music Player" aria-expanded="false">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+  <span>Music</span>
+</button>
+
+<aside class="music-drawer" id="musicDrawer" role="dialog" aria-label="Minimalist Free Music Player" onclick="event.stopPropagation()">
+  <div class="music-drawer-header">
+    <div>
+      <div class="music-drawer-title">Free Stream Music</div>
+      <div class="music-drawer-sub">Search &amp; play tracks while working</div>
+    </div>
+    <button type="button" class="btn-close-pop" onclick="closeMusicDrawer()" aria-label="Close music player">✕</button>
+  </div>
+
+  <form class="music-search-form" id="musicSearchForm">
+    <input type="text" class="music-search-input" id="musicSearchInput" placeholder="Search song, artist, mood..." required>
+    <button type="submit" class="music-search-btn">Search</button>
+  </form>
+
+  <div class="music-status" id="musicStatus">Type a keyword (e.g., lofi, chill, acoustic) and search.</div>
+  <ul class="music-results" id="musicResults"></ul>
+
+  <div class="music-player-box">
+    <div class="music-now-playing" id="musicNowPlaying">No track selected</div>
+    <audio class="music-audio" id="musicAudio" controls preload="none"></audio>
+  </div>
+</aside>
 
 <header>
   <div class="header-top-row">
@@ -2237,10 +2450,8 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   </div>
 </footer>
 
-<!-- Exact Print Mount (mirrors preview sheet cleanly across A4 landscape) -->
 <div class="print-sheet-wrapper" id="printSheetWrapper" aria-hidden="true"></div>
 
-<!-- Responsive A4 Landscape Print Preview Modal -->
 <div class="preview-overlay" id="a4PreviewModal" aria-modal="true" role="dialog">
   <div class="preview-bar">
     <div class="preview-bar-title">
@@ -2408,6 +2619,7 @@ function syncPageSelectorUI(){
 
 function toggleNewCalPopover(e){
   if(e) e.stopPropagation();
+  closeMusicDrawer();
   const pop = document.getElementById('newCalPopover');
   const tag = document.getElementById('newCalendarLeftTag');
   if(!pop) return;
@@ -2429,6 +2641,149 @@ function closeNewCalPopover(){
   if(pop) pop.classList.remove('open');
   if(tag) tag.setAttribute('aria-expanded', 'false');
 }
+
+function toggleMusicDrawer(e){
+  if(e) e.stopPropagation();
+  closeNewCalPopover();
+  const drawer = document.getElementById('musicDrawer');
+  const tag = document.getElementById('musicRightTag');
+  if(!drawer) return;
+  const willOpen = !drawer.classList.contains('open');
+  drawer.classList.toggle('open', willOpen);
+  if(tag){
+    tag.classList.toggle('is-open', willOpen);
+    tag.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  }
+}
+
+function closeMusicDrawer(){
+  const drawer = document.getElementById('musicDrawer');
+  const tag = document.getElementById('musicRightTag');
+  if(drawer) drawer.classList.remove('open');
+  if(tag){
+    tag.classList.remove('is-open');
+    tag.setAttribute('aria-expanded', 'false');
+  }
+}
+
+(function initFreeMusicPlayer(){
+  const APP_NAME = 'workplan_music_player';
+  const form = document.getElementById('musicSearchForm');
+  const input = document.getElementById('musicSearchInput');
+  const statusEl = document.getElementById('musicStatus');
+  const resultsEl = document.getElementById('musicResults');
+  const nowPlayingEl = document.getElementById('musicNowPlaying');
+  const audioEl = document.getElementById('musicAudio');
+  const tagEl = document.getElementById('musicRightTag');
+  if(!form || !input || !statusEl || !resultsEl || !nowPlayingEl || !audioEl) return;
+
+  let hostCache = 'https://discoveryprovider.audius.co';
+
+  async function getAudiusHost(){
+    try {
+      const res = await fetch('https://api.audius.co');
+      if(res.ok){
+        const json = await res.json();
+        if(Array.isArray(json.data) && json.data.length){
+          hostCache = json.data[0];
+        }
+      }
+    } catch {}
+    return hostCache;
+  }
+
+  function playTrack(track){
+    const artistName = track.user?.name || track.artist || 'Artist';
+    const streamUrl = `${hostCache}/v1/tracks/${track.id}/stream?app_name=${APP_NAME}`;
+    nowPlayingEl.textContent = `${track.title} — ${artistName}`;
+    audioEl.src = streamUrl;
+    audioEl.play().catch(() => {
+      statusEl.textContent = 'Press Play inside the audio bar to start.';
+    });
+    localStorage.setItem('workplan-last-track', JSON.stringify({
+      id: track.id,
+      title: track.title,
+      artist: artistName
+    }));
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if(!q) return;
+
+    statusEl.textContent = 'Searching tracks...';
+    resultsEl.innerHTML = '';
+
+    try {
+      const host = await getAudiusHost();
+      const url = `${host}/v1/tracks/search?query=${encodeURIComponent(q)}&app_name=${APP_NAME}`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('Search failed');
+      const json = await res.json();
+      const tracks = (json.data || []).slice(0, 10);
+
+      if(!tracks.length){
+        statusEl.textContent = 'No tracks found. Try another search term.';
+        return;
+      }
+
+      statusEl.textContent = `Found ${tracks.length} track(s):`;
+      tracks.forEach((track) => {
+        const li = document.createElement('li');
+        li.className = 'music-item';
+
+        const meta = document.createElement('div');
+        meta.className = 'music-item-meta';
+
+        const tEl = document.createElement('span');
+        tEl.className = 'music-item-title';
+        tEl.textContent = track.title || 'Untitled';
+
+        const aEl = document.createElement('span');
+        aEl.className = 'music-item-artist';
+        aEl.textContent = track.user?.name || 'Unknown Artist';
+
+        meta.append(tEl, aEl);
+
+        const playBtn = document.createElement('button');
+        playBtn.type = 'button';
+        playBtn.className = 'music-play-btn';
+        playBtn.textContent = 'Play';
+        playBtn.onclick = () => playTrack(track);
+
+        li.append(meta, playBtn);
+        resultsEl.append(li);
+      });
+    } catch {
+      statusEl.textContent = 'Unable to search tracks right now.';
+    }
+  });
+
+  audioEl.addEventListener('play', () => {
+    if(tagEl) tagEl.classList.add('is-playing');
+  });
+  audioEl.addEventListener('pause', () => {
+    if(tagEl) tagEl.classList.remove('is-playing');
+  });
+  audioEl.addEventListener('ended', () => {
+    if(tagEl) tagEl.classList.remove('is-playing');
+  });
+  audioEl.addEventListener('volumechange', () => {
+    localStorage.setItem('workplan-music-volume', String(audioEl.volume));
+  });
+
+  const savedVol = parseFloat(localStorage.getItem('workplan-music-volume') || '1');
+  if(!Number.isNaN(savedVol) && savedVol >= 0 && savedVol <= 1){
+    audioEl.volume = savedVol;
+  }
+
+  const savedTrack = readJSON('workplan-last-track', null);
+  if(savedTrack && savedTrack.id && savedTrack.title){
+    nowPlayingEl.textContent = `${savedTrack.title} — ${savedTrack.artist || 'Artist'}`;
+    audioEl.src = `${hostCache}/v1/tracks/${savedTrack.id}/stream?app_name=${APP_NAME}`;
+  }
+})();
 
 function selectPageCount(count){
   pendingPageCount = Math.max(1, Math.min(6, Number(count) || 1));
@@ -2570,7 +2925,6 @@ function applySelectedCalendarPages(){
   }
 }
 
-/* Remove ONLY the selected slot (e.g., #2) without deleting succeeding slots (#3, #4, ...) */
 function removeCalendarSlot(removedIdx){
   if(removedIdx <= 1 || totalCalendarPages <= 1) return;
 
@@ -2651,13 +3005,13 @@ function getDaysInMonth(y, m){
 
 function computeTaskFontPx(text){
   if(!text || !text.trim()) return 11.2;
-  const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 24)), 0);
-  if(lines >= 14) return 7.4;
-  if(lines >= 11) return 8.0;
-  if(lines >= 8) return 8.8;
-  if(lines >= 5) return 9.8;
-  if(lines >= 3) return 10.8;
-  return 11.8;
+  const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 26)), 0);
+  if(lines >= 15) return 7.6;
+  if(lines >= 12) return 8.2;
+  if(lines >= 9) return 9.0;
+  if(lines >= 6) return 9.8;
+  if(lines >= 4) return 10.6;
+  return 11.4;
 }
 
 function positionShiftMenu(toggleEl, menuEl, pickWrap, dayCell){
@@ -2719,7 +3073,6 @@ function positionTaskDropdown(toggleEl, listEl, pickWrap){
   }
 }
 
-/* Only show WORKPLAN #1 / Reset #1 header bar when extra workplan sheets (2+) are created */
 function syncWp1BarVisibility(){
   const wp1Bar = document.getElementById('wp1ActionBar');
   if(!wp1Bar) return;
@@ -3669,7 +4022,6 @@ function openConfirmDialog({ title, desc, onConfirm }){
   };
 }
 
-/* Reset ALL active workplan pages (#1 and any active extra workplans) */
 function clearAllPages(){
   const count = totalCalendarPages;
   openConfirmDialog({
@@ -3688,7 +4040,6 @@ function clearAllPages(){
   });
 }
 
-/* Reset ONLY a single workplan slot (#1, #2, #3, ...) */
 function clearCalendarSlot(idx){
   openConfirmDialog({
     title: 'Reset Workplan #' + idx + '?',
@@ -3742,7 +4093,6 @@ function applyAlign(){
   }
 }
 
-/* Shared Sheet Builder: Identical layout for Preview AND A4 Printout */
 function buildSheetMarkup(titleId = 'title', calId = 'calendar', sigId = 'signatures'){
   const titleHTML = document.getElementById(titleId)?.innerHTML || '';
   const align = document.getElementById('textAlign').value || 'left';
@@ -3770,25 +4120,24 @@ function buildSheetMarkup(titleId = 'title', calId = 'calendar', sigId = 'signat
     const lineCount = rawText ? rawText.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 26)), 0) : 0;
     let fontPx = computeTaskFontPx(rawText);
     if(!isOff && rawText){
-      if(totalChars > 360 || lineCount > 14) fontPx = Math.max(6.2, fontPx - 0.8);
-      else if(totalChars > 220 || lineCount > 10) fontPx = Math.max(6.8, fontPx - 0.5);
-      else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(11.8, fontPx + 0.6);
+      if(totalChars > 360 || lineCount > 14) fontPx = Math.max(7.2, fontPx - 0.6);
+      else if(totalChars > 220 || lineCount > 10) fontPx = Math.max(7.8, fontPx - 0.4);
+      else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(11.8, fontPx + 0.5);
     }
 
     if(!isOff && rawText){
       const activeRows = Math.max(1, totalWeeks);
       const taskCount = rawText.split('\n').filter(l => l.trim()).length;
       if(taskCount <= 7 && activeRows <= 5){
-        fontPx = Math.max(fontPx, lineCount <= 10 ? 9.8 : 8.6);
+        fontPx = Math.max(fontPx, lineCount <= 10 ? 10.0 : 8.8);
       } else if(taskCount <= 7){
-        fontPx = Math.max(fontPx, 8.2);
+        fontPx = Math.max(fontPx, 8.5);
       }
     }
 
     const effectiveAlign = isOff ? 'center' : align;
-    const justifyContent = isOff ? 'center' : (align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'));
-    const alignItems = 'center';
-    const lineHeight = isOff ? '1.1' : (lineCount >= 9 ? '1.06' : '1.12');
+    const lineHeight = isOff ? '1.1' : (lineCount >= 9 ? '1.08' : '1.14');
+    const sidePad = isOff ? '0px' : (effectiveAlign === 'center' ? '2px' : '5px');
 
     const safeNum = num.replace(/</g,'&lt;');
     const safeShift = shiftVal.replace(/</g,'&lt;');
@@ -3799,7 +4148,7 @@ function buildSheetMarkup(titleId = 'title', calId = 'calendar', sigId = 'signat
         '<span class="pv-num">'+safeNum+'</span>' +
         (safeShift ? '<span class="pv-shift">'+safeShift+'</span>' : '') +
       '</div>' +
-      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '5px' : '0'))+';padding-right:'+(isOff ? '0' : (effectiveAlign === 'right' ? '5px' : '0'))+';"><div class="pv-body-inner" style="width:100%;max-width:100%;text-align:'+effectiveAlign+';">'+safeBody+'</div></div>' : '') +
+      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" data-base-font="'+fontPx+'" data-base-lh="'+lineHeight+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';padding-left:'+sidePad+';padding-right:'+sidePad+';"><div class="pv-body-inner" style="text-align:'+effectiveAlign+';">'+safeBody+'</div></div>' : '') +
     '</div>';
   });
 
@@ -3833,7 +4182,6 @@ function buildAllPrintSheetsMarkup(){
   }).join('');
 }
 
-/* Exact Preview-Mirrored A4 Landscape PDF Generator (Rasterizes Exact .a4-sheet HTML+CSS) */
 function collectSheetStyleCSS(){
   let css = '';
   for(const sheet of document.styleSheets){
@@ -4312,7 +4660,6 @@ async function sendFromPreview(){
   showResetToast('PDF downloaded (' + fileName + ') — ready to attach & send.');
 }
 
-/* Responsive A4 Landscape Print Preview Logic (Phone & Desktop) */
 let currentPreviewZoom = 'fit';
 let currentPreviewViewport = 'desktop';
 
@@ -4332,18 +4679,24 @@ function fitPreviewSheetTextSizes(root){
     const availableH = Math.max(10, cell.clientHeight - padTop - padBot - headH - 2);
     const availableW = Math.max(18, cell.clientWidth - padLeft - padRight - 2);
 
-    let currentPx = parseFloat(body.style.fontSize) || 10.5;
-    const minPx = body.classList.contains('is-off') ? 8.5 : 4.6;
+    const basePx = parseFloat(body.dataset.baseFont || body.style.fontSize) || 10.5;
+    const baseLh = body.dataset.baseLh || body.style.lineHeight || '1.14';
+    let currentPx = basePx;
+    const minPx = body.classList.contains('is-off') ? 8.5 : Math.min(basePx, 7.6);
 
     body.style.fontSize = currentPx + 'px';
+    body.style.lineHeight = baseLh;
+
     let guard = 0;
-    while(guard < 160 && currentPx > minPx){
+    while(guard < 120 && currentPx > minPx){
       if(inner.scrollHeight <= availableH && inner.scrollWidth <= availableW) break;
       currentPx = Math.max(minPx, +(currentPx - 0.15).toFixed(2));
       body.style.fontSize = currentPx + 'px';
       guard++;
     }
-    if(inner.scrollHeight > availableH) body.style.lineHeight = '1.02';
+    if(inner.scrollHeight > availableH) body.style.lineHeight = '1.05';
+    body.dataset.fittedFont = String(currentPx);
+    body.dataset.fittedLh = body.style.lineHeight;
   });
 }
 
@@ -4425,6 +4778,8 @@ function setPreviewZoom(z){
 }
 
 function openA4Preview(){
+  closeMusicDrawer();
+  closeNewCalPopover();
   buildA4PreviewSheet();
   const modal = document.getElementById('a4PreviewModal');
   modal.classList.add('open');
@@ -4440,13 +4795,49 @@ function prepareExactPrintWrapper(){
   const wrapper = document.getElementById('printSheetWrapper');
   if(!wrapper) return;
 
+  const existingPreviewSheets = document.querySelectorAll('#previewSheetsList .a4-sheet');
+  if(existingPreviewSheets.length > 0 && document.getElementById('a4PreviewModal')?.classList.contains('open')){
+    const frag = document.createDocumentFragment();
+    existingPreviewSheets.forEach((pvSheet, i) => {
+      const clonedSheet = pvSheet.cloneNode(true);
+      clonedSheet.removeAttribute('id');
+      clonedSheet.style.position = 'relative';
+      clonedSheet.style.top = 'auto';
+      clonedSheet.style.left = 'auto';
+      clonedSheet.style.transform = 'none';
+      clonedSheet.style.margin = '0';
+      clonedSheet.style.boxShadow = 'none';
+      if(i === 0){
+        frag.append(clonedSheet);
+      } else {
+        const pageBreak = document.createElement('div');
+        pageBreak.className = 'print-page-break';
+        pageBreak.append(clonedSheet);
+        frag.append(pageBreak);
+      }
+    });
+    wrapper.replaceChildren(frag);
+    wrapper.removeAttribute('style');
+    return;
+  }
+
   wrapper.style.cssText = 'display:block;position:fixed;left:-99999px;top:0;width:297mm;visibility:hidden;pointer-events:none;';
   wrapper.innerHTML = buildAllPrintSheetsMarkup();
   fitPreviewSheetTextSizes(wrapper);
+
+  wrapper.querySelectorAll('.pv-body').forEach(body => {
+    const fittedFont = body.dataset.fittedFont || body.dataset.baseFont || parseFloat(body.style.fontSize);
+    const fittedLh = body.dataset.fittedLh || body.dataset.baseLh || body.style.lineHeight;
+    if(fittedFont) body.style.fontSize = fittedFont + 'px';
+    if(fittedLh) body.style.lineHeight = fittedLh;
+  });
+
   wrapper.removeAttribute('style');
 }
 
 function triggerExactPrint(){
+  closeMusicDrawer();
+  closeNewCalPopover();
   prepareExactPrintWrapper();
   requestAnimationFrame(() => {
     window.print();
@@ -4454,8 +4845,11 @@ function triggerExactPrint(){
 }
 
 function printFromPreview(){
+  prepareExactPrintWrapper();
   closeA4Preview();
-  setTimeout(() => triggerExactPrint(), 60);
+  requestAnimationFrame(() => {
+    window.print();
+  });
 }
 
 window.addEventListener('resize', () => {
@@ -4471,13 +4865,16 @@ document.addEventListener('keydown', e => {
   if(e.key === 'Escape'){
     closeA4Preview();
     closeNewCalPopover();
+    closeMusicDrawer();
   }
 });
 
-// Close task/shift/new-cal dropdowns when clicking outside
 document.addEventListener('click', function(event){
   if(!event.target.closest('#newCalPopover') && !event.target.closest('#newCalendarLeftTag')){
     closeNewCalPopover();
+  }
+  if(!event.target.closest('#musicDrawer') && !event.target.closest('#musicRightTag')){
+    closeMusicDrawer();
   }
   if(!event.target.closest('.taskpick')){
     document.querySelectorAll('.taskpick.dropdown-open').forEach(function(p){
@@ -4524,7 +4921,6 @@ window.addEventListener('scroll', function(e){
   });
 }, true);
 
-// 7-task maximum limit enforcement (notification appears right above the last clicked checkbox)
 (function(){
   let activeTip = null;
   let hideTimer = null;
@@ -4579,7 +4975,6 @@ window.addEventListener('scroll', function(e){
   window.addEventListener('resize', removeTip);
 })();
 
-// Keep print wrapper synced even if Ctrl+P / browser print is triggered directly
 window.addEventListener('beforeprint', function(){
   const wrapper = document.getElementById('printSheetWrapper');
   if(wrapper && !wrapper.innerHTML.trim()){
@@ -4594,7 +4989,6 @@ window.addEventListener('afterprint', function(){
   }
 });
 
-// Initialize on current real month & year while preserving saved data in localStorage
 (function init(){
   const now = new Date();
   const ySel = document.getElementById('year');
