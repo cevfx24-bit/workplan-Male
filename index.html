@@ -292,7 +292,7 @@ body.theme-dark .new-cal-left-tag{
   border-radius:12px;
   box-shadow:var(--shadow-xs);
 }
-.wp1-action-bar.has-content{
+.wp1-action-bar.is-visible{
   display:flex;
 }
 .wp1-bar-label{
@@ -2354,6 +2354,7 @@ function syncPageSelectorUI(){
       ? totalCalendarPages + ' Workplans'
       : 'New Workplan';
   }
+  syncWp1BarVisibility();
 }
 
 function toggleNewCalPopover(e){
@@ -2502,6 +2503,7 @@ function buildExtraCalendarSections(customSlotStates = null){
 
   container.replaceChildren(frag);
   indicesToRender.forEach(idx => renderExtraCalendar(idx));
+  syncWp1BarVisibility();
 }
 
 function applySelectedCalendarPages(){
@@ -2538,7 +2540,6 @@ function removeCalendarSlot(removedIdx){
     });
   }
 
-  // Clear old extra-slot storage keys before re-assigning remaining slots (#2, #3, ...)
   for(let i = 2; i <= 6; i++){
     const mEl = document.getElementById('month' + i);
     const yEl = document.getElementById('year' + i);
@@ -2669,22 +2670,11 @@ function positionTaskDropdown(toggleEl, listEl, pickWrap){
   }
 }
 
+/* Only show WORKPLAN #1 / Reset #1 header bar when extra workplan sheets (2+) are created */
 function syncWp1BarVisibility(){
   const wp1Bar = document.getElementById('wp1ActionBar');
-  const calEl = document.getElementById('calendar');
-  if(!wp1Bar || !calEl) return;
-
-  let hasAnyContent = false;
-  calEl.querySelectorAll('.day[data-day]').forEach(cell => {
-    const shiftVal = (cell.querySelector('.shift-select')?.value || '').trim();
-    const taVal = (cell.querySelector('textarea')?.value || '').trim();
-    const checkedCount = cell.querySelectorAll('.task-checkbox-items input[type="checkbox"]:checked').length;
-    if(shiftVal !== '' || taVal !== '' || checkedCount > 0){
-      hasAnyContent = true;
-    }
-  });
-
-  wp1Bar.classList.toggle('has-content', hasAnyContent);
+  if(!wp1Bar) return;
+  wp1Bar.classList.toggle('is-visible', totalCalendarPages > 1);
 }
 
 function updateDashboardStatsForContainer(calId, ids){
