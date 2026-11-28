@@ -589,6 +589,26 @@ button.btn-print:hover{
   box-shadow:0 6px 16px rgba(22,163,74,0.32),inset 0 1px 0 rgba(255,255,255,0.28);
 }
 
+button.btn-send{
+  background:linear-gradient(180deg,#0ea5e9 0%,#0284c7 100%);
+  border-color:rgba(56,189,248,0.65);
+  color:#ffffff;
+}
+button.btn-send:hover{
+  background:linear-gradient(180deg,#0284c7 0%,#0369a1 100%);
+  box-shadow:0 6px 16px rgba(2,132,199,0.35),inset 0 1px 0 rgba(255,255,255,0.28);
+}
+
+button.btn-close-preview{
+  background:linear-gradient(180deg,#f43f5e 0%,#e11d48 100%);
+  border-color:rgba(251,113,133,0.6);
+  color:#ffffff;
+}
+button.btn-close-preview:hover{
+  background:linear-gradient(180deg,#e11d48 0%,#be123c 100%);
+  box-shadow:0 6px 16px rgba(225,29,72,0.36),inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
 button.btn-reset{
   background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);
   border-color:rgba(239,68,68,0.7);
@@ -1853,7 +1873,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   .preview-actions{width:100%;justify-content:space-between;gap:6px}
   #previewViewportControls{display:none}
   .preview-seg-group button{padding:0 8px;font-size:11.5px;height:34px}
-  .preview-actions > button{padding:0 10px;font-size:12px;height:34px;flex:1}
+  .preview-actions > button{padding:0 9px;font-size:11.5px;height:34px;flex:1}
   .preview-stage{padding:10px}
 }
 
@@ -2216,7 +2236,14 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
       </div>
       <button type="button" class="btn-save" onclick="printFromPreview()">Save PDF</button>
       <button type="button" class="btn-print" onclick="printFromPreview()">Print PDF</button>
-      <button type="button" class="secondary" onclick="closeA4Preview()">Close</button>
+      <button type="button" class="btn-send" onclick="sendFromPreview()" title="Share or Copy Workplan Schedule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        <span>Send</span>
+      </button>
+      <button type="button" class="btn-close-preview" onclick="closeA4Preview()" title="Close Preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <span>Close</span>
+      </button>
     </div>
   </div>
   <div class="preview-stage" id="previewStage" onclick="if(event.target===this)closeA4Preview()">
@@ -2244,7 +2271,6 @@ const monthNames=['January','February','March','April','May','June','July','Augu
 const taskOptions=[
   'Roving and monitoring the assigned area',
   'Inspecting facilities',
-  'Inspecting facilities in the assigned area',
   'Minor electrical repairs',
   'Grass-cutting and cleaning of the assigned area',
   'Minor repair of water faucets',
@@ -2277,7 +2303,6 @@ const taskOptions=[
   'Printer Repair',
   'IT & Network Support',
   'Technical Support',
-  'Cleaning Around the Area'
 ];
 
 let totalCalendarPages = 1;
@@ -3582,7 +3607,7 @@ function showResetToast(msg){
   toast.textContent = msg;
   toast.classList.add('show');
   clearTimeout(window.__resetToastTimer);
-  window.__resetToastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  window.__resetToastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
 function openConfirmDialog({ title, desc, onConfirm }){
@@ -3774,6 +3799,102 @@ function buildAllPrintSheetsMarkup(){
     const sheetMarkup = '<div class="a4-sheet">' + buildSheetMarkup(s.titleId, s.calId, s.sigId) + '</div>';
     return i === 0 ? sheetMarkup : '<div class="print-page-break">' + sheetMarkup + '</div>';
   }).join('');
+}
+
+/* Build Shareable Text & File Summary for the Send Button */
+function buildShareableWorkplanPayload(){
+  const sheets = getActiveCalendarSheetsData();
+  const blocks = [];
+  let primaryTitle = 'Workplan Schedule';
+
+  sheets.forEach((s, idx) => {
+    const titleText = (document.getElementById(s.titleId)?.textContent || '').trim();
+    if(idx === 0 && titleText) primaryTitle = titleText;
+
+    const lines = [titleText || ('WORKPLAN #' + (idx + 1))];
+    const cells = document.querySelectorAll('#' + s.calId + ' .day[data-day]');
+    let entryCount = 0;
+
+    cells.forEach(cell => {
+      const dayNum = (cell.querySelector('.daynum')?.textContent || cell.dataset.day || '').trim();
+      const shiftVal = (cell.querySelector('.shift-select')?.value || '').trim();
+      const ta = cell.querySelector('textarea');
+      const noteText = (ta && !ta.classList.contains('task-note-hidden')) ? ta.value.trim() : '';
+
+      if(shiftVal || noteText){
+        entryCount++;
+        const headerTag = shiftVal ? ' [' + shiftVal + ']' : '';
+        lines.push('Day ' + dayNum + headerTag + ':');
+        if(noteText){
+          noteText.split('\n').forEach(l => {
+            if(l.trim()) lines.push('  ' + l.trim());
+          });
+        }
+      }
+    });
+
+    if(entryCount === 0){
+      lines.push('(No scheduled duties/tasks yet)');
+    }
+
+    const sigCards = document.querySelectorAll('#' + s.sigId + ' .signature');
+    if(sigCards.length){
+      lines.push('');
+      sigCards.forEach(card => {
+        const parts = card.querySelectorAll('[contenteditable]');
+        const lbl = (parts[0]?.textContent || '').trim();
+        const nm = (parts[1]?.textContent || '').trim();
+        const rl = (parts[2]?.textContent || '').trim();
+        lines.push(lbl + ' ' + nm + (rl ? ' (' + rl + ')' : ''));
+      });
+    }
+
+    blocks.push(lines.join('\n'));
+  });
+
+  return {
+    title: primaryTitle,
+    text: blocks.join('\n\n==============================\n\n')
+  };
+}
+
+async function sendFromPreview(){
+  const payload = buildShareableWorkplanPayload();
+  const safeFileName = payload.title.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') || 'Workplan_Schedule';
+
+  try {
+    if(navigator.share){
+      const shareData = {
+        title: payload.title,
+        text: payload.text
+      };
+      await navigator.share(shareData);
+      showResetToast('Workplan sent/shared.');
+      return;
+    }
+  } catch (err) {
+    if(err && err.name === 'AbortError') return;
+  }
+
+  // Fallback for desktop browsers without Web Share API: copy schedule & notify user
+  try {
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(payload.text);
+      showResetToast('Workplan copied! Ready to paste & send.');
+      return;
+    }
+  } catch {}
+
+  // Legacy textarea copy fallback
+  const helper = document.createElement('textarea');
+  helper.value = payload.text;
+  helper.style.position = 'fixed';
+  helper.style.opacity = '0';
+  document.body.appendChild(helper);
+  helper.select();
+  document.execCommand('copy');
+  document.body.removeChild(helper);
+  showResetToast('Workplan copied (' + safeFileName + ')! Paste to send.');
 }
 
 /* Responsive A4 Landscape Print Preview Logic (Phone & Desktop) */
