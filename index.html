@@ -1076,7 +1076,7 @@ button.secondary:hover{
   max-height:310px;
   overflow-y:auto;
   overflow-x:hidden;
-  padding:0 8px 8px;
+  padding:0 8px 0;
   font-size:11.5px;
   border-radius:var(--radius-md);
 }
@@ -1336,12 +1336,17 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   flex-shrink:0;
 }
 .custom-task-add-row{
+  position:sticky;
+  bottom:0;
+  z-index:15;
+  background:var(--surface-elevated);
   display:flex;
   align-items:center;
   gap:5px;
-  margin:6px 0 2px;
-  padding-top:6px;
-  border-top:1px dashed var(--line-strong);
+  margin:6px -8px 0;
+  padding:7px 8px 8px;
+  border-top:1px solid var(--line);
+  box-shadow:0 -4px 10px rgba(15,23,42,0.08);
 }
 .custom-task-input{
   flex:1 1 auto;
@@ -2860,6 +2865,8 @@ function openInlineEditCustomTask(labelEl, oldTaskText, slot = 1){
   const parent = labelEl.parentNode;
   if(!parent) return;
 
+  const wasChecked = Boolean(labelEl.querySelector('input[type="checkbox"]')?.checked);
+
   const editRow = document.createElement('div');
   editRow.className = 'custom-inline-edit-row';
   editRow.onclick = (e) => e.stopPropagation();
@@ -2896,7 +2903,7 @@ function openInlineEditCustomTask(labelEl, oldTaskText, slot = 1){
         return;
       }
     }
-    renameCustomTaskEverywhere(oldTaskText, newVal, slot);
+    renameCustomTaskEverywhere(oldTaskText, newVal, slot, wasChecked, editRow);
   };
 
   saveBtn.onclick = (e) => {
@@ -2905,8 +2912,7 @@ function openInlineEditCustomTask(labelEl, oldTaskText, slot = 1){
   };
   cancelBtn.onclick = (e) => {
     e.stopPropagation();
-    const cb = labelEl.querySelector('input[type="checkbox"]');
-    const restored = createTaskOptionRow(oldTaskText, cb ? cb.checked : false, slot);
+    const restored = createTaskOptionRow(oldTaskText, wasChecked, slot);
     if(editRow.parentNode) editRow.parentNode.replaceChild(restored, editRow);
   };
   input.onkeydown = (e) => {
@@ -2927,7 +2933,7 @@ function openInlineEditCustomTask(labelEl, oldTaskText, slot = 1){
   input.select();
 }
 
-function renameCustomTaskEverywhere(oldText, newText, slot = 1){
+function renameCustomTaskEverywhere(oldText, newText, slot = 1, wasChecked = false, activeEditRow = null){
   const oldLower = oldText.trim().toLowerCase();
   const currentCustomList = readJSON(customTasksKey(slot), []);
   const updatedCustomList = currentCustomList.map(item =>
@@ -2939,17 +2945,17 @@ function renameCustomTaskEverywhere(oldText, newText, slot = 1){
   calEl?.querySelectorAll('.day[data-day]').forEach(dayCell => {
     const itemsWrap = dayCell.querySelector('.task-checkbox-items');
     if(itemsWrap){
-      const editRow = itemsWrap.querySelector('.custom-inline-edit-row');
-      if(editRow){
-        const editInp = editRow.querySelector('input');
-        if(editInp && editInp.value.trim().toLowerCase() === oldLower){
-          itemsWrap.replaceChild(createTaskOptionRow(newText, true, slot), editRow);
-        }
+      if(activeEditRow && activeEditRow.parentNode === itemsWrap){
+        itemsWrap.replaceChild(createTaskOptionRow(newText, wasChecked, slot), activeEditRow);
       }
       itemsWrap.querySelectorAll('label').forEach(lab => {
         const cb = lab.querySelector('input[type="checkbox"]');
+        const txt = lab.querySelector('.custom-task-text');
         if(cb && cb.value.trim().toLowerCase() === oldLower){
-          itemsWrap.replaceChild(createTaskOptionRow(newText, cb.checked, slot), lab);
+          const checkedState = cb.checked;
+          cb.value = newText;
+          cb.checked = checkedState;
+          if(txt) txt.textContent = newText;
         }
       });
     }
@@ -3257,6 +3263,11 @@ function renderCalendarInto({ monthId, yearId, titleId, calId, slot }){
     itemsContainer.append(taskRowsFrag);
     list.append(itemsContainer);
 
+    const limitNotice = document.createElement('div');
+    limitNotice.className = 'dropdown-limit-notice';
+    limitNotice.textContent = 'Maximum of 7 tasks only.';
+    list.append(limitNotice);
+
     const customAddRow = document.createElement('div');
     customAddRow.className = 'custom-task-add-row';
 
@@ -3269,10 +3280,6 @@ function renderCalendarInto({ monthId, yearId, titleId, calId, slot }){
     customAddBtn.type = 'button';
     customAddBtn.className = 'custom-task-btn';
     customAddBtn.textContent = '+ Add';
-
-    const limitNotice = document.createElement('div');
-    limitNotice.className = 'dropdown-limit-notice';
-    limitNotice.textContent = 'Maximum of 7 tasks only.';
 
     function addCustomTask(){
       const rawCustom = customInput.value.trim();
@@ -3327,7 +3334,7 @@ function renderCalendarInto({ monthId, yearId, titleId, calId, slot }){
     };
 
     customAddRow.append(customInput, customAddBtn);
-    list.append(customAddRow, limitNotice);
+    list.append(customAddRow);
 
     const ta = document.createElement('textarea');
     ta.placeholder = 'Shift / task / notes…';
