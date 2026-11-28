@@ -548,18 +548,93 @@ button.secondary:hover{
   background:var(--surface);
   border:1px solid var(--line-strong);
   box-shadow:var(--shadow-lg);
-  width:276px;
+  width:288px;
   max-width:calc(100vw - 20px);
-  max-height:260px;
+  max-height:290px;
   overflow-y:auto;
   overflow-x:hidden;
-  padding:8px 8px 0;
+  padding:0 8px 8px;
   font-size:11.5px;
   border-radius:var(--radius-md);
 }
 .taskpick.align-left-edge .tasklist{
   left:auto;
   right:0;
+}
+.task-top-bar{
+  position:sticky;
+  top:0;
+  z-index:12;
+  background:var(--surface);
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin:0 -8px 6px;
+  padding:7px 8px;
+  border-bottom:1px solid var(--line);
+  box-shadow:0 3px 8px rgba(15,23,42,0.05);
+}
+.taskpick .tasklist button.case-toggle-btn{
+  flex:1 1 auto;
+  min-width:0;
+  padding:5px 7px;
+  border-radius:6px;
+  background:#f1f5f9;
+  border:1px solid #cbd5e1;
+  color:#0f172a;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.01em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  box-shadow:none;
+}
+.taskpick .tasklist button.case-toggle-btn:hover{
+  background:#e2e8f0;
+  transform:none;
+}
+.taskpick .tasklist button.case-toggle-btn.is-upper{
+  background:#eff6ff;
+  border-color:#93c5fd;
+  color:#1d4ed8;
+}
+.taskpick .tasklist button.case-toggle-btn.is-lower{
+  background:#f8fafc;
+  border-color:#cbd5e1;
+  color:#334155;
+}
+.taskpick .tasklist button.case-toggle-btn.is-autocap{
+  background:#f0fdf4;
+  border-color:#86efac;
+  color:#15803d;
+}
+.taskpick .tasklist button.clear-tasks-btn{
+  flex:0 0 auto;
+  padding:5px 9px;
+  border-radius:6px;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  color:#dc2626;
+  font-size:10.5px;
+  font-weight:600;
+  white-space:nowrap;
+  box-shadow:none;
+}
+.taskpick .tasklist button.clear-tasks-btn:hover{
+  background:#fee2e2;
+  transform:none;
+}
+.taskpick .tasklist button.apply-btn{
+  flex:0 0 auto;
+  padding:5px 9px;
+  border-radius:6px;
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+  font-size:10.5px;
+  font-weight:600;
+  white-space:nowrap;
 }
 .taskpick label{
   display:flex;
@@ -574,45 +649,146 @@ button.secondary:hover{
   cursor:pointer;
 }
 .taskpick label:hover{background:var(--bg)}
+.taskpick label.is-custom-task-row{
+  justify-content:space-between;
+  align-items:center;
+  gap:6px;
+}
+.custom-task-check-wrap{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  flex:1 1 auto;
+  min-width:0;
+}
+.custom-task-text{
+  flex:1 1 auto;
+  min-width:0;
+  word-break:break-word;
+}
+.custom-task-actions{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  flex-shrink:0;
+}
+.taskpick .tasklist button.custom-item-action-btn{
+  padding:2px 5px;
+  min-width:20px;
+  height:20px;
+  border-radius:5px;
+  font-size:10px;
+  font-weight:700;
+  line-height:1;
+  box-shadow:none;
+}
+.taskpick .tasklist button.custom-item-edit-btn{
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+}
+.taskpick .tasklist button.custom-item-edit-btn:hover{
+  background:#dbeafe;
+  transform:none;
+}
+.taskpick .tasklist button.custom-item-del-btn{
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  color:#dc2626;
+}
+.taskpick .tasklist button.custom-item-del-btn:hover{
+  background:#fee2e2;
+  transform:none;
+}
+.custom-inline-edit-row{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  width:100%;
+  padding:4px 4px;
+  border-bottom:1px solid var(--surface-subtle);
+}
+.custom-inline-edit-input{
+  flex:1 1 auto;
+  min-width:0;
+  padding:4px 6px;
+  border:1px solid var(--accent);
+  border-radius:5px;
+  font-size:11px;
+  color:var(--ink);
+  background:var(--surface);
+  outline:none;
+}
+.taskpick .tasklist button.custom-inline-save-btn{
+  padding:4px 7px;
+  border-radius:5px;
+  background:#16a34a;
+  border:1px solid #16a34a;
+  color:#fff;
+  font-size:10px;
+  font-weight:600;
+  box-shadow:none;
+}
+.taskpick .tasklist button.custom-inline-save-btn:hover{
+  background:#15803d;
+  transform:none;
+}
+.taskpick .tasklist button.custom-inline-cancel-btn{
+  padding:4px 6px;
+  border-radius:5px;
+  background:#f1f5f9;
+  border:1px solid #cbd5e1;
+  color:#334155;
+  font-size:10px;
+  font-weight:600;
+  box-shadow:none;
+}
+.taskpick .tasklist button.custom-inline-cancel-btn:hover{
+  background:#e2e8f0;
+  transform:none;
+}
 .taskpick input[type="checkbox"]{
   margin:2px 0 0;
   accent-color:var(--accent);
   flex-shrink:0;
 }
-.task-cap-row{
-  position:sticky;
-  bottom:0;
-  z-index:10;
-  background:var(--surface);
+.custom-task-add-row{
   display:flex;
   align-items:center;
-  gap:6px;
-  margin:6px -8px 0;
-  padding:8px;
-  border-top:1px solid var(--line);
-  box-shadow:0 -4px 10px rgba(15,23,42,0.05);
+  gap:5px;
+  margin:6px 0 2px;
+  padding-top:6px;
+  border-top:1px dashed var(--line-strong);
 }
-.task-capitalization{
+.custom-task-input{
   flex:1 1 auto;
   min-width:0;
   padding:5px 7px;
   border:1px solid var(--line-strong);
   border-radius:6px;
   background:var(--bg);
-  color:var(--ink-secondary);
+  color:var(--ink);
   font-size:11px;
-  font-weight:500;
+  outline:none;
 }
-.taskpick .tasklist button.apply-btn{
-  flex:0 0 auto;
-  padding:6px 11px;
-  border-radius:6px;
-  background:var(--accent);
+.custom-task-input:focus{
+  background:var(--surface);
   border-color:var(--accent);
-  color:#fff;
-  font-size:11px;
+}
+.taskpick .tasklist button.custom-task-btn{
+  flex:0 0 auto;
+  padding:5px 8px;
+  border-radius:6px;
+  background:#0f172a;
+  border-color:#0f172a;
+  color:#ffffff;
+  font-size:10.5px;
   font-weight:600;
   white-space:nowrap;
+}
+.taskpick .tasklist button.custom-task-btn:hover{
+  background:#334155;
+  transform:none;
 }
 
 .day textarea{
@@ -1636,6 +1812,27 @@ function key(){
   return 'workplan-'+document.getElementById('year').value+'-'+document.getElementById('month').value;
 }
 
+function customTasksKey(){
+  return 'workplan-custom-tasks-'+document.getElementById('year').value+'-'+document.getElementById('month').value;
+}
+
+function getAllTaskOptions(savedCustomTasks){
+  const extras = Array.isArray(savedCustomTasks) ? savedCustomTasks : [];
+  const merged = [...taskOptions];
+  extras.forEach(item => {
+    if(typeof item === 'string' && item.trim() && !merged.some(existing => existing.toLowerCase() === item.trim().toLowerCase())){
+      merged.push(item.trim());
+    }
+  });
+  return merged;
+}
+
+function isCustomTask(taskText){
+  const trimmed = (taskText || '').trim().toLowerCase();
+  if(!trimmed) return false;
+  return !taskOptions.some(base => base.toLowerCase() === trimmed);
+}
+
 function getEffectiveOffset(y, m){
   return new Date(y, m, 1).getDay();
 }
@@ -1705,7 +1902,7 @@ function positionTaskDropdown(toggleEl, listEl, pickWrap){
   listEl.style.transform = '';
 
   const rect = toggleEl.getBoundingClientRect();
-  const menuW = Math.min(276, window.innerWidth - 20);
+  const menuW = Math.min(288, window.innerWidth - 20);
   listEl.style.width = menuW + 'px';
 
   const margin = 10;
@@ -1786,6 +1983,236 @@ function applyDayoffAppearance(shiftEl, taEl){
   }
 }
 
+function createTaskOptionRow(taskText, isChecked){
+  const custom = isCustomTask(taskText);
+  const lab = document.createElement('label');
+  if(custom) lab.className = 'is-custom-task-row';
+
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.value = taskText;
+  cb.checked = Boolean(isChecked);
+
+  if(!custom){
+    lab.append(cb, document.createTextNode(' ' + taskText));
+    return lab;
+  }
+
+  const leftWrap = document.createElement('span');
+  leftWrap.className = 'custom-task-check-wrap';
+  const txtSpan = document.createElement('span');
+  txtSpan.className = 'custom-task-text';
+  txtSpan.textContent = taskText;
+  leftWrap.append(cb, txtSpan);
+
+  const actions = document.createElement('span');
+  actions.className = 'custom-task-actions';
+
+  const editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.className = 'custom-item-action-btn custom-item-edit-btn';
+  editBtn.title = 'Edit custom task';
+  editBtn.textContent = '✎';
+  editBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openInlineEditCustomTask(lab, cb.value);
+  };
+
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'custom-item-action-btn custom-item-del-btn';
+  delBtn.title = 'Delete custom task';
+  delBtn.textContent = '✕';
+  delBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deleteCustomTaskEverywhere(cb.value);
+  };
+
+  actions.append(editBtn, delBtn);
+  lab.append(leftWrap, actions);
+  return lab;
+}
+
+function openInlineEditCustomTask(labelEl, oldTaskText){
+  const parent = labelEl.parentNode;
+  if(!parent) return;
+
+  const editRow = document.createElement('div');
+  editRow.className = 'custom-inline-edit-row';
+  editRow.onclick = (e) => e.stopPropagation();
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'custom-inline-edit-input';
+  input.value = oldTaskText;
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.className = 'custom-inline-save-btn';
+  saveBtn.textContent = 'Save';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'custom-inline-cancel-btn';
+  cancelBtn.textContent = '✕';
+
+  const commitEdit = () => {
+    const newVal = input.value.trim();
+    if(!newVal){
+      input.focus();
+      return;
+    }
+    if(newVal.toLowerCase() !== oldTaskText.toLowerCase()){
+      const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+      const duplicateExists = getAllTaskOptions(currentCustomList).some(
+        t => t.toLowerCase() === newVal.toLowerCase() && t.toLowerCase() !== oldTaskText.toLowerCase()
+      );
+      if(duplicateExists){
+        showResetToast('Task already exists.');
+        input.focus();
+        return;
+      }
+    }
+    renameCustomTaskEverywhere(oldTaskText, newVal);
+  };
+
+  saveBtn.onclick = (e) => {
+    e.stopPropagation();
+    commitEdit();
+  };
+  cancelBtn.onclick = (e) => {
+    e.stopPropagation();
+    const cb = labelEl.querySelector('input[type="checkbox"]');
+    const restored = createTaskOptionRow(oldTaskText, cb ? cb.checked : false);
+    if(editRow.parentNode) editRow.parentNode.replaceChild(restored, editRow);
+  };
+  input.onkeydown = (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      e.stopPropagation();
+      commitEdit();
+    } else if(e.key === 'Escape'){
+      e.preventDefault();
+      e.stopPropagation();
+      cancelBtn.click();
+    }
+  };
+
+  editRow.append(input, saveBtn, cancelBtn);
+  parent.replaceChild(editRow, labelEl);
+  input.focus();
+  input.select();
+}
+
+function renameCustomTaskEverywhere(oldText, newText){
+  const oldLower = oldText.trim().toLowerCase();
+  const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+  const updatedCustomList = currentCustomList.map(item =>
+    item.trim().toLowerCase() === oldLower ? newText : item
+  );
+  localStorage.setItem(customTasksKey(), JSON.stringify(updatedCustomList));
+
+  document.querySelectorAll('.day[data-day]').forEach(dayCell => {
+    const itemsWrap = dayCell.querySelector('.task-checkbox-items');
+    if(itemsWrap){
+      const editRow = itemsWrap.querySelector('.custom-inline-edit-row');
+      if(editRow){
+        const editInp = editRow.querySelector('input');
+        if(editInp && editInp.value.trim().toLowerCase() === oldLower){
+          const newRow = createTaskOptionRow(newText, true);
+          itemsWrap.replaceChild(newRow, editRow);
+        }
+      }
+      itemsWrap.querySelectorAll('label').forEach(lab => {
+        const cb = lab.querySelector('input[type="checkbox"]');
+        if(cb && cb.value.trim().toLowerCase() === oldLower){
+          const replacement = createTaskOptionRow(newText, cb.checked);
+          itemsWrap.replaceChild(replacement, lab);
+        }
+      });
+    }
+
+    const ta = dayCell.querySelector('textarea');
+    if(ta && !ta.classList.contains('task-note-hidden') && ta.value.trim().toUpperCase() !== 'OFF'){
+      const mode = dayCell.dataset.caseMode || 'upper';
+      const formattedNew = applyCaseByMode(newText, mode);
+      const lines = ta.value.split('\n');
+      let changed = false;
+      const updatedLines = lines.map(line => {
+        const stripped = line.replace(/^-+/, '').trim();
+        if(stripped.toLowerCase() === oldLower){
+          changed = true;
+          return (line.startsWith('-') ? '-' : '') + formattedNew;
+        }
+        return line;
+      });
+      if(changed){
+        ta.value = updatedLines.join('\n');
+      }
+    }
+
+    const checkedCount = dayCell.querySelectorAll('.task-checkbox-items input[type="checkbox"]:checked').length;
+    const tgl = dayCell.querySelector('.tasktoggle');
+    if(tgl) tgl.textContent = checkedCount ? 'Choose task ('+checkedCount+' selected) ▼' : 'Choose task ▼';
+  });
+
+  saveLocal();
+  showResetToast('Custom task updated.');
+}
+
+function deleteCustomTaskEverywhere(taskText){
+  const targetLower = taskText.trim().toLowerCase();
+  const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+  const filteredCustomList = currentCustomList.filter(
+    item => item.trim().toLowerCase() !== targetLower
+  );
+  localStorage.setItem(customTasksKey(), JSON.stringify(filteredCustomList));
+
+  document.querySelectorAll('.day[data-day]').forEach(dayCell => {
+    const itemsWrap = dayCell.querySelector('.task-checkbox-items');
+    if(itemsWrap){
+      itemsWrap.querySelectorAll('label').forEach(lab => {
+        const cb = lab.querySelector('input[type="checkbox"]');
+        if(cb && cb.value.trim().toLowerCase() === targetLower){
+          lab.remove();
+        }
+      });
+    }
+
+    const ta = dayCell.querySelector('textarea');
+    if(ta && !ta.classList.contains('task-note-hidden') && ta.value.trim().toUpperCase() !== 'OFF'){
+      const lines = ta.value.split('\n');
+      const remainingLines = lines.filter(line => {
+        const stripped = line.replace(/^-+/, '').trim();
+        return stripped.toLowerCase() !== targetLower;
+      });
+      if(remainingLines.length !== lines.length){
+        ta.value = remainingLines.join('\n');
+        if(!ta.value.trim()){
+          ta.classList.add('task-note-hidden');
+        }
+      }
+    }
+
+    const checkedCount = dayCell.querySelectorAll('.task-checkbox-items input[type="checkbox"]:checked').length;
+    const tgl = dayCell.querySelector('.tasktoggle');
+    if(tgl) tgl.textContent = checkedCount ? 'Choose task ('+checkedCount+' selected) ▼' : 'Choose task ▼';
+  });
+
+  saveLocal();
+  showResetToast('Custom task deleted.');
+}
+
+function applyCaseByMode(str, mode){
+  if(mode === 'lower') return str.toLowerCase();
+  if(mode === 'autocap'){
+    return str.toLowerCase().replace(/(^|[\s\-\/(\[])([a-z])/g, (m, sep, ch) => sep + ch.toUpperCase());
+  }
+  return str.toUpperCase();
+}
+
 function render(){
   const m = +document.getElementById('month').value;
   const y = +document.getElementById('year').value;
@@ -1805,6 +2232,8 @@ function render(){
   });
 
   const saved = JSON.parse(localStorage.getItem(key()) || '{}');
+  const savedCustomTasks = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+  const availableTasks = getAllTaskOptions(savedCustomTasks);
 
   for(let i = 0; i < offset; i++){
     const filler = document.createElement('div');
@@ -1937,12 +2366,52 @@ function render(){
     list.style.display = 'none';
     pick.append(list);
 
+    const caseModes = ['upper', 'lower', 'autocap'];
+    let caseMode = saved[day]?.caseMode && caseModes.includes(saved[day].caseMode) ? saved[day].caseMode : 'upper';
+    cell.dataset.caseMode = caseMode;
+
+    const topBar = document.createElement('div');
+    topBar.className = 'task-top-bar';
+
+    const caseBtn = document.createElement('button');
+    caseBtn.type = 'button';
+    caseBtn.className = 'case-toggle-btn';
+    caseBtn.title = 'Cycle UPPERCASE / LOWERCASE / AUTOCAPITALIZE';
+
+    function syncCaseBtnUI(){
+      caseBtn.classList.remove('is-upper', 'is-lower', 'is-autocap');
+      if(caseMode === 'lower'){
+        caseBtn.classList.add('is-lower');
+        caseBtn.textContent = 'LOWERCASE';
+      } else if(caseMode === 'autocap'){
+        caseBtn.classList.add('is-autocap');
+        caseBtn.textContent = 'AUTOCAPITALIZE';
+      } else {
+        caseBtn.classList.add('is-upper');
+        caseBtn.textContent = 'UPPERCASE';
+      }
+    }
+    syncCaseBtnUI();
+
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'clear-tasks-btn';
+    clearBtn.textContent = 'Clear';
+
+    const apply = document.createElement('button');
+    apply.type = 'button';
+    apply.className = 'apply-btn';
+    apply.textContent = 'Apply';
+
+    topBar.append(caseBtn, clearBtn, apply);
+    list.append(topBar);
+
     const hasBoxBelow = (day + 7) <= daysInMonth;
     let includeBelowCb = null;
     if(hasBoxBelow){
       const belowBar = document.createElement('label');
       belowBar.className = 'include-below-bar';
-      belowBar.style.cssText = 'display:flex;align-items:center;gap:7px;padding:6px 7px;margin-bottom:4px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:600;color:#1d4ed8;position:sticky;top:-8px;z-index:5;';
+      belowBar.style.cssText = 'display:flex;align-items:center;gap:7px;padding:6px 7px;margin-bottom:4px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:600;color:#1d4ed8;';
       includeBelowCb = document.createElement('input');
       includeBelowCb.type = 'checkbox';
       includeBelowCb.className = 'include-below-cb';
@@ -1979,29 +2448,92 @@ function render(){
       }
     };
 
-    taskOptions.forEach(task => {
-      const lab = document.createElement('label');
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.value = task;
-      cb.checked = initialSelected.includes(task);
-      lab.append(cb, document.createTextNode(' ' + task));
-      list.append(lab);
-    });
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'task-checkbox-items';
 
-    const cap = document.createElement('select');
-    cap.className = 'task-capitalization';
-    cap.innerHTML = '<option value="title">Auto Capitalize</option><option value="upper">UPPERCASE</option>';
-    cap.value = 'upper';
+    function formatTaskCase(str){
+      return applyCaseByMode(str, caseMode);
+    }
+
+    availableTasks.forEach(task => {
+      itemsContainer.append(createTaskOptionRow(task, initialSelected.includes(task)));
+    });
+    list.append(itemsContainer);
+
+    const customAddRow = document.createElement('div');
+    customAddRow.className = 'custom-task-add-row';
+
+    const customInput = document.createElement('input');
+    customInput.type = 'text';
+    customInput.className = 'custom-task-input';
+    customInput.placeholder = 'Add custom task…';
+
+    const customAddBtn = document.createElement('button');
+    customAddBtn.type = 'button';
+    customAddBtn.className = 'custom-task-btn';
+    customAddBtn.textContent = '+ Add';
 
     const limitNotice = document.createElement('div');
     limitNotice.className = 'dropdown-limit-notice';
     limitNotice.textContent = 'Maximum of 7 tasks only.';
-    list.append(limitNotice);
 
-    const caprow = document.createElement('div');
-    caprow.className = 'task-cap-row';
-    caprow.append(cap);
+    function addCustomTask(){
+      const rawCustom = customInput.value.trim();
+      if(!rawCustom) return;
+      const checkedCount = itemsContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+      if(checkedCount >= 7){
+        showResetToast('Maximum of 7 tasks only.');
+        return;
+      }
+
+      const existingRow = [...itemsContainer.querySelectorAll('input[type="checkbox"]')].find(
+        c => c.value.toLowerCase() === rawCustom.toLowerCase()
+      );
+
+      if(existingRow){
+        existingRow.checked = true;
+      } else {
+        const currentCustomList = JSON.parse(localStorage.getItem(customTasksKey()) || '[]');
+        if(!currentCustomList.some(t => t.toLowerCase() === rawCustom.toLowerCase())){
+          currentCustomList.push(rawCustom);
+          localStorage.setItem(customTasksKey(), JSON.stringify(currentCustomList));
+        }
+        document.querySelectorAll('.day[data-day]').forEach(otherDay => {
+          const otherItems = otherDay.querySelector('.task-checkbox-items');
+          if(!otherItems) return;
+          const alreadyExists = [...otherItems.querySelectorAll('input[type="checkbox"]')].some(
+            c => c.value.toLowerCase() === rawCustom.toLowerCase()
+          );
+          if(!alreadyExists){
+            otherItems.append(createTaskOptionRow(rawCustom, otherDay === cell));
+          } else if(otherDay === cell){
+            const matchCb = [...otherItems.querySelectorAll('input[type="checkbox"]')].find(
+              c => c.value.toLowerCase() === rawCustom.toLowerCase()
+            );
+            if(matchCb) matchCb.checked = true;
+          }
+        });
+      }
+
+      customInput.value = '';
+      const newCount = itemsContainer.querySelectorAll('input[type="checkbox"]:checked').length;
+      summary.textContent = newCount ? 'Choose task ('+newCount+' selected) ▼' : 'Choose task ▼';
+      saveLocal();
+    }
+
+    customAddBtn.onclick = (e) => {
+      e.stopPropagation();
+      addCustomTask();
+    };
+    customInput.onkeydown = (e) => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        addCustomTask();
+      }
+    };
+
+    customAddRow.append(customInput, customAddBtn);
+    list.append(customAddRow, limitNotice);
 
     const ta = document.createElement('textarea');
     ta.placeholder = 'Shift / task / notes…';
@@ -2015,6 +2547,53 @@ function render(){
       ta.classList.add('task-note-hidden');
     }
 
+    function applyTaskCaseNow(){
+      const currentAlign = document.getElementById('textAlign').value || 'left';
+      const applyBelow = hasBoxBelow && includeBelowCb ? includeBelowCb.checked : false;
+      const step = applyBelow ? 7 : (daysInMonth + 1);
+
+      for(let targetDay = day; targetDay <= daysInMonth; targetDay += step){
+        const targetCell = document.querySelector('.day[data-day="'+targetDay+'"]');
+        const targetTa = targetCell?.querySelector('textarea');
+        if(!targetTa) continue;
+        targetCell.dataset.caseMode = caseMode;
+        const currentVal = targetTa.value.trim();
+        if(!currentVal || currentVal.toUpperCase() === 'OFF') continue;
+
+        targetTa.value = currentVal
+          .split('\n')
+          .map(line => formatTaskCase(line))
+          .join('\n');
+        targetTa.classList.remove('task-note-hidden');
+        targetTa.style.color = '';
+        targetTa.style.fontWeight = '';
+        targetTa.style.textAlign = currentAlign;
+      }
+      saveLocal();
+    }
+
+    caseBtn.onclick = (e) => {
+      e.stopPropagation();
+      const nextIdx = (caseModes.indexOf(caseMode) + 1) % caseModes.length;
+      caseMode = caseModes[nextIdx];
+      cell.dataset.caseMode = caseMode;
+      syncCaseBtnUI();
+      applyTaskCaseNow();
+    };
+
+    clearBtn.onclick = (e) => {
+      e.stopPropagation();
+      itemsContainer.querySelectorAll('input[type="checkbox"]').forEach(c => {
+        c.checked = false;
+      });
+      summary.textContent = 'Choose task ▼';
+      if(ta.value.trim().toUpperCase() !== 'OFF'){
+        ta.value = '';
+        ta.classList.add('task-note-hidden');
+      }
+      saveLocal();
+    };
+
     shift.onchange = () => {
       const val = shift.value;
       const fillColumn = hasShiftBoxBelow && shiftIncludeBelowCb ? shiftIncludeBelowCb.checked : false;
@@ -2027,7 +2606,7 @@ function render(){
           setShiftUI(targetCell, val);
           applyDayoffAppearance(targetShift, targetTa);
           if(val === 'DAYOFF'){
-            targetCell.querySelectorAll('.tasklist input[type="checkbox"]:not(.include-below-cb)').forEach(b => b.checked = false);
+            targetCell.querySelectorAll('.task-checkbox-items input[type="checkbox"]').forEach(b => b.checked = false);
             const tgl = targetCell.querySelector('.tasktoggle');
             if(tgl) tgl.textContent = 'Choose task ▼';
           }
@@ -2036,13 +2615,9 @@ function render(){
       saveLocal();
     };
 
-    const apply = document.createElement('button');
-    apply.type = 'button';
-    apply.className = 'apply-btn';
-    apply.textContent = 'Apply';
     apply.onclick = () => {
-      const raw = [...list.querySelectorAll('input[type="checkbox"]:not(.include-below-cb):checked')].map(c => c.value);
-      const selected = raw.map(t => cap.value === 'upper' ? t.toUpperCase() : t.replace(/\b\w/g, ch => ch.toUpperCase()));
+      const raw = [...itemsContainer.querySelectorAll('input[type="checkbox"]:checked')].map(c => c.value);
+      const selected = raw.map(t => formatTaskCase(t));
       const currentAlign = document.getElementById('textAlign').value || 'left';
 
       if(selected.length){
@@ -2062,6 +2637,7 @@ function render(){
               setShiftUI(targetCell, '');
             }
 
+            targetCell.dataset.caseMode = caseMode;
             target.classList.remove('task-note-hidden');
             target.value = bundle;
             target.style.color = '';
@@ -2071,8 +2647,8 @@ function render(){
             const targetToggle = targetCell.querySelector('.tasktoggle');
             if(targetToggle) targetToggle.textContent = 'Choose task ('+raw.length+' selected) ▼';
 
-            targetCell.querySelectorAll('.tasklist input[type="checkbox"]:not(.include-below-cb)').forEach(box => {
-              box.checked = raw.includes(box.value);
+            targetCell.querySelectorAll('.task-checkbox-items input[type="checkbox"]').forEach(box => {
+              box.checked = raw.some(sel => sel.toLowerCase() === box.value.toLowerCase());
             });
           }
         }
@@ -2091,9 +2667,6 @@ function render(){
       cell.classList.remove('dropdown-open');
       saveLocal();
     };
-
-    caprow.append(apply);
-    list.append(caprow);
 
     ta.oninput = () => {
       ta.classList.remove('task-note-hidden');
@@ -2125,14 +2698,16 @@ function render(){
     cal.closest('.sheet-card').appendChild(sig);
   }
   sig.innerHTML =
-    '<div class="signature"><div contenteditable="true" oninput="saveSignatures()">Prepared by:</div><div class="name" contenteditable="true" oninput="saveSignatures()"></div><div class="role" contenteditable="true" oninput="saveSignatures()">ADA VI</div></div>' +
-    '<div class="signature"><div contenteditable="true" oninput="saveSignatures()">Noted by:</div><div class="name" contenteditable="true" oninput="saveSignatures()"></div><div class="role" contenteditable="true" oninput="saveSignatures()">Center Head</div></div>';
+    '<div class="signature"><div contenteditable="true" oninput="saveSignatures()">Prepared by:</div><div class="name" contenteditable="true" oninput="handleSignatoryNameInput(this)">FULLNAME</div><div class="role" contenteditable="true" oninput="saveSignatures()">Position</div></div>' +
+    '<div class="signature"><div contenteditable="true" oninput="saveSignatures()">Noted by:</div><div class="name" contenteditable="true" oninput="handleSignatoryNameInput(this)">DIVINA P. SILOS</div><div class="role" contenteditable="true" oninput="saveSignatures()">Center Head</div></div>';
 
-  const savedSig = JSON.parse(localStorage.getItem('workplan-signatures') || '[["Prepared by:","CHRISTOPHER C. ESTACIO","ADA VI"],["Noted by:","DIVINA P. SILOS","Center Head"]]');
+  const savedSig = JSON.parse(localStorage.getItem('workplan-signatures') || '[["Prepared by:","FULLNAME","Position"],["Noted by:","DIVINA P. SILOS","Center Head"]]');
   if(Array.isArray(savedSig[0])){
     sig.querySelectorAll('.signature').forEach((f, i) =>
       f.querySelectorAll('[contenteditable]').forEach((el, j) => {
-        el.textContent = savedSig[i]?.[j] || ((i === 1 && j === 1) ? 'DIVINA P. SILOS' : el.textContent);
+        const defaultVal = (i === 0 && j === 1) ? 'FULLNAME' : ((i === 0 && j === 2) ? 'Position' : ((i === 1 && j === 1) ? 'DIVINA P. SILOS' : el.textContent));
+        const val = savedSig[i]?.[j] || defaultVal;
+        el.textContent = (j === 1) ? val.toUpperCase() : val;
       })
     );
   }
@@ -2146,6 +2721,31 @@ function render(){
   });
 
   updateDashboardStats();
+}
+
+function handleSignatoryNameInput(el){
+  if(!el) return;
+  const upper = el.textContent.toUpperCase();
+  if(el.textContent !== upper){
+    const sel = window.getSelection();
+    let offset = 0;
+    if(sel && sel.rangeCount > 0){
+      const range = sel.getRangeAt(0);
+      if(el.contains(range.startContainer)){
+        offset = range.startOffset;
+      }
+    }
+    el.textContent = upper;
+    if(sel && el.firstChild){
+      const pos = Math.min(offset, el.firstChild.length || 0);
+      const newRange = document.createRange();
+      newRange.setStart(el.firstChild, pos);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    }
+  }
+  saveSignatures();
 }
 
 function saveSignatures(){
@@ -2162,8 +2762,9 @@ function saveLocal(){
     saved[c.dataset.day] = {
       number: c.querySelector('.daynum').textContent,
       text: ta.value,
-      selectedTasks: Array.from(c.querySelectorAll('.tasklist input[type="checkbox"]:not(.include-below-cb):checked'), x => x.value),
+      selectedTasks: Array.from(c.querySelectorAll('.task-checkbox-items input[type="checkbox"]:checked'), x => x.value),
       shift: c.querySelector('.shift-select')?.value || '',
+      caseMode: c.dataset.caseMode || 'upper',
       includeBelow: belowBox ? belowBox.checked : undefined,
       shiftIncludeBelow: shiftBelowBox ? shiftBelowBox.checked : undefined
     };
@@ -2531,9 +3132,9 @@ window.addEventListener('scroll', function(e){
 
   document.addEventListener('change', function(e){
     const cb = e.target;
-    if(!cb.matches('.tasklist input[type="checkbox"]:not(.include-below-cb)') || !cb.checked) return;
-    const list = cb.closest('.tasklist');
-    if(list && list.querySelectorAll('input[type="checkbox"]:not(.include-below-cb):checked').length > 7){
+    if(!cb.matches('.task-checkbox-items input[type="checkbox"]') || !cb.checked) return;
+    const itemsWrap = cb.closest('.task-checkbox-items');
+    if(itemsWrap && itemsWrap.querySelectorAll('input[type="checkbox"]:checked').length > 7){
       cb.checked = false;
       showAboveCheckbox(cb);
     }
