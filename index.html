@@ -142,58 +142,44 @@ body.theme-dark .new-cal-left-tag{
   height:12px;
 }
 
-.music-right-tag{
-  position:fixed;
-  right:0;
-  top:52%;
-  transform:translateY(-50%);
-  z-index:190;
-  writing-mode:vertical-rl;
-  text-orientation:mixed;
-  width:auto;
-  height:auto;
-  min-width:30px;
-  min-height:92px;
-  padding:10px 5px;
-  border-radius:14px 0 0 14px;
-  border:1px solid rgba(59,130,246,0.36);
-  border-right:0;
-  background:linear-gradient(180deg,var(--surface-elevated) 0%,var(--accent-soft) 100%);
-  color:var(--ink);
-  font-size:10.5px;
+.header-music-btn{
+  background:linear-gradient(135deg,var(--accent-soft) 0%,rgba(99,102,241,0.14) 100%);
+  border-color:rgba(59,130,246,0.36);
+  color:var(--accent);
+  padding:0 12px;
+  height:36px;
+  border-radius:10px;
+  font-size:12px;
   font-weight:700;
-  letter-spacing:0.05em;
-  box-shadow:-4px 8px 22px rgba(15,23,42,0.16),inset 0 1px 0 rgba(255,255,255,0.45);
-  gap:5px;
-  will-change:transform;
+  flex-shrink:0;
+  box-shadow:0 1px 3px rgba(37,99,235,0.08),inset 0 1px 0 rgba(255,255,255,0.4);
 }
-body.theme-dark .music-right-tag{
-  background:linear-gradient(180deg,#151e30 0%,#18294a 100%);
-  border-color:rgba(96,165,250,0.35);
-  box-shadow:-4px 10px 24px rgba(2,6,23,0.6),inset 0 1px 0 rgba(255,255,255,0.12);
+body.theme-dark .header-music-btn{
+  background:linear-gradient(135deg,rgba(59,130,246,0.18) 0%,rgba(99,102,241,0.2) 100%);
+  border-color:rgba(96,165,250,0.38);
+  color:#93c5fd;
+  box-shadow:0 2px 6px rgba(0,0,0,0.28),inset 0 1px 0 rgba(255,255,255,0.08);
 }
-.music-right-tag:hover,
-.music-right-tag.is-open,
-.music-right-tag.is-playing{
-  background:linear-gradient(180deg,#2563eb 0%,#4f46e5 100%);
+.header-music-btn:hover,
+.header-music-btn.is-open,
+.header-music-btn.is-playing{
+  background:linear-gradient(135deg,#2563eb 0%,#4f46e5 100%);
   border-color:rgba(147,197,253,0.65);
   color:#ffffff;
-  transform:translateY(-50%) translateX(-2px);
-  box-shadow:-6px 10px 26px rgba(37,99,235,0.38),inset 0 1px 0 rgba(255,255,255,0.35);
+  box-shadow:0 6px 16px rgba(37,99,235,0.32),inset 0 1px 0 rgba(255,255,255,0.28);
 }
-.music-right-tag svg{
-  width:12px;
-  height:12px;
+.header-music-btn svg{
+  width:14px;
+  height:14px;
 }
 
 .music-drawer{
   position:fixed;
-  right:36px;
-  top:52%;
-  transform:translateY(-50%);
+  top:68px;
+  right:clamp(14px,3vw,32px);
   z-index:220;
-  width:312px;
-  max-width:calc(100vw - 80px);
+  width:316px;
+  max-width:calc(100vw - 28px);
   max-height:74vh;
   background:var(--surface-elevated);
   border:1px solid var(--line-strong);
@@ -478,13 +464,13 @@ body.theme-dark .music-right-tag{
   align-items:center;
   justify-content:space-between;
   flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:12px;
-  padding:8px 14px;
+  gap:8px;
+  margin-bottom:10px;
+  padding:6px 12px;
   background:var(--surface);
   border:1px solid var(--line);
   border-left:4px solid var(--accent);
-  border-radius:12px;
+  border-radius:10px;
   box-shadow:var(--shadow-xs);
 }
 .wp1-action-bar.is-visible{
@@ -493,25 +479,25 @@ body.theme-dark .music-right-tag{
 .wp1-bar-label{
   display:inline-flex;
   align-items:center;
-  gap:8px;
-  font-size:12px;
+  gap:7px;
+  font-size:11.5px;
   font-weight:700;
   color:var(--ink);
 }
 .wp1-badge{
   display:inline-flex;
   align-items:center;
-  padding:2px 9px;
+  padding:2px 8px;
   border-radius:999px;
   background:var(--accent-soft);
   color:var(--accent);
-  font-size:10.5px;
+  font-size:10px;
   font-weight:700;
   letter-spacing:0.03em;
 }
 .extra-cal-section{
-  margin-top:28px;
-  padding-top:6px;
+  margin-top:22px;
+  padding-top:2px;
   content-visibility:auto;
   contain-intrinsic-size:auto 760px;
 }
@@ -519,64 +505,65 @@ body.theme-dark .music-right-tag{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  flex-wrap:wrap;
-  gap:12px;
-  margin-bottom:14px;
-  padding:10px 14px;
+  flex-wrap:nowrap;
+  gap:8px;
+  margin-bottom:10px;
+  padding:6px 10px;
   background:linear-gradient(90deg,var(--accent-soft) 0%,var(--surface) 65%,var(--surface-subtle) 100%);
   border:1px solid var(--line-strong);
   border-left:4px solid var(--accent);
-  border-radius:12px;
+  border-radius:10px;
   box-shadow:var(--shadow-xs);
 }
 .cal-sep-left{
   display:flex;
   align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
+  flex-wrap:nowrap;
+  gap:6px;
+  min-width:0;
 }
 .cal-sep-tag{
   display:inline-flex;
   align-items:center;
-  gap:5px;
-  padding:3px 9px;
+  gap:4px;
+  padding:2px 8px;
   border-radius:999px;
   background:var(--accent);
   color:#ffffff;
-  font-size:10.5px;
+  font-size:10px;
   font-weight:700;
   letter-spacing:0.04em;
   text-transform:uppercase;
-}
-.cal-sep-month-label{
-  font-size:12.5px;
-  font-weight:700;
-  color:var(--ink);
-  letter-spacing:-0.01em;
+  white-space:nowrap;
+  flex-shrink:0;
 }
 .cal-sep-month-pill{
   display:inline-flex;
   align-items:center;
-  padding:3px 10px;
-  border-radius:8px;
+  padding:2px 8px;
+  border-radius:7px;
   background:var(--surface-elevated);
   border:1px solid var(--line-strong);
   color:var(--accent);
-  font-size:11.5px;
+  font-size:11px;
   font-weight:700;
   letter-spacing:0.02em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .extra-cal-banner-actions{
   display:flex;
   align-items:center;
-  gap:7px;
+  gap:5px;
+  flex-shrink:0;
 }
 .btn-modern-soft{
-  height:30px;
-  padding:0 11px;
-  font-size:11px;
+  height:26px;
+  padding:0 9px;
+  font-size:10.5px;
   font-weight:650;
-  border-radius:8px;
+  border-radius:7px;
   background:var(--surface-elevated);
   border:1px solid var(--line-strong);
   color:var(--ink-secondary);
@@ -590,11 +577,11 @@ body.theme-dark .music-right-tag{
   box-shadow:none;
 }
 .btn-mini-danger{
-  height:30px;
-  padding:0 11px;
-  font-size:11px;
+  height:26px;
+  padding:0 9px;
+  font-size:10.5px;
   font-weight:650;
-  border-radius:8px;
+  border-radius:7px;
   background:var(--danger-soft);
   border:1px solid rgba(239,68,68,0.35);
   color:var(--danger);
@@ -647,12 +634,19 @@ header{
   align-items:center;
   justify-content:space-between;
 }
+.header-brand-space{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-width:0;
+  flex:1 1 auto;
+}
 .brand-block{
   display:flex;
   align-items:center;
   gap:12px;
   min-width:0;
-  flex-shrink:0;
 }
 .brand-icon{
   width:40px;
@@ -695,6 +689,7 @@ header h1{
   justify-content:flex-end;
   gap:8px;
   flex-wrap:nowrap;
+  flex-shrink:0;
 }
 .header-actions{
   display:flex;
@@ -2067,10 +2062,9 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     padding-top:max(10px,env(safe-area-inset-top));
   }
   header h1{font-size:0.98rem}
-  .wrap{padding:14px 32px 20px 32px}
-  .app-footer{padding:6px 32px 20px 32px}
-  .new-cal-left-tag,
-  .music-right-tag{
+  .wrap{padding:14px 14px 20px 32px}
+  .app-footer{padding:6px 14px 20px 32px}
+  .new-cal-left-tag{
     min-width:25px;
     min-height:92px;
     padding:7px 4px;
@@ -2080,7 +2074,33 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
     left:30px;
   }
   .music-drawer{
-    right:30px;
+    top:58px;
+    right:12px;
+  }
+  .header-music-btn{
+    height:32px;
+    padding:0 10px;
+    font-size:11.5px;
+    border-radius:9px;
+  }
+  .cal-month-separator{
+    padding:5px 8px;
+    margin-bottom:8px;
+    border-radius:8px;
+  }
+  .cal-sep-tag{
+    font-size:9.5px;
+    padding:2px 7px;
+  }
+  .cal-sep-month-pill{
+    font-size:10.5px;
+    padding:2px 7px;
+  }
+  .btn-modern-soft,
+  .btn-mini-danger{
+    height:24px;
+    padding:0 7px;
+    font-size:10px;
   }
   .controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}
   .stats-strip{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:10px 8px;overflow-x:auto}
@@ -2273,11 +2293,6 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   </button>
 </div>
 
-<button type="button" class="music-right-tag" id="musicRightTag" onclick="toggleMusicDrawer(event)" title="Free Streaming Music Player" aria-expanded="false">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-  <span>Music</span>
-</button>
-
 <aside class="music-drawer" id="musicDrawer" role="dialog" aria-label="Minimalist Free Music Player" onclick="event.stopPropagation()">
   <div class="music-drawer-header">
     <div>
@@ -2303,14 +2318,21 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
 
 <header>
   <div class="header-top-row">
-    <div class="brand-block">
-      <div class="brand-icon" aria-hidden="true">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    <div class="header-brand-space">
+      <div class="brand-block">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div class="brand-text">
+          <h1>Workplan Schedule Task Maker</h1>
+          <span class="header-slogan">Male Staff of HFG • Monthly Duty &amp; Task Planner</span>
+        </div>
       </div>
-      <div class="brand-text">
-        <h1>Workplan Schedule Task Maker</h1>
-        <span class="header-slogan">Male Staff of HFG • Monthly Duty &amp; Task Planner</span>
-      </div>
+
+      <button type="button" class="header-music-btn" id="musicRightTag" onclick="toggleMusicDrawer(event)" title="Free Streaming Music Player" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+        <span>Music</span>
+      </button>
     </div>
 
     <div class="header-toolbar">
@@ -2875,7 +2897,6 @@ function buildExtraCalendarSections(customSlotStates = null){
       '<div class="cal-month-separator" id="calMonthSeparator' + idx + '">' +
         '<div class="cal-sep-left">' +
           '<span class="cal-sep-tag">WORKPLAN #' + idx + '</span>' +
-          '<span class="cal-sep-month-label">Workplan Month:</span>' +
           '<span class="cal-sep-month-pill" id="calSepMonthPill' + idx + '">' + initialMonthText + '</span>' +
         '</div>' +
         '<div class="extra-cal-banner-actions">' +
