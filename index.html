@@ -34,8 +34,8 @@ body{
 header{
   position:sticky;
   top:0;
-  z-index:40;
-  background:rgba(255,255,255,0.92);
+  z-index:200;
+  background:rgba(255,255,255,0.96);
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line);
   padding:12px clamp(16px,3vw,32px);
@@ -412,9 +412,9 @@ button.secondary:hover{
   min-width:88px;
   max-width:100%;
   position:relative;
-  z-index:25;
+  z-index:10;
 }
-.shift-pick.dropdown-open{z-index:1003}
+.shift-pick.dropdown-open{z-index:80}
 .shift-toggle{
   width:100%;
   min-width:0;
@@ -456,7 +456,7 @@ button.secondary:hover{
 }
 .shift-menu{
   position:fixed;
-  z-index:99999;
+  z-index:90;
   background:var(--surface);
   border:1px solid var(--line-strong);
   box-shadow:var(--shadow-lg);
@@ -464,6 +464,8 @@ button.secondary:hover{
   padding:4px;
   min-width:148px;
   max-width:calc(100vw - 16px);
+  max-height:calc(100vh - 120px);
+  overflow-y:auto;
   display:none;
   flex-direction:column;
   gap:2px;
@@ -511,11 +513,11 @@ button.secondary:hover{
   width:100%;
   font-size:11px;
   position:relative;
-  z-index:20;
+  z-index:8;
 }
-.day.dropdown-open{z-index:1000}
-.taskpick.dropdown-open{z-index:1001}
-.taskpick.dropdown-open .tasklist{z-index:1002}
+.day.dropdown-open{z-index:70}
+.taskpick.dropdown-open{z-index:75}
+.taskpick.dropdown-open .tasklist{z-index:85}
 .tasktoggle{
   width:100%;
   cursor:pointer;
@@ -540,17 +542,24 @@ button.secondary:hover{
 .taskpick .tasklist{
   position:absolute;
   left:0;
+  right:auto;
   top:calc(100% + 5px);
-  z-index:999;
+  z-index:85;
   background:var(--surface);
   border:1px solid var(--line-strong);
   box-shadow:var(--shadow-lg);
-  width:min(280px,88vw);
+  width:276px;
+  max-width:calc(100vw - 20px);
   max-height:260px;
   overflow-y:auto;
+  overflow-x:hidden;
   padding:8px 8px 0;
   font-size:11.5px;
   border-radius:var(--radius-md);
+}
+.taskpick.align-left-edge .tasklist{
+  left:auto;
+  right:0;
 }
 .taskpick label{
   display:flex;
@@ -584,7 +593,8 @@ button.secondary:hover{
   box-shadow:0 -4px 10px rgba(15,23,42,0.05);
 }
 .task-capitalization{
-  flex:1;
+  flex:1 1 auto;
+  min-width:0;
   padding:5px 7px;
   border:1px solid var(--line-strong);
   border-radius:6px;
@@ -594,6 +604,7 @@ button.secondary:hover{
   font-weight:500;
 }
 .taskpick .tasklist button.apply-btn{
+  flex:0 0 auto;
   padding:6px 11px;
   border-radius:6px;
   background:var(--accent);
@@ -601,6 +612,7 @@ button.secondary:hover{
   color:#fff;
   font-size:11px;
   font-weight:600;
+  white-space:nowrap;
 }
 
 .day textarea{
@@ -949,11 +961,14 @@ button.secondary:hover{
   word-break:break-word;
   line-height:1.14;
   color:#111;
-  overflow:hidden;
+  overflow:visible;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
+}
+.a4-sheet .pv-body-inner{
+  overflow:visible;
 }
 .a4-sheet .pv-body.is-off{
   color:#ff0000;
@@ -1632,12 +1647,84 @@ function getDaysInMonth(y, m){
 function computeTaskFontPx(text){
   if(!text || !text.trim()) return 11.2;
   const lines = text.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 24)), 0);
-  if(lines >= 14) return 8.2;
-  if(lines >= 11) return 8.9;
-  if(lines >= 8) return 9.6;
-  if(lines >= 5) return 10.5;
-  if(lines >= 3) return 11.2;
-  return 12.0;
+  if(lines >= 14) return 7.4;
+  if(lines >= 11) return 8.0;
+  if(lines >= 8) return 8.8;
+  if(lines >= 5) return 9.8;
+  if(lines >= 3) return 10.8;
+  return 11.8;
+}
+
+function positionShiftMenu(toggleEl, menuEl, pickWrap, dayCell){
+  const headerEl = document.querySelector('header');
+  const headerBottom = headerEl ? Math.max(0, headerEl.getBoundingClientRect().bottom) : 0;
+  const rect = toggleEl.getBoundingClientRect();
+  const minTop = Math.max(8, headerBottom + 6);
+
+  if(rect.bottom <= headerBottom + 2 || rect.top >= window.innerHeight - 6){
+    menuEl.style.display = 'none';
+    return;
+  }
+
+  menuEl.style.display = 'flex';
+  const menuW = menuEl.offsetWidth || 185;
+  const maxAvailBelow = Math.max(48, window.innerHeight - minTop - 8);
+  menuEl.style.maxHeight = maxAvailBelow + 'px';
+  const menuH = Math.min(menuEl.scrollHeight || 165, maxAvailBelow);
+
+  let leftPos = rect.left;
+  if(leftPos + menuW > window.innerWidth - 8){
+    leftPos = window.innerWidth - menuW - 8;
+  }
+  if(leftPos < 8) leftPos = 8;
+
+  let topPos = rect.bottom + 4;
+  if(topPos < minTop){
+    topPos = minTop;
+  }
+  if(topPos + menuH > window.innerHeight - 8){
+    const aboveTop = rect.top - menuH - 4;
+    if(aboveTop >= minTop){
+      topPos = aboveTop;
+    } else {
+      topPos = minTop;
+    }
+  }
+
+  menuEl.style.left = leftPos + 'px';
+  menuEl.style.top = topPos + 'px';
+  if(pickWrap) pickWrap.classList.add('dropdown-open');
+  if(dayCell) dayCell.classList.add('dropdown-open');
+}
+
+function positionTaskDropdown(toggleEl, listEl, pickWrap){
+  if(!toggleEl || !listEl || !pickWrap) return;
+  pickWrap.classList.remove('align-left-edge');
+  listEl.style.left = '0';
+  listEl.style.right = 'auto';
+  listEl.style.transform = '';
+
+  const rect = toggleEl.getBoundingClientRect();
+  const menuW = Math.min(276, window.innerWidth - 20);
+  listEl.style.width = menuW + 'px';
+
+  const margin = 10;
+  const rightOverflow = (rect.left + menuW) - (window.innerWidth - margin);
+
+  if(rightOverflow > 0){
+    const rightAlignedLeft = rect.right - menuW;
+    if(rightAlignedLeft >= margin){
+      pickWrap.classList.add('align-left-edge');
+      listEl.style.left = 'auto';
+      listEl.style.right = '0';
+    } else {
+      const clampedLeft = Math.max(margin, Math.min(rect.left, window.innerWidth - menuW - margin));
+      const shiftLeft = clampedLeft - rect.left;
+      listEl.style.left = '0';
+      listEl.style.right = 'auto';
+      listEl.style.transform = 'translateX(' + Math.round(shiftLeft) + 'px)';
+    }
+  }
 }
 
 function updateDashboardStats(){
@@ -1808,6 +1895,7 @@ function render(){
         shift.value = ch.val;
         shiftWrap.classList.remove('dropdown-open');
         cell.classList.remove('dropdown-open');
+        shiftMenu.style.display = 'none';
         if(typeof shift.onchange === 'function') shift.onchange();
       };
       shiftMenu.append(item);
@@ -1821,29 +1909,14 @@ function render(){
         p.closest('.day')?.classList.remove('dropdown-open');
         const tl = p.querySelector('.tasklist');
         if(tl) tl.style.display = 'none';
+        const sm = p.querySelector('.shift-menu');
+        if(sm) sm.style.display = 'none';
       });
       if(willOpen){
-        shiftWrap.classList.add('dropdown-open');
-        cell.classList.add('dropdown-open');
-        const rect = shiftToggle.getBoundingClientRect();
-        shiftMenu.style.top = (rect.bottom + 4) + 'px';
-        shiftMenu.style.left = '8px';
-        shiftMenu.style.right = 'auto';
-        requestAnimationFrame(() => {
-          const menuW = shiftMenu.offsetWidth || 175;
-          const menuH = shiftMenu.offsetHeight || 150;
-          let leftPos = rect.left;
-          if(leftPos + menuW > window.innerWidth - 8){
-            leftPos = window.innerWidth - menuW - 8;
-          }
-          if(leftPos < 8) leftPos = 8;
-          let topPos = rect.bottom + 4;
-          if(topPos + menuH > window.innerHeight - 8){
-            topPos = Math.max(8, rect.top - menuH - 4);
-          }
-          shiftMenu.style.left = leftPos + 'px';
-          shiftMenu.style.top = topPos + 'px';
-        });
+        positionShiftMenu(shiftToggle, shiftMenu, shiftWrap, cell);
+        requestAnimationFrame(() => positionShiftMenu(shiftToggle, shiftMenu, shiftWrap, cell));
+      } else {
+        shiftMenu.style.display = 'none';
       }
     };
 
@@ -1894,11 +1967,15 @@ function render(){
         p.closest('.day')?.classList.remove('dropdown-open');
         const other = p.querySelector('.tasklist');
         if(other) other.style.display = 'none';
+        const sm = p.querySelector('.shift-menu');
+        if(sm) sm.style.display = 'none';
       });
       if(isHidden){
         list.style.display = 'block';
         pick.classList.add('dropdown-open');
         cell.classList.add('dropdown-open');
+        positionTaskDropdown(summary, list, pick);
+        requestAnimationFrame(() => positionTaskDropdown(summary, list, pick));
       }
     };
 
@@ -2010,6 +2087,7 @@ function render(){
 
       list.style.display = 'none';
       pick.classList.remove('dropdown-open');
+      pick.classList.remove('align-left-edge');
       cell.classList.remove('dropdown-open');
       saveLocal();
     };
@@ -2165,33 +2243,11 @@ function buildSheetMarkup(){
   const cells = Array.from(document.querySelectorAll('#calendar .day'));
   const totalWeeks = Math.max(1, Math.ceil(cells.length / 7));
 
-  const rowHasData = [];
-  for(let r = 0; r < totalWeeks; r++){
-    const weekCells = cells.slice(r * 7, r * 7 + 7);
-    const hasContent = weekCells.some(cell => {
-      if(cell.classList.contains('filler')) return false;
-      const shiftVal = (cell.querySelector('.shift-select')?.value || '').trim();
-      const ta = cell.querySelector('textarea');
-      const rawText = (ta && !ta.classList.contains('task-note-hidden')) ? ta.value.trim() : '';
-      return shiftVal !== '' || rawText !== '';
-    });
-    rowHasData.push(hasContent);
-  }
-
-  let activeRowCount = rowHasData.filter(Boolean).length;
-  if(activeRowCount === 0){
-    activeRowCount = Math.min(5, totalWeeks);
-    for(let r = 0; r < activeRowCount; r++) rowHasData[r] = true;
-  }
-
   let gridHTML = days.map(d => '<div class="pv-dow">'+d+'</div>').join('');
 
-  cells.forEach((cell, idx) => {
-    const r = Math.floor(idx / 7);
-    const hideRow = !rowHasData[r];
-
+  cells.forEach((cell) => {
     if(cell.classList.contains('filler')){
-      gridHTML += '<div class="pv-cell'+(hideRow ? ' pv-empty-row-cell' : '')+'"></div>';
+      gridHTML += '<div class="pv-cell"></div>';
       return;
     }
     const num = cell.querySelector('.daynum')?.textContent || '';
@@ -2203,39 +2259,39 @@ function buildSheetMarkup(){
     if(isDayoffShift && !rawText) rawText = 'OFF';
     const isOff = isDayoffShift || rawText.toUpperCase() === 'OFF';
     const totalChars = rawText.length;
-    const lineCount = rawText ? rawText.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 24)), 0) : 0;
+    const lineCount = rawText ? rawText.split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 26)), 0) : 0;
     let fontPx = computeTaskFontPx(rawText);
     if(!isOff && rawText){
-      if(totalChars > 380 || lineCount > 15) fontPx = Math.max(7.6, fontPx - 0.6);
-      else if(totalChars > 260 || lineCount > 11) fontPx = Math.max(8.2, fontPx - 0.4);
-      else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(12.6, fontPx + 0.8);
+      if(totalChars > 360 || lineCount > 14) fontPx = Math.max(6.2, fontPx - 0.8);
+      else if(totalChars > 220 || lineCount > 10) fontPx = Math.max(6.8, fontPx - 0.5);
+      else if(totalChars <= 120 && lineCount <= 4) fontPx = Math.min(11.8, fontPx + 0.6);
     }
 
     if(!isOff && rawText){
-      const activeRows = Math.max(1, activeRowCount);
+      const activeRows = Math.max(1, totalWeeks);
       const taskCount = rawText.split('\n').filter(l => l.trim()).length;
       if(taskCount <= 7 && activeRows <= 5){
-        fontPx = Math.max(fontPx, lineCount <= 10 ? 10.8 : 9.6);
+        fontPx = Math.max(fontPx, lineCount <= 10 ? 9.8 : 8.6);
       } else if(taskCount <= 7){
-        fontPx = Math.max(fontPx, 9.2);
+        fontPx = Math.max(fontPx, 8.2);
       }
     }
 
     const effectiveAlign = isOff ? 'center' : align;
     const justifyContent = isOff ? 'center' : (align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'));
     const alignItems = 'center';
-    const lineHeight = isOff ? '1.1' : (lineCount >= 8 ? '1.12' : '1.18');
+    const lineHeight = isOff ? '1.1' : (lineCount >= 9 ? '1.06' : '1.12');
 
     const safeNum = num.replace(/</g,'&lt;');
     const safeShift = shiftVal.replace(/</g,'&lt;');
     const safeBody = rawText.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
-    gridHTML += '<div class="pv-cell'+(hideRow ? ' pv-empty-row-cell' : '')+'">' +
+    gridHTML += '<div class="pv-cell">' +
       '<div class="pv-head">' +
         '<span class="pv-num">'+safeNum+'</span>' +
         (safeShift ? '<span class="pv-shift">'+safeShift+'</span>' : '') +
       '</div>' +
-      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '6px' : '0'))+';padding-right:'+(isOff ? '0' : (effectiveAlign === 'right' ? '6px' : '0'))+';"><div class="pv-body-inner" style="width:100%;max-height:100%;text-align:'+effectiveAlign+';">'+safeBody+'</div></div>' : '') +
+      (safeBody ? '<div class="pv-body'+(isOff?' is-off':'')+'" style="font-size:'+fontPx+'px;line-height:'+lineHeight+';text-align:'+effectiveAlign+';justify-content:'+justifyContent+';align-items:'+alignItems+';padding-left:'+(isOff ? '0' : (effectiveAlign === 'left' ? '5px' : '0'))+';padding-right:'+(isOff ? '0' : (effectiveAlign === 'right' ? '5px' : '0'))+';"><div class="pv-body-inner" style="width:100%;text-align:'+effectiveAlign+';">'+safeBody+'</div></div>' : '') +
     '</div>';
   });
 
@@ -2250,7 +2306,7 @@ function buildSheetMarkup(){
   });
 
   return '<div class="pv-title">'+titleHTML+'</div>' +
-    '<div class="pv-grid" style="grid-template-rows:7mm repeat('+activeRowCount+',minmax(0,1fr))">'+gridHTML+'</div>' +
+    '<div class="pv-grid" style="grid-template-rows:7mm repeat('+totalWeeks+',minmax(0,1fr))">'+gridHTML+'</div>' +
     '<div class="pv-sigs">'+sigHTML+'</div>';
 }
 
@@ -2271,22 +2327,24 @@ function fitPreviewSheetTextSizes(root){
     const padTop = parseFloat(cellStyles.paddingTop) || 0;
     const padBot = parseFloat(cellStyles.paddingBottom) || 0;
     const headH = head ? head.getBoundingClientRect().height : 0;
-    const availableH = Math.max(12, cell.clientHeight - padTop - padBot - headH - 3);
-    const availableW = Math.max(20, (body.clientWidth || (cell.clientWidth - 6)) - 2);
+    const availableH = Math.max(10, cell.clientHeight - padTop - padBot - headH - 2);
+    const availableW = Math.max(18, (body.clientWidth || (cell.clientWidth - 4)) - 2);
 
-    let currentPx = parseFloat(body.style.fontSize) || 11.2;
-    const minPx = body.classList.contains('is-off') ? 9.0 : 6.2;
+    let currentPx = parseFloat(body.style.fontSize) || 10.5;
+    const minPx = body.classList.contains('is-off') ? 8.5 : 4.6;
 
     body.style.fontSize = currentPx + 'px';
     let guard = 0;
-    while(guard < 120 && currentPx > minPx){
-      const rect = inner.getBoundingClientRect();
-      const tooTall = inner.scrollHeight > availableH || rect.height > availableH;
-      const tooWide = inner.scrollWidth > availableW || rect.width > availableW;
+    while(guard < 160 && currentPx > minPx){
+      const tooTall = inner.scrollHeight > availableH;
+      const tooWide = inner.scrollWidth > availableW;
       if(!tooTall && !tooWide) break;
       currentPx = Math.max(minPx, +(currentPx - 0.15).toFixed(2));
       body.style.fontSize = currentPx + 'px';
       guard++;
+    }
+    if(inner.scrollHeight > availableH){
+      body.style.lineHeight = '1.02';
     }
   });
 }
@@ -2369,7 +2427,14 @@ function printFromPreview(){
   setTimeout(() => triggerExactPrint(), 60);
 }
 
-window.addEventListener('resize', updatePreviewScale);
+window.addEventListener('resize', () => {
+  updatePreviewScale();
+  document.querySelectorAll('.taskpick.dropdown-open').forEach(p => {
+    const tgl = p.querySelector('.tasktoggle');
+    const tl = p.querySelector('.tasklist');
+    if(tgl && tl && tl.style.display !== 'none') positionTaskDropdown(tgl, tl, p);
+  });
+});
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') closeA4Preview();
 });
@@ -2379,44 +2444,51 @@ document.addEventListener('click', function(event){
   if(!event.target.closest('.taskpick')){
     document.querySelectorAll('.taskpick.dropdown-open').forEach(function(p){
       p.classList.remove('dropdown-open');
+      p.classList.remove('align-left-edge');
       p.closest('.day')?.classList.remove('dropdown-open');
       const list = p.querySelector('.tasklist');
-      if(list) list.style.display = 'none';
+      if(list){
+        list.style.display = 'none';
+        list.style.transform = '';
+      }
     });
   }
   if(!event.target.closest('.shift-pick')){
     document.querySelectorAll('.shift-pick.dropdown-open').forEach(function(p){
       p.classList.remove('dropdown-open');
       p.closest('.day')?.classList.remove('dropdown-open');
+      const sm = p.querySelector('.shift-menu');
+      if(sm) sm.style.display = 'none';
     });
   }
 });
 
 window.addEventListener('scroll', function(e){
   if(e.target && e.target.closest && e.target.closest('.shift-menu')) return;
+  if(e.target && e.target.closest && e.target.closest('.tasklist')) return;
+  document.querySelectorAll('.taskpick.dropdown-open').forEach(function(p){
+    const tgl = p.querySelector('.tasktoggle');
+    const tl = p.querySelector('.tasklist');
+    if(tgl && tl && tl.style.display !== 'none') positionTaskDropdown(tgl, tl, p);
+  });
   document.querySelectorAll('.shift-pick.dropdown-open').forEach(function(p){
     const toggle = p.querySelector('.shift-toggle');
     const menu = p.querySelector('.shift-menu');
     if(!toggle || !menu) return;
     const rect = toggle.getBoundingClientRect();
-    if(rect.bottom < 0 || rect.top > window.innerHeight){
+    const headerEl = document.querySelector('header');
+    const headerBottom = headerEl ? Math.max(0, headerEl.getBoundingClientRect().bottom) : 0;
+    if(rect.bottom <= headerBottom + 2 || rect.top >= window.innerHeight - 6){
       p.classList.remove('dropdown-open');
       p.closest('.day')?.classList.remove('dropdown-open');
+      menu.style.display = 'none';
       return;
     }
-    const menuW = menu.offsetWidth || 175;
-    const menuH = menu.offsetHeight || 150;
-    let leftPos = Math.max(8, Math.min(window.innerWidth - menuW - 8, rect.left));
-    let topPos = rect.bottom + 4;
-    if(topPos + menuH > window.innerHeight - 8){
-      topPos = Math.max(8, rect.top - menuH - 4);
-    }
-    menu.style.left = leftPos + 'px';
-    menu.style.top = topPos + 'px';
+    positionShiftMenu(toggle, menu, p, p.closest('.day'));
   });
 }, true);
 
-// 8-task maximum limit enforcement (notification appears right above the last clicked checkbox)
+// 7-task maximum limit enforcement (notification appears right above the last clicked checkbox)
 (function(){
   let activeTip = null;
   let hideTimer = null;
@@ -2484,14 +2556,8 @@ window.addEventListener('afterprint', function(){
   if(wrapper) wrapper.innerHTML = '';
 });
 
-// Initialize on current real month & year
+// Initialize on current real month & year while preserving saved data in localStorage
 (function init(){
-  for(let i = localStorage.length - 1; i >= 0; i--){
-    const k = localStorage.key(i);
-    if(k && k.startsWith('workplan-')) localStorage.removeItem(k);
-  }
-  localStorage.removeItem('workplan-signatures');
-
   const now = new Date();
   const ySel = document.getElementById('year');
   const mSel = document.getElementById('month');
