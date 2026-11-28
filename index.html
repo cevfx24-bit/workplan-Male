@@ -859,12 +859,14 @@ button.secondary:hover{
 .day.filler{
   background:var(--filler-bg);
 }
+
+/* Single-line Day Header so long shift names stay inside the box */
 .dayhead{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  flex-wrap:wrap;
-  gap:4px;
+  flex-wrap:nowrap;
+  gap:3px;
   min-width:0;
   width:100%;
 }
@@ -872,12 +874,12 @@ button.secondary:hover{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width:22px;
-  height:22px;
-  padding:0 5px;
+  min-width:20px;
+  height:20px;
+  padding:0 4px;
   border-radius:6px;
   background:var(--surface-subtle);
-  font-size:0.8rem;
+  font-size:0.76rem;
   font-weight:700;
   color:var(--ink-secondary);
   outline:none;
@@ -889,39 +891,40 @@ button.secondary:hover{
 }
 .shift-pick{
   flex:1 1 auto;
-  min-width:88px;
+  min-width:0;
   max-width:100%;
   position:relative;
   z-index:10;
+  overflow:hidden;
 }
-.shift-pick.dropdown-open{z-index:80}
+.shift-pick.dropdown-open{
+  z-index:80;
+  overflow:visible;
+}
 .shift-toggle{
   width:100%;
   min-width:0;
   max-width:100%;
-  height:auto;
-  min-height:22px;
+  height:20px;
+  min-height:20px;
   margin:0;
-  padding:3px 6px;
+  padding:2px 4px;
   border:1px solid rgba(59,130,246,0.32);
-  border-radius:8px;
+  border-radius:6px;
   background:var(--accent-soft);
   color:var(--accent);
-  font-size:clamp(7.2px,0.62vw,8.5px);
+  font-size:clamp(5.8px,0.52vw,7.4px);
   font-weight:600;
   font-style:italic;
   text-align:center;
-  line-height:1.18;
+  line-height:1;
+  letter-spacing:-0.02em;
   cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
+  display:block;
   box-shadow:0 1px 2px rgba(37,99,235,0.06);
-  white-space:normal;
-  overflow:visible;
-  text-overflow:clip;
-  overflow-wrap:anywhere;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
   transition:background .12s ease,border-color .12s ease,color .12s ease;
 }
 .shift-toggle:hover,.shift-toggle:focus{
@@ -2740,6 +2743,7 @@ function setShiftUI(cell, val){
   if(hidden) hidden.value = val;
   if(toggle){
     toggle.textContent = (val || 'SHIFT') + ' ▾';
+    toggle.title = val || 'Choose shift';
     toggle.classList.toggle('is-dayoff', val.toUpperCase() === 'DAYOFF');
   }
   cell.querySelectorAll('.shift-menu-item').forEach(btn => {
@@ -3042,6 +3046,7 @@ function renderCalendarInto({ monthId, yearId, titleId, calId, slot }){
     shiftToggle.type = 'button';
     shiftToggle.className = 'shift-toggle';
     shiftToggle.textContent = (shift.value || 'SHIFT') + ' ▾';
+    shiftToggle.title = shift.value || 'Choose shift';
     shiftToggle.classList.toggle('is-dayoff', shift.value === 'DAYOFF');
 
     const shiftMenu = document.createElement('div');
