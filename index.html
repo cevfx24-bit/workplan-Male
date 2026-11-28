@@ -866,7 +866,7 @@ button.secondary:hover{
   align-items:center;
   justify-content:space-between;
   flex-wrap:nowrap;
-  gap:3px;
+  gap:4px;
   min-width:0;
   width:100%;
 }
@@ -875,11 +875,11 @@ button.secondary:hover{
   align-items:center;
   justify-content:center;
   min-width:20px;
-  height:20px;
+  height:22px;
   padding:0 4px;
   border-radius:6px;
   background:var(--surface-subtle);
-  font-size:0.76rem;
+  font-size:0.78rem;
   font-weight:700;
   color:var(--ink-secondary);
   outline:none;
@@ -905,20 +905,20 @@ button.secondary:hover{
   width:100%;
   min-width:0;
   max-width:100%;
-  height:20px;
-  min-height:20px;
+  height:22px;
+  min-height:22px;
   margin:0;
-  padding:2px 4px;
+  padding:2px 5px;
   border:1px solid rgba(59,130,246,0.32);
   border-radius:6px;
   background:var(--accent-soft);
   color:var(--accent);
-  font-size:clamp(5.8px,0.52vw,7.4px);
+  font-size:clamp(7.2px,0.68vw,9px);
   font-weight:600;
   font-style:italic;
   text-align:center;
   line-height:1;
-  letter-spacing:-0.02em;
+  letter-spacing:-0.015em;
   cursor:pointer;
   display:block;
   box-shadow:0 1px 2px rgba(37,99,235,0.06);
@@ -1699,14 +1699,14 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   word-break:break-word;
   line-height:1.14;
   color:#111;
-  overflow:visible;
+  overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
 }
 .a4-sheet .pv-body-inner{
-  overflow:visible;
+  overflow:hidden;
 }
 .a4-sheet .pv-body.is-off{
   color:#ff0000;
@@ -1868,6 +1868,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   .calendar-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
   .calendar{grid-template-columns:repeat(7,minmax(126px,1fr));width:max-content;min-width:100%}
   .day{min-width:126px}
+  .shift-toggle{font-size:9.5px}
   .signatures{grid-template-columns:1fr;gap:10px}
   .signature .name{min-width:150px}
 
@@ -3790,7 +3791,7 @@ function buildAllPrintSheetsMarkup(){
   }).join('');
 }
 
-/* Pure Client-Side A4 Landscape PDF Generator (Zero External Dependencies) */
+/* Exact Preview-Mirrored A4 Landscape PDF Generator (Zero External Dependencies) */
 function sanitizePdfText(str){
   return String(str || '')
     .replace(/[^\x20-\x7E]/g, ' ')
@@ -3800,161 +3801,207 @@ function sanitizePdfText(str){
 }
 
 function generateWorkplanPdfBlob(){
-  // A4 Landscape in points (1pt = 1/72in): 297mm = 841.89pt, 210mm = 595.28pt
   const pageW = 841.89;
   const pageH = 595.28;
-  const marginX = 22;
-  const marginTop = 20;
-  const marginBottom = 20;
-  const headerH = 22;
-  const sigAreaH = 44;
-  const gridTop = marginTop + headerH;
-  const gridH = pageH - gridTop - marginBottom - sigAreaH;
-  const gridW = pageW - marginX * 2;
-  const colW = gridW / 7;
-  const dowH = 16;
+  const pxToPt = 72 / 96;
 
-  const sheets = getActiveCalendarSheetsData();
+  const measureHost = document.createElement('div');
+  measureHost.style.cssText = 'position:fixed;left:-99999px;top:0;width:297mm;visibility:hidden;pointer-events:none;';
+  const sheetsData = getActiveCalendarSheetsData();
+  const sheetElements = sheetsData.map((s) => {
+    const el = document.createElement('div');
+    el.className = 'a4-sheet';
+    el.style.position = 'relative';
+    el.style.transform = 'none';
+    el.innerHTML = buildSheetMarkup(s.titleId, s.calId, s.sigId);
+    measureHost.append(el);
+    return el;
+  });
+  document.body.append(measureHost);
+  sheetElements.forEach(el => fitPreviewSheetTextSizes(el));
+
   const pagesOps = [];
 
-  sheets.forEach((s) => {
+  sheetElements.forEach((sheetEl) => {
     const ops = [];
-    const titleRaw = (document.getElementById(s.titleId)?.textContent || 'WORKPLAN SCHEDULE').replace(/\s+/g, ' ').trim();
-    const cells = Array.from(document.querySelectorAll('#' + s.calId + ' .day'));
-    const totalWeeks = Math.max(1, Math.ceil(cells.length / 7));
-    const rowH = (gridH - dowH) / totalWeeks;
+    const sheetRect = sheetEl.getBoundingClientRect();
+    const toPdfX = (clientX) => (clientX - sheetRect.left) * pxToPt;
+    const toPdfY = (clientY) => pageH - (clientY - sheetRect.top) * pxToPt;
 
-    // Title centered
-    ops.push('BT /F2 11 Tf');
-    const titleEsc = sanitizePdfText(titleRaw);
-    const approxTitleW = titleEsc.length * 5.4;
-    const titleX = Math.max(marginX, (pageW - approxTitleW) / 2);
-    ops.push(`${titleX.toFixed(2)} ${(pageH - marginTop - 6).toFixed(2)} Td (${titleEsc}) Tj ET`);
-
-    // Outer grid & DOW header
-    ops.push('0.45 w 0.25 0.25 0.25 RG');
-    ops.push(`${marginX.toFixed(2)} ${(gridTop + gridH - dowH).toFixed(2)} ${gridW.toFixed(2)} ${dowH.toFixed(2)} re S`);
-
-    const dows = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    dows.forEach((d, cIdx) => {
-      const cx = marginX + cIdx * colW;
-      if(cIdx > 0){
-        ops.push(`${cx.toFixed(2)} ${(gridTop + gridH - dowH).toFixed(2)} m ${cx.toFixed(2)} ${(gridTop + gridH).toFixed(2)} l S`);
-      }
-      const dEsc = sanitizePdfText(d);
-      const dx = cx + Math.max(4, (colW - dEsc.length * 4.2) / 2);
-      const dy = gridTop + gridH - dowH + 5;
-      ops.push(`BT /F2 8 Tf ${dx.toFixed(2)} ${dy.toFixed(2)} Td (${dEsc}) Tj ET`);
-    });
-
-    // Calendar week rows & cells
-    for(let r = 0; r < totalWeeks; r++){
-      const cellTopY = gridTop + gridH - dowH - r * rowH;
-      const cellBotY = cellTopY - rowH;
-      ops.push(`${marginX.toFixed(2)} ${cellBotY.toFixed(2)} ${gridW.toFixed(2)} ${rowH.toFixed(2)} re S`);
-
-      for(let c = 0; c < 7; c++){
-        const cellIdx = r * 7 + c;
-        const cell = cells[cellIdx];
-        const cx = marginX + c * colW;
-        if(c > 0){
-          ops.push(`${cx.toFixed(2)} ${cellBotY.toFixed(2)} m ${cx.toFixed(2)} ${cellTopY.toFixed(2)} l S`);
-        }
-        if(!cell || cell.classList.contains('filler')) continue;
-
-        const dayNum = (cell.querySelector('.daynum')?.textContent || '').trim();
-        const rawShift = (cell.querySelector('.shift-select')?.value || '').trim();
-        const isDayoffShift = rawShift.toUpperCase() === 'DAYOFF';
-        const shiftLabel = isDayoffShift ? '' : rawShift;
-        const ta = cell.querySelector('textarea');
-        let rawBody = (ta && !ta.classList.contains('task-note-hidden')) ? ta.value.replace(/\n\n+/g, '\n').trim() : '';
-        if(isDayoffShift && !rawBody) rawBody = 'OFF';
-        const isOff = isDayoffShift || rawBody.toUpperCase() === 'OFF';
-
-        // Day number top-left
-        if(dayNum){
-          ops.push(`0.08 0.08 0.08 rg BT /F2 7.5 Tf ${(cx + 3.5).toFixed(2)} ${(cellTopY - 9.5).toFixed(2)} Td (${sanitizePdfText(dayNum)}) Tj ET`);
-        }
-
-        // Shift label top-center/right
-        if(shiftLabel){
-          const shEsc = sanitizePdfText(shiftLabel);
-          const shX = cx + 16;
-          const shY = cellTopY - 9;
-          ops.push(`0.14 0.39 0.92 rg BT /F3 5.8 Tf ${shX.toFixed(2)} ${shY.toFixed(2)} Td (${shEsc}) Tj ET`);
-        }
-
-        // Body lines
-        if(rawBody){
-          const wrappedLines = [];
-          const maxCharsPerLine = 27;
-          rawBody.split('\n').forEach(line => {
-            const cleanLine = line.trim();
-            if(!cleanLine) return;
-            for(let p = 0; p < cleanLine.length; p += maxCharsPerLine){
-              wrappedLines.push(cleanLine.slice(p, p + maxCharsPerLine));
-            }
-          });
-
-          const bodyFontSize = isOff ? 9.5 : (wrappedLines.length > 9 ? 6.2 : (wrappedLines.length > 6 ? 6.8 : 7.5));
-          const lineStep = bodyFontSize * 1.18;
-          const usableH = rowH - 13;
-          const totalTextH = wrappedLines.length * lineStep;
-          const startY = cellBotY + Math.max(4, (usableH - totalTextH) / 2) + totalTextH - lineStep;
-
-          if(isOff){
-            ops.push('0.86 0.12 0.12 rg');
-          } else {
-            ops.push('0.08 0.08 0.08 rg');
-          }
-
-          const alignMode = isOff ? 'center' : (document.getElementById('textAlign')?.value || 'left');
-          wrappedLines.forEach((wLine, lIdx) => {
-            const wEsc = sanitizePdfText(wLine);
-            const ly = startY - lIdx * lineStep;
-            if(ly < cellBotY + 2) return;
-            const estW = wEsc.length * (bodyFontSize * 0.46);
-            let lx = cx + 4;
-            if(alignMode === 'center' || isOff){
-              lx = cx + Math.max(3, (colW - estW) / 2);
-            } else if(alignMode === 'right'){
-              lx = cx + Math.max(3, colW - estW - 4);
-            }
-            ops.push(`BT ${isOff ? '/F2' : '/F1'} ${bodyFontSize.toFixed(2)} Tf ${lx.toFixed(2)} ${ly.toFixed(2)} Td (${wEsc}) Tj ET`);
-          });
-        }
-      }
+    const titleEl = sheetEl.querySelector('.pv-title');
+    if(titleEl){
+      const titleText = (titleEl.textContent || '').replace(/\s+/g, ' ').trim();
+      const tRect = titleEl.getBoundingClientRect();
+      const tEsc = sanitizePdfText(titleText);
+      const tFontPt = Math.max(8, (parseFloat(getComputedStyle(titleEl).fontSize) || 13.3) * pxToPt);
+      const approxW = tEsc.length * (tFontPt * 0.48);
+      const tx = Math.max(12, toPdfX(tRect.left + tRect.width / 2) - approxW / 2);
+      const ty = toPdfY(tRect.top + tRect.height * 0.78);
+      ops.push(`0.07 0.07 0.07 rg BT /F2 ${tFontPt.toFixed(2)} Tf ${tx.toFixed(2)} ${ty.toFixed(2)} Td (${tEsc}) Tj ET`);
     }
 
-    // Signatories at bottom
-    const sigCards = document.querySelectorAll('#' + s.sigId + ' .signature');
-    const sigBaseY = marginBottom + 6;
-    [0, 1].forEach(idxSig => {
-      const card = sigCards[idxSig];
-      const parts = card ? card.querySelectorAll('[contenteditable]') : [];
-      const lbl = sanitizePdfText(parts[0]?.textContent || (idxSig === 0 ? 'Prepared by:' : 'Noted by:'));
-      const nm = sanitizePdfText(parts[1]?.textContent || (idxSig === 0 ? 'FULLNAME' : 'DIVINA P. SILOS'));
-      const rl = sanitizePdfText(parts[2]?.textContent || (idxSig === 0 ? 'Position' : 'Center Head'));
+    const gridEl = sheetEl.querySelector('.pv-grid');
+    if(gridEl){
+      const gRect = gridEl.getBoundingClientRect();
+      const gx0 = toPdfX(gRect.left);
+      const gyTop = toPdfY(gRect.top);
+      const gw = gRect.width * pxToPt;
+      const gh = gRect.height * pxToPt;
+      const gyBot = gyTop - gh;
 
-      const boxCenterX = idxSig === 0 ? (marginX + gridW * 0.25) : (marginX + gridW * 0.75);
-      ops.push('0.08 0.08 0.08 rg');
-      ops.push(`BT /F1 8 Tf ${(boxCenterX - lbl.length * 2.1).toFixed(2)} ${(sigBaseY + 24).toFixed(2)} Td (${lbl}) Tj ET`);
-      ops.push(`BT /F2 8.5 Tf ${(boxCenterX - nm.length * 2.4).toFixed(2)} ${(sigBaseY + 11).toFixed(2)} Td (${nm}) Tj ET`);
-      ops.push(`BT /F1 8 Tf ${(boxCenterX - rl.length * 2.1).toFixed(2)} ${sigBaseY.toFixed(2)} Td (${rl}) Tj ET`);
+      ops.push('0.45 w 0.27 0.27 0.27 RG');
+      ops.push(`${gx0.toFixed(2)} ${gyBot.toFixed(2)} ${gw.toFixed(2)} ${gh.toFixed(2)} re S`);
+
+      gridEl.querySelectorAll('.pv-dow').forEach((dowEl, idx) => {
+        const dRect = dowEl.getBoundingClientRect();
+        const dx0 = toPdfX(dRect.left);
+        const dyTop = toPdfY(dRect.top);
+        const dw = dRect.width * pxToPt;
+        const dh = dRect.height * pxToPt;
+        if(idx > 0){
+          ops.push(`${dx0.toFixed(2)} ${(dyTop - dh).toFixed(2)} m ${dx0.toFixed(2)} ${dyTop.toFixed(2)} l S`);
+        }
+        const label = sanitizePdfText(dowEl.textContent || '');
+        const fPt = Math.max(6.5, (parseFloat(getComputedStyle(dowEl).fontSize) || 10.6) * pxToPt);
+        const estW = label.length * (fPt * 0.44);
+        const tx = dx0 + Math.max(2, (dw - estW) / 2);
+        const ty = toPdfY(dRect.top + dRect.height * 0.72);
+        ops.push(`0.07 0.07 0.07 rg BT /F2 ${fPt.toFixed(2)} Tf ${tx.toFixed(2)} ${ty.toFixed(2)} Td (${label}) Tj ET`);
+      });
+
+      gridEl.querySelectorAll('.pv-cell').forEach((cellEl) => {
+        const cRect = cellEl.getBoundingClientRect();
+        const cx0 = toPdfX(cRect.left);
+        const cyTop = toPdfY(cRect.top);
+        const cw = cRect.width * pxToPt;
+        const ch = cRect.height * pxToPt;
+        const cyBot = cyTop - ch;
+
+        ops.push('0.45 w 0.27 0.27 0.27 RG');
+        ops.push(`${cx0.toFixed(2)} ${cyBot.toFixed(2)} m ${cx0.toFixed(2)} ${cyTop.toFixed(2)} l S`);
+        ops.push(`${cx0.toFixed(2)} ${cyBot.toFixed(2)} m ${(cx0 + cw).toFixed(2)} ${cyBot.toFixed(2)} l S`);
+
+        const pad = 1.2;
+        const clipX = cx0 + pad;
+        const clipY = cyBot + pad;
+        const clipW = Math.max(2, cw - pad * 2);
+        const clipH = Math.max(2, ch - pad * 2);
+
+        ops.push('q');
+        ops.push(`${clipX.toFixed(2)} ${clipY.toFixed(2)} ${clipW.toFixed(2)} ${clipH.toFixed(2)} re W n`);
+
+        const numEl = cellEl.querySelector('.pv-num');
+        const shiftEl = cellEl.querySelector('.pv-shift');
+        const bodyEl = cellEl.querySelector('.pv-body');
+        const innerEl = bodyEl ? (bodyEl.querySelector('.pv-body-inner') || bodyEl) : null;
+
+        if(numEl && numEl.textContent.trim()){
+          const nRect = numEl.getBoundingClientRect();
+          const nFont = Math.max(5.5, (parseFloat(getComputedStyle(numEl).fontSize) || 9.6) * pxToPt);
+          const nx = toPdfX(nRect.left);
+          const ny = toPdfY(nRect.top + nRect.height * 0.82);
+          ops.push(`0.07 0.07 0.07 rg BT /F2 ${nFont.toFixed(2)} Tf ${nx.toFixed(2)} ${ny.toFixed(2)} Td (${sanitizePdfText(numEl.textContent.trim())}) Tj ET`);
+        }
+
+        if(shiftEl && shiftEl.textContent.trim()){
+          const sRect = shiftEl.getBoundingClientRect();
+          const sFont = Math.max(4.8, (parseFloat(getComputedStyle(shiftEl).fontSize) || 6.9) * pxToPt);
+          const sx = toPdfX(sRect.left);
+          const sy = toPdfY(sRect.top + sRect.height * 0.82);
+          ops.push(`0.15 0.39 0.92 rg BT /F3 ${sFont.toFixed(2)} Tf ${sx.toFixed(2)} ${sy.toFixed(2)} Td (${sanitizePdfText(shiftEl.textContent.trim())}) Tj ET`);
+        }
+
+        if(bodyEl && innerEl){
+          const rawText = (innerEl.textContent || '').trim();
+          if(rawText){
+            const isOff = bodyEl.classList.contains('is-off');
+            const computedBody = getComputedStyle(bodyEl);
+            const bFont = Math.max(4.5, (parseFloat(bodyEl.style.fontSize || computedBody.fontSize) || 9) * pxToPt);
+            const bLineH = Math.max(bFont * 1.02, (parseFloat(bodyEl.style.lineHeight || computedBody.lineHeight) || (bFont * 1.14)) * pxToPt);
+            const alignVal = (bodyEl.style.textAlign || computedBody.textAlign || 'left').toLowerCase();
+
+            const maxLineWidthPt = Math.max(10, (innerEl.clientWidth || (cRect.width - 6)) * pxToPt);
+            const avgCharWidthPt = bFont * 0.47;
+            const maxChars = Math.max(6, Math.floor(maxLineWidthPt / avgCharWidthPt));
+
+            const lines = [];
+            rawText.split('\n').forEach(srcLine => {
+              const clean = srcLine.trim();
+              if(!clean) return;
+              for(let i = 0; i < clean.length; i += maxChars){
+                lines.push(clean.slice(i, i + maxChars));
+              }
+            });
+
+            const bRect = bodyEl.getBoundingClientRect();
+            const bTopPt = toPdfY(bRect.top);
+            const bBotPt = toPdfY(bRect.bottom);
+            const bBoxH = Math.max(4, bTopPt - bBotPt);
+            const totalBlockH = lines.length * bLineH;
+            const startBaselineY = bBotPt + Math.max(1, (bBoxH - totalBlockH) / 2) + totalBlockH - bFont * 0.85;
+
+            ops.push(isOff ? '0.95 0.00 0.00 rg' : '0.07 0.07 0.07 rg');
+            const fontTag = isOff ? '/F2' : '/F1';
+
+            lines.forEach((ln, idxLine) => {
+              const esc = sanitizePdfText(ln);
+              const lineW = esc.length * avgCharWidthPt;
+              let lx = clipX + 2;
+              if(alignVal === 'center' || isOff){
+                lx = clipX + Math.max(1, (clipW - lineW) / 2);
+              } else if(alignVal === 'right'){
+                lx = clipX + Math.max(1, clipW - lineW - 2);
+              }
+              const ly = startBaselineY - idxLine * bLineH;
+              ops.push(`BT ${fontTag} ${bFont.toFixed(2)} Tf ${lx.toFixed(2)} ${ly.toFixed(2)} Td (${esc}) Tj ET`);
+            });
+          }
+        }
+
+        ops.push('Q');
+      });
+    }
+
+    sheetEl.querySelectorAll('.pv-sig').forEach((sigEl) => {
+      const children = sigEl.children;
+      if(children.length >= 3){
+        const lblEl = children[0];
+        const nmEl = children[1];
+        const rlEl = children[2];
+
+        const drawSigItem = (el, isBold) => {
+          const r = el.getBoundingClientRect();
+          const txt = sanitizePdfText((el.textContent || '').trim());
+          if(!txt) return;
+          const fPt = Math.max(6.5, (parseFloat(getComputedStyle(el).fontSize) || 10.9) * pxToPt);
+          const estW = txt.length * (fPt * 0.45);
+          const x = toPdfX(r.left + r.width / 2) - estW / 2;
+          const y = toPdfY(r.top + r.height * 0.78);
+          ops.push(`0.07 0.07 0.07 rg BT ${isBold ? '/F2' : '/F1'} ${fPt.toFixed(2)} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${txt}) Tj ET`);
+          if(isBold){
+            ops.push(`0.5 w 0.07 0.07 0.07 RG ${x.toFixed(2)} ${(y - 1.5).toFixed(2)} m ${(x + estW).toFixed(2)} ${(y - 1.5).toFixed(2)} l S`);
+          }
+        };
+
+        drawSigItem(lblEl, false);
+        drawSigItem(nmEl, true);
+        drawSigItem(rlEl, false);
+      }
     });
 
     pagesOps.push(ops.join('\n'));
   });
 
-  // Assemble valid PDF 1.4 binary string
+  document.body.removeChild(measureHost);
+
   const objects = [];
   const addObj = (body) => {
     objects.push(body);
     return objects.length;
   };
 
-  const catalogId = addObj(''); // placeholder
-  const pagesId = addObj('');   // placeholder
+  const catalogId = addObj('');
+  const pagesId = addObj('');
   const fontRegularId = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
   const fontBoldId = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
   const fontItalicId = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>');
