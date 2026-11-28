@@ -1952,78 +1952,62 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   }
 }
 
-/* Single authoritative Print Layout (Letter & A4 Landscape auto-fit on 1 sheet) */
+/* Exact Print Layout matching Preview (.a4-sheet 297mm x 210mm) */
 .print-sheet-wrapper{
   display:none;
 }
 
 @media print {
-  @page { size: landscape; margin: 5mm; }
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
   html, body {
     margin: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
+    width: 297mm !important;
     background: #ffffff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  body > *:not(.print-sheet-wrapper){
+  body > *:not(.print-sheet-wrapper) {
     display: none !important;
   }
-  .print-sheet-wrapper{
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
+  .print-sheet-wrapper {
+    display: block !important;
+    width: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .print-page-break{
+  .print-page-break {
     break-before: page;
     page-break-before: always;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 297mm !important;
+    height: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .print-sheet-wrapper .a4-sheet{
+  .print-sheet-wrapper .a4-sheet {
     position: relative !important;
     top: auto !important;
     left: auto !important;
-    width: 100% !important;
-    height: 196mm !important;
-    max-width: 100% !important;
-    max-height: 196mm !important;
-    padding: 2mm 3mm !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    min-width: 297mm !important;
+    min-height: 210mm !important;
+    max-width: 297mm !important;
+    max-height: 210mm !important;
+    padding: 4.5mm 5.5mm !important;
+    margin: 0 !important;
     box-shadow: none !important;
     transform: none !important;
+    box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     overflow: hidden !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-  }
-  .print-sheet-wrapper .pv-title{
-    margin: 0 0 1.8mm !important;
-    font-size: 9.8pt !important;
-    line-height: 1.15 !important;
-    flex: 0 0 auto !important;
-  }
-  .print-sheet-wrapper .pv-grid{
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-  }
-  .print-sheet-wrapper .pv-sigs{
-    flex: 0 0 auto !important;
-    margin-top: 2mm !important;
-    padding-bottom: 0.5mm !important;
-    font-size: 8pt !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-  .print-sheet-wrapper .pv-sig-name{
-    margin: 3.2mm auto 0.5mm !important;
   }
 }
 </style>
@@ -2213,7 +2197,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   </div>
 </footer>
 
-<!-- Exact Print Mount (mirrors preview sheet cleanly across Letter or A4 landscape) -->
+<!-- Exact Print Mount (mirrors preview sheet cleanly across A4 landscape) -->
 <div class="print-sheet-wrapper" id="printSheetWrapper" aria-hidden="true"></div>
 
 <!-- Responsive A4 Landscape Print Preview Modal -->
@@ -2221,7 +2205,7 @@ body.theme-dark .taskpick .tasklist button.case-toggle-btn.is-autocap{
   <div class="preview-bar">
     <div class="preview-bar-title">
       <span>A4 Landscape Preview</span>
-      <span class="preview-badge">Auto-Fit Letter / A4 • 1 Sheet/Month</span>
+      <span class="preview-badge">Exact A4 • 1 Sheet/Month</span>
     </div>
     <div class="preview-actions">
       <div class="preview-seg-group" id="previewViewportControls" title="Simulate Device View">
@@ -3710,7 +3694,7 @@ function applyAlign(){
   }
 }
 
-/* Shared Sheet Builder: Identical layout for Preview AND Letter/A4 Printout */
+/* Shared Sheet Builder: Identical layout for Preview AND A4 Printout */
 function buildSheetMarkup(titleId = 'title', calId = 'calendar', sigId = 'signatures'){
   const titleHTML = document.getElementById(titleId)?.innerHTML || '';
   const align = document.getElementById('textAlign').value || 'left';
@@ -3876,7 +3860,6 @@ async function sendFromPreview(){
     if(err && err.name === 'AbortError') return;
   }
 
-  // Fallback for desktop browsers without Web Share API: copy schedule & notify user
   try {
     if(navigator.clipboard && navigator.clipboard.writeText){
       await navigator.clipboard.writeText(payload.text);
@@ -3885,7 +3868,6 @@ async function sendFromPreview(){
     }
   } catch {}
 
-  // Legacy textarea copy fallback
   const helper = document.createElement('textarea');
   helper.value = payload.text;
   helper.style.position = 'fixed';
@@ -4019,11 +4001,21 @@ function closeA4Preview(){
   document.getElementById('a4PreviewModal').classList.remove('open');
 }
 
-function triggerExactPrint(){
+function prepareExactPrintWrapper(){
   const wrapper = document.getElementById('printSheetWrapper');
+  if(!wrapper) return;
+
+  wrapper.style.cssText = 'display:block;position:fixed;left:-99999px;top:0;width:297mm;visibility:hidden;pointer-events:none;';
   wrapper.innerHTML = buildAllPrintSheetsMarkup();
   fitPreviewSheetTextSizes(wrapper);
-  window.print();
+  wrapper.removeAttribute('style');
+}
+
+function triggerExactPrint(){
+  prepareExactPrintWrapper();
+  requestAnimationFrame(() => {
+    window.print();
+  });
 }
 
 function printFromPreview(){
@@ -4156,13 +4148,15 @@ window.addEventListener('scroll', function(e){
 window.addEventListener('beforeprint', function(){
   const wrapper = document.getElementById('printSheetWrapper');
   if(wrapper && !wrapper.innerHTML.trim()){
-    wrapper.innerHTML = buildAllPrintSheetsMarkup();
-    fitPreviewSheetTextSizes(wrapper);
+    prepareExactPrintWrapper();
   }
 });
 window.addEventListener('afterprint', function(){
   const wrapper = document.getElementById('printSheetWrapper');
-  if(wrapper) wrapper.innerHTML = '';
+  if(wrapper){
+    wrapper.innerHTML = '';
+    wrapper.removeAttribute('style');
+  }
 });
 
 // Initialize on current real month & year while preserving saved data in localStorage
